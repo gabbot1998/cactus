@@ -28,17 +28,25 @@
    0)
  )
 
-(defn sw-cell [a b w]
+(defn sw-cell [a b v w]
   (let [nw (atom 0)  n (atom 0)]
   (go
     (while true
       (set! n  (cell-action nw n (<!! a) (<!! b)))
       (set! nw (<!! w))
+      (>!! v n)
   ))))
 
-(defn controller [A B c1 c2 c2 c2 ]
-
-  )
+(defn controller [A B c1 c2 c3 c4 c5 ] ;;c5 is chanel to send b
+      (for (range (+ (size B)))
+        (>!! c5 b)
+        )
+      (>!! c1 "")
+      (>!! c2 (nth A 0))
+      (>!! c3 (nth A 1))
+      (>!! c4 (nth A 2))
+    )
+ )
 
 
 (def chan-controller-1 (async/chan))
@@ -51,5 +59,5 @@
 (def chan-4-aligner (async/chan))
 
 (defn -main  [& args]
-  
+
   )
