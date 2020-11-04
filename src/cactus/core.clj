@@ -37,14 +37,17 @@
       (>!! v n)
   ))))
 
+
+
+(for [i (range 5)] (println (if (= i 0) ("") (nth B i))))
+
 (defn controller [A B c1 c2 c3 c4 c5 ] ;;c5 is chanel to send b
-      (for (range (+ (size B)))
-        (>!! c5 b)
-        )
-      (>!! c1 "")
-      (>!! c2 (nth A 0))
-      (>!! c3 (nth A 1))
-      (>!! c4 (nth A 2))
+      (for [i (range 5)]
+        (if (= i 0) (>!! "") (>!! (nth B i)))
+        (>!! c1 "")
+        (>!! c2 (nth A 0))
+        (>!! c3 (nth A 1))
+        (>!! c4 (nth A 2))
     )
  )
 
