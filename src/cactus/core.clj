@@ -8,7 +8,7 @@
   (:gen-class)
   (:require [clojure.core.async
              :as async
-             :refer [>! <! >!! <!! go chan buffer close! thread] ]))
+             :refer [>! go-loop <! >!! <!! go chan buffer close! thread] ]))
 
 (defn score [a b]
   (if (= a "") 0
@@ -29,12 +29,12 @@
  )
 
 (defn sw-cell [a b v w]
-  (let [nw (atom 0)  n (atom 0)]
-    (while true
-      (swap! n  (fn [n] (cell-action nw n (<!! a) (<!! b))))
-      (swap! nw (fn [nw] (<!! w)))
-      (>!! v n)
-  )))
+  (go-loop
+      [nw 0 n 0]
+    (>!! v n)
+    (recur (nw (<!! w)) (n (cell-action nw n (<!! a) (<!! b))))
+      )
+  )
 
 
 (defn print-actor [chan]
@@ -68,13 +68,10 @@
 (def chan-4-aligner (async/chan))
 
 (defn -main  [& args]
-  (comment
   (print-actor chan-con-1)
-  (print-actor chan-con-2)
-  (print-actor chan-con-3)
-  (print-actor chan-con-4)
-  (print-actor chan-con-5)
-  )
+  (sw-cell )
+
+ ) 
 
   ;;(>!! chan-con-1 "wow")
   ;;(doseq [i (range 5)] (do (>!! chan-con-1 "m") (>!! chan-con-2 "s") (>!! chan-con-3 "d") (>!! chan-con-4 "a") (>!! chan-con-5 "v")))
