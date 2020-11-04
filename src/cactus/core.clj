@@ -8,19 +8,10 @@
   (:gen-class)
   (:require [clojure.core.async
              :as async
-             :refer [>! <! >!! <!! go chan buffer close! thread
-
-
-(defn action [arg state]
-        (+ arg state))
+             :refer [>! <! >!! <!! go chan buffer close! thread] ]))
 
 (def chan-1 (async/chan))
 (def chan-2 (async/chan))
-
-(defn actor [chan-1 chan-2]
-  (let [action ()] )
-  (go (>!! chan-2 (<!! chan-1)))
- )
 
 (defn score [a b]
   (if (= a "") 0
@@ -30,46 +21,25 @@
   )
 )
 
-(defn penalty 1)
+(def penalty 1)
 
+(defn cell-action [nw n a b]
+  (max
+   (+ nw (score a b))
+   (+ a (penalty))
+   (+ b (penalty))
+   0)
+ )
 
 (defn sw-cell [a b w]
-  (go (
-    (def ^:dynamic state '(0 0));;(n nw w)
-    (def ^:dynamic v1 0)
-    (def ^:dynamic v2 0)
-    (def ^:dynamic v3 0)
+  (let [nw (atom 0)  n (atom 0)]
+  (go
+    (while true
+      (set! n  (cell-action nw n (<!! a) (<!! b)))
+      (set! nw (<!! w))
+  ))))
 
-    (binding [
-      v1 (+ (second state ) (score (<!! a) (<!! b))
-      v2 (+ (first state) (penalty))
-      v3 (+ (first state) (penalty))
-      ])
-
-      (binding
-        [state '(
-            (first state)
-            (<!! w)
-            ;; (binding state '(n nw))
-          )
-        ]
-      )
-      (binding [state '(
-        (max
-          (+ (second state ) (score (<!! a) (<!! b)));;nw + score(i, j)
-          (+ (first state) (penalty));;w + delta
-          (+ (first state) (penalty));;n + delta
-          0
-        )
-        (second state)
-        )])
-    ))
-  )
 
 
 (defn -main  [& args]
-  (while true
-  (actor chan-1 chan-2)
-  (print-actor chan-2)
-  (>!! chan-1 (Integer/parseInt (read-line) )
-  )))
+  )
