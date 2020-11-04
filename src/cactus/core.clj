@@ -29,11 +29,16 @@
  )
 
 (defn sw-cell [a b v w]
-  (go-loop
+  (while true (loop
       [nw 0 n 0]
-    (>!! v n)
-    (recur (nw (<!! w)) (n (cell-action nw n (<!! a) (<!! b))))
+      (do
+        (println "asadsdasds")
+        (>!! v n)
+        (println "hejejej")
+        (recur (<!! w) (cell-action nw n (<!! a) (<!! b)))
+        )
       )
+    )
   )
 
 
@@ -58,9 +63,9 @@
 
 
 (def chan-con-1 (chan 10))
-(def chan-con-2 (async/chan))
-(def chan-con-3 (async/chan))
-(def chan-con-4 (async/chan))
+(def chan-con-2 (async/chan 10))
+(def chan-con-3 (async/chan 10))
+(def chan-con-4 (async/chan 10))
 (def chan-con-5 (async/chan))
 (def chan-1-2 (async/chan))
 (def chan-2-3 (async/chan))
@@ -68,15 +73,20 @@
 (def chan-4-aligner (async/chan))
 
 (defn -main  [& args]
-  (print-actor chan-con-1)
-  (sw-cell )
+  (print-actor chan-con-3)
+  (sw-cell chan-con-1 chan-con-2 chan-con-3 chan-con-4)
+  (while true (do
+    (>!! chan-con-1 "a")
+    (>!! chan-con-2 "a")
+    (>!! chan-con-4 5)
+  ))
 
- ) 
+
+
+ )
 
   ;;(>!! chan-con-1 "wow")
   ;;(doseq [i (range 5)] (do (>!! chan-con-1 "m") (>!! chan-con-2 "s") (>!! chan-con-3 "d") (>!! chan-con-4 "a") (>!! chan-con-5 "v")))
 
 
   ;;(controller "abc" "def" chan-con-1 chan-con-2 chan-con-3 chan-con-4 chan-con-5)
-
-  )
