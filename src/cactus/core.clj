@@ -30,17 +30,30 @@
 
  (defn sw-cell [a b v w]
     (go
-      (loop [nw 0 n 0]
-        (let [new-a (<!! a) new-b (<!! b) new-w (<!! w)]
-          (let [new-nw new-w new-n (cell-action nw n new-a new-b)]
-            (>!! v new-n)
-            (recur new-nw new-n)
+      (loop [nw 0 n 0] ;;Set initial state
+        (let [new-a (<!! a) new-b (<!! b) new-w (<!! w)] ;;Wait for ports
+          (let [new-nw new-w new-n (cell-action nw n new-a new-b)] ;;Assign new local state and execute body
+            (>!! v new-n);;Set output
+            (recur new-nw new-n) ;;Recur
           )
         )
       )
     )
   )
 
+(defn print-actor [chan]
+    (go
+      (loop [];;Set initial state
+        (let [new-str (<!! chan) ];;Wait for ports
+          (let [] ;;Assign new local state and execute body
+            (println new-str)
+            ;;Set output
+            (recur );;Recur
+            )
+          )
+        )
+      )
+  )
 
 
 (defn print-actor [chan]
