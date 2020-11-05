@@ -28,9 +28,9 @@
    0)
  )
 
- (defn sw-cell [a b v w]
+ (defn sw-cell [a b w v]
     (go
-      (loop [nw 0 n 0] ;;Set initial state
+      (loop [nw 0 n 0];;Set initial state
         (let [new-a (<!! a) new-b (<!! b) new-w (<!! w)] ;;Wait for ports
           (let [new-nw new-w new-n (cell-action nw n new-a new-b)] ;;Assign new local state and execute body
             (>!! v new-n);;Set output
@@ -56,16 +56,26 @@
   )
 
 
-(defn controller [A B c1 c2 c3 c4 c5] ;;c5 is chanel to send b
-      (doseq [i (range 4)]
-      (do
-        (if (= i 0) (>!! c5 "") (>!! c5 (nth B (- i 1))))
-        (>!! c1 "")
-        (>!! c2 (nth A 0))
-        (>!! c3 (nth A 1))
-        (>!! c4 (nth A 2))
-      )
-    )
+(defn controller [A B c1 c2 c3 c4 c5 w] ;;c5 is chanel to send b
+      (go
+        (loop [A-str "" B-str ""];;Set initial state
+          (let [new-A (<!! A) new-B (<!! B)];;Wait for ports
+            (let [new-A-str new-A
+                  new-B-str new-B
+                  ] ;;Assign new local state and execute body
+              (do
+                (doseq [b B]
+
+                  )
+                (>!! )
+                )
+
+
+            )
+          )
+
+          )
+        )
  )
 
 (defn controller [A B c1 c2 c3 c4 c5] ;;c5 is chanel to send b
