@@ -66,7 +66,7 @@
       )
   )
 
-(defn trace-back )
+;;(defn trace-back )
 
 (first (apply min-key second (map-indexed vector [1 2 4 0 5])))
 
@@ -77,19 +77,15 @@
                     [0 0 0 0]
                     [0 0 0 0]
                     [0 0 0 0]]
-            i 0 ;row number biggest elem
-            j 0 ;col number biggest elem
-            max 0 ;current biggest number
           ]
 
           (let [ci1 (<!! c1) ci2 (<!! c2) ci3 (<!! c3) ci4 (<!! c4)]
-          (let [new-row (inc row) new-matrix (assoc matrix row [ci1 ci2 ci3 ci4]) ]
-            (if (= row 3) (>!! out new-matrix) )
-            (largest )
+            (let [new-row (inc row) new-matrix (assoc matrix row [ci1 ci2 ci3 ci4]) ]
+              (if (= row 3) (>!! out new-matrix)
+              (recur new-row new-matrix)
+              )
             ;(if (= row 3) (println new-matrix) )
-            (recur new-row new-matrix)
           )
-
         )
       )
     )
