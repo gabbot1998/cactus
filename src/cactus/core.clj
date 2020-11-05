@@ -28,15 +28,14 @@
    0)
  )
 
-(defn sw-cell [a b v w]
-  (loop
-      [nw 0 n 0]
-        (println "asadsdasds")
-        (>!! v n)
-        (println "hejejej")
-        (recur (<!! w) (cell-action nw n (<!! a) (<!! b)))
-    )
-  )
+ (defn sw-cell [a b v w]
+    (go (loop
+       [nw 0 n 0]
+         (>!! v n)
+         (recur (<!! w) (cell-action nw n (<!! a) (<!! b)))
+       )
+     )
+   )
 
 
 (defn print-actor [chan]
@@ -71,7 +70,7 @@
 
 (defn -main  [& args]
   (print-actor chan-con-3)
-  (sw-cell chan-con-1 chan-con-2 chan-con-3 chan-con-4)
+  (<!! (sw-cell chan-con-1 chan-con-2 chan-con-3 chan-con-4))
   (>!! chan-con-1 "a")
   (>!! chan-con-2 "a")
   (>!! chan-con-4 5)
