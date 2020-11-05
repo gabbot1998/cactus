@@ -60,22 +60,23 @@
       (go
         (loop [A-str "" B-str ""];;Set initial state
           (let [new-A (<!! A) new-B (<!! B)];;Wait for ports
-            (let [new-A-str new-A
-                  new-B-str new-B
-                  ] ;;Assign new local state and execute body
+            (let [] ;;Assign new local state and execute body
               (do
-                (doseq [b B]
-
+                (doseq [b new-B]
+                  (do
+                    (>!! c1 "")
+                    (>!! c2 (nth new-A 0))
+                    (>!! c3 (nth new-A 1))
+                    (>!! c4 (nth new-A 2))
+                    (>!! c5 b)
                   )
-                (>!! )
                 )
-
-
+                (recur )
+              )
             )
           )
-
-          )
         )
+      )
  )
 
 (defn controller [A B c1 c2 c3 c4 c5] ;;c5 is chanel to send b
