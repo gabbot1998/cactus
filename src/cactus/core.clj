@@ -64,38 +64,27 @@
 
 
 (def chan-con-1 (chan 10))
+(def chan-con-1b (chan 10))
+(def chan-con-1-zero (chan 10))
 (def chan-con-2 (async/chan 10))
+(def chan-con-2b (async/chan 10))
 (def chan-con-3 (async/chan 10))
+(def chan-con-3b (async/chan 10))
 (def chan-con-4 (async/chan 10))
-(def chan-con-5 (async/chan))
-(def chan-1-2 (async/chan))
-(def chan-2-3 (async/chan))
-(def chan-3-4 (async/chan))
-(def chan-4-aligner (async/chan))
+(def chan-con-4b (async/chan 10))
+(def chan-1-2 (async/chan) 10)
+(def chan-2-3 (async/chan) 10)
+(def chan-3-4 (async/chan) 10)
+(def chan-4-aligner (async/chan) 10)
+(def chan-4-print (async/chan) 10)
 
 (defn -main  [& args]
   (print-actor chan-con-3)
-
-  (>!! chan-con-1 "")
-  (>!! chan-con-2 "a")
-  (>!! chan-con-4 0)
-
-  (>!! chan-con-1 "a")
-  (>!! chan-con-2 "a")
-  (>!! chan-con-4 0)
-
-  (>!! chan-con-1 "a")
-  (>!! chan-con-2 "")
-  (>!! chan-con-4 0)
-
-  (>!! chan-con-1 "a")
-  (>!! chan-con-2 "")
-  (>!! chan-con-4 0)
-
-  (<!! (sw-cell chan-con-1 chan-con-2 chan-con-3 chan-con-4))
-
-
-
+  (<!! (controller "heja" "jeja" chan-con-1 chan-con-2 chan-con-3 chan-con-4 chan-con-1b ))
+  (<!! (sw-cell chan-con-1 chan-con-1b  chan-con-1-zero chan-1-2 ))
+  (<!! (sw-cell chan-con-2 chan-con-2b  chan-1-2 chan-2-3 ))
+  (<!! (sw-cell chan-con-3 chan-con-3b  chan-2-3  chan-3-4))
+  (<!! (sw-cell chan-con-4 chan-con-4b  chan-3-4 chan-4-print))
 
  )
 
