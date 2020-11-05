@@ -18,7 +18,7 @@
   )
 )
 
-(def penalty -5)
+(def penalty 0)
 
 (defn cell-action [nw n a b]
   (max
@@ -33,7 +33,7 @@
       (loop [nw 0 n 0]
         (let [new-a (<!! a) new-b (<!! b) new-w (<!! w)]
           (let [new-nw new-w new-n (cell-action nw n new-a new-b)]
-            (>!! v n)
+            (>!! v new-n)
             (recur new-nw new-n)
           )
         )
@@ -76,21 +76,21 @@
 (defn -main  [& args]
   (print-actor chan-con-3)
 
-  (>!! chan-con-1 "a")
+  (>!! chan-con-1 "")
   (>!! chan-con-2 "a")
-  (>!! chan-con-4 5)
+  (>!! chan-con-4 0)
 
   (>!! chan-con-1 "a")
   (>!! chan-con-2 "a")
-  (>!! chan-con-4 5)
+  (>!! chan-con-4 0)
 
   (>!! chan-con-1 "a")
-  (>!! chan-con-2 "a")
-  (>!! chan-con-4 5)
+  (>!! chan-con-2 "")
+  (>!! chan-con-4 0)
 
   (>!! chan-con-1 "a")
-  (>!! chan-con-2 "a")
-  (>!! chan-con-4 5)
+  (>!! chan-con-2 "")
+  (>!! chan-con-4 0)
 
   (<!! (sw-cell chan-con-1 chan-con-2 chan-con-3 chan-con-4))
 
