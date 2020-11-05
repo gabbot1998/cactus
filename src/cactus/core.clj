@@ -56,13 +56,6 @@
   )
 
 
-(defn print-actor [chan]
-    (go (while true
-      (println (<!! chan))
-    ))
-  )
-
-
 (defn controller [A B c1 c2 c3 c4 c5] ;;c5 is chanel to send b
       (doseq [i (range 4)]
       (do
@@ -74,6 +67,19 @@
       )
     )
  )
+
+(defn controller [A B c1 c2 c3 c4 c5] ;;c5 is chanel to send b
+     (doseq [i (range 4)]
+     (do
+       (if (= i 0) (>!! c5 "") (>!! c5 (nth B (- i 1))))
+       (>!! c1 "")
+       (>!! c2 (nth A 0))
+       (>!! c3 (nth A 1))
+       (>!! c4 (nth A 2))
+     )
+   )
+)
+
 
 
 (def chan-con-1 (chan 10))
