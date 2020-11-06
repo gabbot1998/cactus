@@ -1,14 +1,12 @@
-;;"marcus"
-;;"cactus"
-;;match = 5
-;;mismatch = -1
-;;space = 0
+
 
 (ns cactus.core
   (:gen-class)
   (:require [clojure.core.async
              :as async
              :refer [>! go-loop <! >!! <!! go chan buffer close! thread] ]))
+
+
 (def match 8)
 (def mismatch -3)
 (def penalty -2)
@@ -22,8 +20,6 @@
     )
   )
 )
-
-
 
 (defn cell-action [nw n w a b]
   (max
@@ -43,7 +39,7 @@
                 ] ;;Assign new local state and execute body
             (>!! v new-n);;Set output
             (>!! aln-v new-n)
-            ;(println (str i name ": " new-n "\n\n"))
+            (println (str i name ": " new-n "\n\n"))
             (recur new-nw new-n (inc i)) ;;Recur
           )
         )
@@ -66,9 +62,26 @@
       )
   )
 
-;;(defn trace-back )
 
-(first (apply min-key second (map-indexed vector [1 2 4 0 5])))
+(defn fan-out-actor [c-in c-out-1 c-out-2 c-out-3 c-out-4 ]
+  (go
+    (loop []
+      (println "Starting the fan-out-actor")
+      (let [token (<!! c-in)]
+        (do
+          (println "token revieced")
+          (>!! c-out-1 token)
+          (>!! c-out-2 token)
+          (>!! c-out-3 token)
+          (>!! c-out-4 token)
+        )
+        (recur )
+      )
+    )
+  )
+)
+
+;;(defn trace-back )
 
 (defn aligner [c1 c2 c3 c4 out]
   (go
@@ -82,6 +95,7 @@
           (let [ci1 (<!! c1) ci2 (<!! c2) ci3 (<!! c3) ci4 (<!! c4)]
             (let [new-row (inc row) new-matrix (assoc matrix row [ci1 ci2 ci3 ci4]) ]
               (if (= row 3) (>!! out new-matrix)
+
               (recur new-row new-matrix)
               )
             ;(if (= row 3) (println new-matrix) )
@@ -92,58 +106,55 @@
   )
 
 
-(defn controller [A B c1 c2 c3 c4 c51 c52 c53 c54 w] ;;c51 - c54 is chanel to send b
+(defn controller [A B c1 c2 c3 c4 cb w] ;;cb is the channel that is connected to the fan out actor
       (go
 
         (loop [];;Set initial state
           (let [new-A (<!! A) new-B (<!! B)];;Wait for ports
             (let [] ;;Assign new local state and execute body
               (do
-                ;(println "round 1")
+                (println "round 1")
                 (>!! c1 "")
                 (>!! c2 (nth new-A 0))
                 (>!! c3 (nth new-A 1))
                 (>!! c4 (nth new-A 2))
-                (>!! c51 "")
-                (>!! c52 "")
-                (>!! c53 "")
-                (>!! c54 "")
+
+                (>!! cb "")
+
                 (>!! w 0)
 
-                ;(println "round 2")
+                (println "round 2")
 
 
                 (>!! c1 "")
                 (>!! c2 (nth new-A 0))
                 (>!! c3 (nth new-A 1))
                 (>!! c4 (nth new-A 2))
-                (>!! c51 (nth new-B 0))
-                (>!! c52 (nth new-B 0))
-                (>!! c53 (nth new-B 0))
-                (>!! c54 (nth new-B 0))
+
+                (>!! cb (nth new-B 0))
+
                 (>!! w 0)
 
-                ;(println "round 3")
+                (println "round 3")
 
                 (>!! c1 "")
                 (>!! c2 (nth new-A 0))
                 (>!! c3 (nth new-A 1))
                 (>!! c4 (nth new-A 2))
-                (>!! c51 (nth new-B 1))
-                (>!! c52 (nth new-B 1))
-                (>!! c53 (nth new-B 1))
-                (>!! c54 (nth new-B 1))
+
+                (>!! cb (nth new-B 1))
+
                 (>!! w 0)
-                ;(println "round 4")
+
+                (println "round 4")
 
                 (>!! c1 "")
                 (>!! c2 (nth new-A 0))
                 (>!! c3 (nth new-A 1))
                 (>!! c4 (nth new-A 2))
-                (>!! c51 (nth new-B 2))
-                (>!! c52 (nth new-B 2))
-                (>!! c53 (nth new-B 2))
-                (>!! c54 (nth new-B 2))
+
+                (>!! cb (nth new-B 2))
+
                 (>!! w 0)
 
 
@@ -163,6 +174,7 @@
 (def chan-con-3 (async/chan 10))
 (def chan-con-4 (async/chan 10))
 
+(def chan-con-b-fan-in (chan 10))
 (def chan-con-b1 (chan 10))
 (def chan-con-b2 (async/chan 10))
 (def chan-con-b3 (async/chan 10))
@@ -186,6 +198,19 @@
 
 
 (defn -main  [& args]
+  (comment
+    (print-actor chan-con-1)
+    (print-actor chan-con-2)
+    (print-actor chan-con-3)
+    (print-actor chan-con-4)
+
+
+    (fan-out-actor chan-4-print chan-con-1 chan-con-2 chan-con-3 chan-con-4)
+
+    (>!! chan-4-print "print this 4 times" )
+
+  )
+
   (print-actor chan-4-print)
 
   (sw-cell chan-con-1 chan-con-b1  chan-con-1-zero chan-1-2 chan-aln-1 "0")
@@ -193,12 +218,14 @@
   (sw-cell chan-con-3 chan-con-b3  chan-2-3  chan-3-4 chan-aln-3 "2")
   (sw-cell chan-con-4 chan-con-b4  chan-3-4 chan-stop chan-aln-4 "3")
 
+  (fan-out-actor chan-con-b-fan-in chan-con-b1 chan-con-b2 chan-con-b3 chan-con-b4)
+
   (aligner chan-aln-1 chan-aln-2 chan-aln-3 chan-aln-4 chan-4-print)
 
   (>!! chan-str-1 "abb")
   (>!! chan-str-2 "aaa")
 
-  (<!! (controller chan-str-1 chan-str-2 chan-con-1 chan-con-2 chan-con-3 chan-con-4 chan-con-b1 chan-con-b2 chan-con-b3 chan-con-b4 chan-con-1-zero))
+  (<!! (controller chan-str-1 chan-str-2 chan-con-1 chan-con-2 chan-con-3 chan-con-4 chan-con-b-fan-in chan-con-1-zero))
 
 
  )
