@@ -82,6 +82,14 @@
     )
   )
 
+
+
+(defn return-index-of-largest [matrix]
+  (loop [i 0 j 0 largest 0]
+
+    )
+  )
+
 (defn aligner [c1 c2 c3 c4 out]
   (go
     (loop [ row 0
@@ -194,7 +202,19 @@
 (def chan-stop (chan 50))
 
 
+(defn index-of-largest-elem-in-matrix [matrix]
+  (let [flattenedMatrix (flatten matrix)]
+    (let [col (.indexOf flattenedMatrix (apply max flattenedMatrix))
+          row (mod (count matrix) col)
+          ]
+      [row col]
+      )
+    )
+  )
+
+
 (defn -main  [& args]
+    (comment
     (print-actor chan-4-print)
 
     (sw-cell chan-con-1 chan-con-b1  chan-con-1-zero chan-1-2 chan-aln-1 "0")
@@ -209,7 +229,10 @@
 
     (>!! chan-str-1 "abb")
     (>!! chan-str-2 "aaa")
-    
+
     (<!! (controller chan-str-1 chan-str-2 chan-con-1 chan-con-2 chan-con-3 chan-con-4 chan-con-b chan-con-1-zero))
+    )
+    (println (index-of-largest-elem-in-matrix [[1 4 3 5]] ))
+
 
  )
