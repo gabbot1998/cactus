@@ -83,12 +83,17 @@
   )
 
 
-
-(defn return-index-of-largest [matrix]
-  (loop [i 0 j 0 largest 0]
-
+(defn index-of-largest-elem-in-matrix [matrix]
+  (let [flattenedMatrix (flatten matrix)]
+    (let [col (.indexOf flattenedMatrix (apply max flattenedMatrix))
+          row (mod (count matrix) col)
+          ]
+      [row col]
+      )
     )
   )
+
+(defn trace-back [matrix [row col]])
 
 (defn aligner [c1 c2 c3 c4 out]
   (go
@@ -101,7 +106,8 @@
 
           (let [ci1 (<! c1) ci2 (<! c2) ci3 (<! c3) ci4 (<! c4)]
             (let [new-row (inc row) new-matrix (assoc matrix row [ci1 ci2 ci3 ci4]) ]
-              (if (= row 3) (>! out new-matrix)
+              (if (= row 3)
+              (trace-back new-matrix (index-of-largest-elem-in-matrix new-matrix))
               (recur new-row new-matrix)
               )
             ;(if (= row 3) (println new-matrix) )
@@ -202,15 +208,7 @@
 (def chan-stop (chan 50))
 
 
-(defn index-of-largest-elem-in-matrix [matrix]
-  (let [flattenedMatrix (flatten matrix)]
-    (let [col (.indexOf flattenedMatrix (apply max flattenedMatrix))
-          row (mod (count matrix) col)
-          ]
-      [row col]
-      )
-    )
-  )
+
 
 
 (defn -main  [& args]
