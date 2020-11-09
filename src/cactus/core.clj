@@ -55,7 +55,7 @@
     (go
       (loop [];;Set initial state
         (let [new-str (<! chan) ];;Wait for ports
-          (let [] ;;Assign new local state and execute body
+            (let [] ;;Assign new local state and execute body
             ;(print "Value of last actor is: ")
             (println new-str)
             ;;Set output
@@ -93,9 +93,34 @@
     )
   )
 
-(defn trace-back [matrix [row col]])
+(defn trace-back [result string matrix [row col]]
+  (let [n [(dec row) col]
+        w [row (dec col)]
+        nw [(dec row) (dec col)]]
+  (if (and (not= (- 1 row) 0) (not= (- 1 col) 0))
+      (let [nextDir
+        (key (apply max-key val
+        (hash-map
+        :n (get (get matrix (rest n)) (first n))
+        :w (get (get matrix (rest w)) (first w))
+        :nw (get (get matrix (rest nw)) (first nw))
+        )))]
+        (println "tjem")
 
-(defn aligner [c1 c2 c3 c4 out]
+        (if (= nextDir :nw)
+          (recur (str result (get (first nw) string)) string matrix nw)
+          (if (= nextDir :w)
+            (recur (str result "-") string matrix w)
+            (if (= nextDir :n)
+              (recur (str result "-") string matrix n)
+            )
+          )
+          )
+      result)
+    )
+  )
+)
+  (defn aligner [string c1 c2 c3 c4 out]
   (go
     (loop [ row 0
             matrix [[0 0 0 0]
@@ -106,16 +131,15 @@
 
           (let [ci1 (<! c1) ci2 (<! c2) ci3 (<! c3) ci4 (<! c4)]
             (let [new-row (inc row) new-matrix (assoc matrix row [ci1 ci2 ci3 ci4]) ]
-              (if (= row 3)
-              (trace-back new-matrix (index-of-largest-elem-in-matrix new-matrix))
-              (recur new-row new-matrix)
+              (if (= new-row 3)
+              (<!! out (trace-back "" string new-matrix (index-of-largest-elem-in-matrix new-matrix)))
+              (recur new-row new-matrix))
               )
-            ;(if (= row 3) (println new-matrix) )
           )
         )
       )
-    )
-  )
+   ) 
+
 
 
 (defn controller [A B c1 c2 c3 c4 c5 w] ;;c51 - c54 is chanel to send b
@@ -167,8 +191,6 @@
                 (>! c5 (nth new-B 2))
 
                 (>! w 0)
-
-
                 (recur );;Recur
               )
             )
@@ -212,7 +234,6 @@
 
 
 (defn -main  [& args]
-    (comment
     (print-actor chan-4-print)
 
     (sw-cell chan-con-1 chan-con-b1  chan-con-1-zero chan-1-2 chan-aln-1 "0")
@@ -220,7 +241,7 @@
     (sw-cell chan-con-3 chan-con-b3  chan-2-3  chan-3-4 chan-aln-3 "2")
     (sw-cell chan-con-4 chan-con-b4  chan-3-4 chan-stop chan-aln-4 "3")
 
-    (aligner chan-aln-1 chan-aln-2 chan-aln-3 chan-aln-4 chan-4-print)
+    (aligner "aaa" chan-aln-1 chan-aln-2 chan-aln-3 chan-aln-4 chan-4-print)
 
 
     (fan-out-actor chan-con-b chan-con-b1 chan-con-b2 chan-con-b3 chan-con-b4)
@@ -229,8 +250,6 @@
     (>!! chan-str-2 "aaa")
 
     (<!! (controller chan-str-1 chan-str-2 chan-con-1 chan-con-2 chan-con-3 chan-con-4 chan-con-b chan-con-1-zero))
-    )
-    (println (index-of-largest-elem-in-matrix [[1 4 3 5]] ))
 
 
  )
