@@ -248,7 +248,7 @@
 (def chan-2-3 (chan 10))
 (def chan-3-4 (chan 10))
 
-(def chan-4-print (async/chan 10))
+(def chan-4-print (chan 10))
 
 (def chan-str-a (chan 10))
 (def chan-str-b (chan 10))
