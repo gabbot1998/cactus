@@ -38,54 +38,71 @@
              )
    )
 
+  (defn peek [chan index]
+    ;returns the first element in the queue
+    )
+
+  (defn consume [chan]
+    ;returns the elemnt and removes
+    )
+
+  (defn guard-check [])
+
+    hej: action A: [ a, b ] repeat 3 ==> Out: [element]
+    guard:
+      (add-all-values a b) = 20;
+      end
+    do out: [a + b]
+    end
 
 
-(def chan-con-1-zero (chan 50))
+   (defn guarded-actor [chan1]
+       (go
 
-(def chan-con-1 (chan 50))
-(def chan-con-2 (async/chan 50))
-(def chan-con-3 (async/chan 50))
-(def chan-con-4 (async/chan 50))
+         (loop [ guard-vars1 []  guard-vars2 [] ];
+          (let [new-guard-vars1 (peek chan1 1) new-guard-vars2 (peek chan1 1)])
+            (if (= (count guard-vars2) repeat)
+              ;check guard and potential fire, else
+              (if (guard-check guard-vars)
+                ;fire action
+                ;body
+                (do
+                  (let [new-str (consume chan)];;Wait for ports
+                    (let [] ;;Assign new local state and execute body
+                      ;(print "Value of last actor is: ")
+                      (println new-str)
+                      ;;Set output
+                      (recur );;Recur
+                      )
+                    )
+                  )
+                  ;dont fire action
+              )
 
-(def chan-con-b (chan 50))
-(def chan-con-b1 (chan 50))
-(def chan-con-b2 (async/chan 50))
-(def chan-con-b3 (async/chan 50))
-(def chan-con-b4 (async/chan 50))
+          (recur (reduce guard-vars1 new-guard-vars1) (reduce guard-vars2 new-guard-vars2))
+          )
 
-(def chan-1-2 (async/chan 50))
-(def chan-2-3 (async/chan 50))
-(def chan-3-4 (async/chan 50))
+          [a] -> ([a] -> [a]) -> [a] -> [a]
 
-(def chan-4-print (async/chan 50))
+          [] [1] [1] [3] [1, 3] [5] [1, 3, 5]
 
-(def chan-str-1 (chan 50))
-(def chan-str-2 (chan 50))
+          0 + [1 2 3 ] -> 6
 
-(def chan-aln-1 (chan 50))
-(def chan-aln-2 (chan 50))
-(def chan-aln-3 (chan 50))
-(def chan-aln-4 (chan 50))
+           )
+        ;start of body
 
-(def chan-stop (chan 50))
+         )
+     )
+
+
+
+(def chan (chan 50))
+
 
 
 (defn -main  [& args]
-    (print-actor chan-4-print)
+    (println "Time to make an actor")
 
-    (sw-cell chan-con-1 chan-con-b1  chan-con-1-zero chan-1-2 chan-aln-1 "0")
-    (sw-cell chan-con-2 chan-con-b2  chan-1-2 chan-2-3 chan-aln-2 "1")
-    (sw-cell chan-con-3 chan-con-b3  chan-2-3  chan-3-4 chan-aln-3 "2")
-    (sw-cell chan-con-4 chan-con-b4  chan-3-4 chan-stop chan-aln-4 "3")
-
-    (aligner chan-aln-1 chan-aln-2 chan-aln-3 chan-aln-4 chan-4-print)
-
-
-    (fan-out-actor chan-con-b chan-con-b1 chan-con-b2 chan-con-b3 chan-con-b4)
-
-    (>!! chan-str-1 "abb")
-    (>!! chan-str-2 "aaa")
-
-    (<!! (controller chan-str-1 chan-str-2 chan-con-1 chan-con-2 chan-con-3 chan-con-4 chan-con-b chan-con-1-zero))
+    (guarded-actor chan)
 
  )
