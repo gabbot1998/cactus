@@ -9,8 +9,8 @@
 (:require
             [clojure.core.async
              :as async
-             :refer [>! go-loop <! >!! <!! go buffer close! thread]
-             :exclude [chan]
+             :refer [>! go-loop <! >!! <!! buffer close! thread]
+             :exclude [chan go]
              ]
 
              [actors.sw_cell
@@ -38,32 +38,58 @@
              :refer [controller]
              ]
 
-             [actors.dataflow-channel
+             [actors.dataflow_channel
              :as dataflow-channel
-             :refer [dataflow-chan]
+             :refer []
+             ]
+
+             [cactus.async
+             :as cactus.async
+             :refer [go <<! chan]
              ]
 
              )
    )
 
+(def chan-1 (chan 50))
 
-(def chan-1 (dataflow-chan 50))
+
+
 
 
 
 (defn -main  [& args]
 
-    (go (.put! chan-1 "wowowowow" "waddap"))
-    (go (.put! chan-1 "wowowowow" "waddap"))
-    (go (.put! chan-1 "wowowowow" "waddap"))
-    (go (.put! chan-1 "wowowowow" "waddap"))
-    (go (.put! chan-1 "wowowowow" "waddap"))
-    (go (.put! chan-1 "wowowowow" "waddap"))
-    (go (.put! chan-1 "wowowowow" "waddap"))
-    (go (.put! chan-1 "wowowowow" "waddap"))
-    (go (println (.take! chan-1 "waddap")))
-    (go (println (.take! chan-1 "waddap")))
-    (go (println (.take! chan-1 "waddap")))
+    ; (go
+    ;   (do
+    ;     (println (<! chan-1))
+    ;     (>! chan-1 "wow")
+    ;
+    ;     )
+    ;     )
+
+    ; <?
+    ; <°
+    ; <*
+    ; <-
+    ; <=
+    ; <%
+    ; <)
+    ; <}
+    ; ◊
+    ; <>
+    ; ‡
+    ; **
+
+
+
+
+
+
+    (go (loop [] (println (<<! chan-1)) (recur )) )
+
+    (>!! chan-1 "wap")
+
 
     (while true)
 
