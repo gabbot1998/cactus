@@ -60,13 +60,11 @@
 
 (defn -main  [& args]
 
-    ; (go
-    ;   (do
-    ;     (println (<! chan-1))
-    ;     (>! chan-1 "wow")
-    ;
-    ;     )
-    ;     )
+    ;implementera random access peek
+    ;byta datastruktur
+    ;skriva hårdkodad guard
+    ;macros
+    
 
     ; <?
     ; <°
@@ -84,11 +82,15 @@
 
 
 
-
-
-    (go (loop [] (println (<<! chan-1)) (recur )) )
-
     (>!! chan-1 "wap")
+
+    guard 1 = if A: [a] false ==> B: [false]
+    guard 2 = if A: [a, b] true true ==> B: [true]
+
+    [false, true, true]
+
+
+
 
 
     (while true)
