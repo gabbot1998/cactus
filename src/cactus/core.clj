@@ -40,14 +40,14 @@
 
              [actors.dataflow-channel
              :as dataflow-channel
-             :refer [chan]
+             :refer [dataflow-chan]
              ]
 
              )
    )
 
 
-(def chan-1 (chan 50))
+(def chan-1 (dataflow-chan 50))
 
 
 
