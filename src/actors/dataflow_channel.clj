@@ -53,18 +53,49 @@
  [buff]
  (extends? impl/UnblockingBuffer (class buff)))
 
+ (defn O> [port]
+   (assert nil "Waddap") )
+
+(defprotocol Printer
+  (printer [_])
+  )
+
+(deftype Channel [^Queue buf mutex]
+  impl/WritePort
+  (put! [this val handler]
+      (.lock mutex)
+      (impl/add! buf val)
+      (.unlock mutex)
+    )
+
+  impl/ReadPort
+  (take! [this handler]
+      (.lock mutex)
+      (let [val (impl/remove! buf)]
+        (.unlock mutex)
+        val
+      )
+
+
+    )
+
+  Printer
+  (printer [this]
+    (impl/remove! buf)
+    )
+
+  )
+
+
+(defn chan
+  [buf]
+  (Channel. buf (mutex/mutex))
+  )
+
 (defn dataflow-chan
- "Creates a channel with an optional buffer, an optional transducer
- (like (map f), (filter p) etc or a composition thereof), and an
- optional exception-handler.  If buf-or-n is a number, will create
- and use a fixed buffer of that size. If a transducer is supplied a
- buffer must be specified. ex-handler must be a fn of one argument -
- if an exception occurs during transformation it will be called with
- the Throwable as an argument, and any non-nil return value will be
- placed in the channel."
+ "Nice channel bro"
  ([] (dataflow-chan nil))
- ([buf-or-n] (dataflow-chan buf-or-n nil))
- ([buf-or-n xform] (dataflow-chan buf-or-n xform nil))
- ([buf-or-n xform ex-handler]
-    (when xform (assert buf-or-n "buffer must be supplied when transducer is"))
-    (channels/chan (if (number? buf-or-n) (buffer buf-or-n) buf-or-n) xform ex-handler)))
+ ([buf-or-n]
+   (chan (if (number? buf-or-n) (buffer buf-or-n) buf-or-n))
+   )
+ )

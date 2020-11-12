@@ -52,12 +52,20 @@
 
 
 (defn -main  [& args]
-    (println "Time to make an actor")
 
-    (>!! chan-1 "wowowowow")
+    (go (.put! chan-1 "wowowowow" "waddap"))
+    (go (.put! chan-1 "wowowowow" "waddap"))
+    (go (.put! chan-1 "wowowowow" "waddap"))
+    (go (.put! chan-1 "wowowowow" "waddap"))
+    (go (.put! chan-1 "wowowowow" "waddap"))
+    (go (.put! chan-1 "wowowowow" "waddap"))
+    (go (.put! chan-1 "wowowowow" "waddap"))
+    (go (.put! chan-1 "wowowowow" "waddap"))
+    (go (println (.take! chan-1 "waddap")))
+    (go (println (.take! chan-1 "waddap")))
+    (go (println (.take! chan-1 "waddap")))
 
-    (<!! (print-actor chan-1))
-
+    (while true)
 
 
 
