@@ -40,7 +40,7 @@
   "peeks a val from port. Must be called inside a (go ...) block. Will
   return nil if closed. Will park if nothing is available."
 
-  [port ]
+  [port index]
    (assert nil "<<! used not in (go ...) block"))
 
 (defmacro go

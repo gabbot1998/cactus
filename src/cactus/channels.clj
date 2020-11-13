@@ -146,11 +146,12 @@
 
   cactus.impl/ReadPort
   (peek!
-   [this handler]
+   [this index handler]
    (.lock mutex)
    (cleanup this)
    (let [^Lock handler handler
          commit-handler (fn []
+                          (println "Innan vi låser med lock handler")
                           (.lock handler)
                           (let [take-cb (and (impl/active? handler) (impl/commit handler))]
                             (.unlock handler)
@@ -158,7 +159,7 @@
      (if (and buf (pos? (count buf)))
        (do
          (if-let [take-cb (commit-handler)]
-           (let [val (cactus.impl/look buf)
+           (let [val (cactus.impl/look buf index)
                  iter (.iterator puts)
                  [done? cbs]
                  (when (and (not (impl/full? buf)) (.hasNext iter))
@@ -210,7 +211,7 @@
                (when buf (add! buf))
                (let [has-val (and buf (pos? (count buf)))]
                  (if-let [take-cb (commit-handler)]
-                   (let [val (when has-val (cactus.impl/look buf))]
+                   (let [val (when has-val (cactus.impl/look buf index))]
                      (.unlock mutex)
                      (box val))
                    (do

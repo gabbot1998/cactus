@@ -33,6 +33,11 @@
              :refer [print-actor]
              ]
 
+             [actors.guarded_actor
+             :as guarded_actor
+             :refer [guarded-actor]
+             ]
+
              [actors.controller
              :as controller
              :refer [controller]
@@ -52,6 +57,7 @@
    )
 
 (def chan-1 (chan 50))
+(def chan-2 (chan 50))
 
 
 
@@ -64,7 +70,7 @@
     ;byta datastruktur
     ;skriva hårdkodad guard
     ;macros
-    
+
 
     ; <?
     ; <°
@@ -82,14 +88,8 @@
 
 
 
-    (>!! chan-1 "wap")
 
-    guard 1 = if A: [a] false ==> B: [false]
-    guard 2 = if A: [a, b] true true ==> B: [true]
-
-    [false, true, true]
-
-
+    (guarded-actor chan-1 chan-2)
 
 
 

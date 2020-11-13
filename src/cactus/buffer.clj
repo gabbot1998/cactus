@@ -19,8 +19,8 @@
   (count [this]
     (.size buf))
   cactus.impl/Buffer
-  (look [this]
-    (.peek buf))
+  (look [this index]
+    (.get buf index))
     )
 
 (defn fixed-buffer [^long n]

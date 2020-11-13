@@ -35,8 +35,8 @@
    :Return `return-chan})
 
 
- (defn peek! [state blk c]
-   (if-let [cb (cactus.impl/peek! c (fn-handler
+ (defn peek! [state blk c index]
+   (if-let [cb (cactus.impl/peek! c index (fn-handler
                                     (fn [x]
                                       (aset-all! state VALUE-IDX x STATE-IDX blk)
                                       (run-state-machine-wrapped state))))]
