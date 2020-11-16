@@ -86,10 +86,24 @@
     ; **
 
 
+    (go
+      (>! chan-1 3)
+      (>! chan-1 2)
+      )
+
+    (go
+      (println (<<! chan-1 1 ) )
+      (println (<<! chan-1 1 ) )
+      (println "wow")
+      )
+
+    (go
+      (println (<<! chan-1 1) )
+      (println "nice")
+      )
 
 
 
-    (guarded-actor chan-1 chan-2)
 
 
 

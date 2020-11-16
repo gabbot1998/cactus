@@ -11,6 +11,26 @@
 
   )
 
+  (defmacro didexecute?
+  [body]
+  `(if (not 😊 false
+               (try
+                 ~body
+                 (catch Exception e#
+                   false)))
+
+     true
+     false))
+
+(defmacro did-execute? [body]
+  `(if (not (= false (try
+    ~body
+  (catch Exception e# false
+    ))))
+    true
+    false
+    ))
+
 (defprotocol MMC
   (cleanup [_])
   (abort [_]))
@@ -151,12 +171,11 @@
    (cleanup this)
    (let [^Lock handler handler
          commit-handler (fn []
-                          (println "Innan vi låser med lock handler")
                           (.lock handler)
                           (let [take-cb (and (impl/active? handler) (impl/commit handler))]
                             (.unlock handler)
                             take-cb))]
-     (if (and buf (pos? (count buf)))
+     (if (and buf (pos? (count buf)) (did-execute? (cactus.impl/look buf index)))
        (do
          (if-let [take-cb (commit-handler)]
            (let [val (cactus.impl/look buf index)
@@ -209,7 +228,7 @@
            (if @closed
              (do
                (when buf (add! buf))
-               (let [has-val (and buf (pos? (count buf)))]
+               (let [has-val (and buf (pos? (count buf)) (did-execute? (cactus.impl/look buf index)))]
                  (if-let [take-cb (commit-handler)]
                    (let [val (when has-val (cactus.impl/look buf index))]
                      (.unlock mutex)
@@ -226,6 +245,7 @@
                  (.add takes handler))
                (.unlock mutex)
                nil)))))))
+
   impl/ReadPort
   (take!
    [this handler]
