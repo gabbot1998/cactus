@@ -1,12 +1,6 @@
-;;"marcus"
-;;"cactus"
-;;match = 5
-;;mismatch = -1
-;;space = 0
-
 (ns cactus.core
   (:gen-class)
-(:require
+    (:require
             [clojure.core.async
              :as async
              :refer [>! go-loop <! >!! <!! buffer close! thread]
@@ -53,11 +47,35 @@
              :refer [go <<! chan]
              ]
 
+             [actors.stripe_actor
+             :as stripe-actor
+             :refer [stripe-actor]
+             ]
+
              )
    )
 
 (def chan-1 (chan 50))
 (def chan-2 (chan 50))
+
+(def chan-cont-stripe (chan 10))
+
+(def chan-sw-2-3 (chan 10))
+(def chan-sw-3-4 (chan 10))
+(def chan-sw-4-5 (chan 10))
+(def chan-sw-5-6 (chan 10))
+
+(def chan-stripe-sw-1 (chan 10))
+(def chan-stripe-sw-2 (chan 10))
+(def chan-stripe-sw-3 (chan 10))
+(def chan-stripe-sw-4 (chan 10))
+
+(def chan-contr-stripe (chan 10))
+
+(def chan-first-sw (chan 10))
+
+
+
 
 
 
@@ -66,51 +84,36 @@
 
 (defn -main  [& args]
 
-    ;implementera random access peek
-    ;byta datastruktur
-    ;skriva hårdkodad guard
-    ;macros
+  (def A "heja")
+  (def B "bbbbbbbbhejabbbb") ;En multipppel av 4. I det här fallet 16.
+  (def width 4)
+
+  (go (>! chan-1 A))
+  (go (>! chan-2 B))
+
+  (go (>! chan-cont-stripe "heja"))
+
+  (controller chan-1 chan-2 chan-first-sw chan-contr-stripe)
+
+  (stripe-actor chan-contr-stripe (count A) chan-stripe-sw-1 chan-stripe-sw-2 chan-stripe-sw-3 chan-stripe-sw-4)
 
 
-    ; <?
-    ; <°
-    ; <*
-    ; <-
-    ; <=
-    ; <%
-    ; <)
-    ; <}
-    ; ◊
-    ; <>
-    ; ‡
-    ; **
+  (sw-cell )
+  (sw-cell )
+  (sw-cell )
+  (sw-cell-end )
 
 
-    (go
-      (>! chan-1 3)
-      (>! chan-1 2)
-      )
+  (print-actor chan-stripe-sw-1)
+  (print-actor chan-stripe-sw-2)
+  (print-actor chan-stripe-sw-3)
+  (print-actor chan-stripe-sw-4)
 
-    (go
-      (println (<<! chan-1 1 ) )
-      (println (<<! chan-1 1 ) )
-      (println "wow")
-      )
 
-    (go
-      (println (<<! chan-1 1) )
-      (println "nice")
-      )
+  (while true )
 
 
 
 
-
-
-    (while true)
-
-
-
-    ;(guarded-actor chan)
 
  )
