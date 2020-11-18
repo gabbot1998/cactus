@@ -60,10 +60,11 @@
 
 (def chan-cont-stripe (chan 10))
 
+(def chan-sw-1-2 (chan 10))
 (def chan-sw-2-3 (chan 10))
 (def chan-sw-3-4 (chan 10))
-(def chan-sw-4-5 (chan 10))
-(def chan-sw-5-6 (chan 10))
+(def chan-sw-4-1 (chan 10))
+
 
 (def chan-stripe-sw-1 (chan 10))
 (def chan-stripe-sw-2 (chan 10))
@@ -72,7 +73,12 @@
 
 (def chan-contr-stripe (chan 10))
 
-(def chan-first-sw (chan 10))
+(def chan-contr-fan (chan 10))
+
+(def chan-fan-sw-1 (chan 10))
+(def chan-fan-sw-2 (chan 10))
+(def chan-fan-sw-3 (chan 10))
+(def chan-fan-sw-4 (chan 10))
 
 
 
@@ -93,15 +99,17 @@
 
   (go (>! chan-cont-stripe "heja"))
 
-  (controller chan-1 chan-2 chan-first-sw chan-contr-stripe)
+  (controller chan-1 chan-2 chan-contr-fan chan-contr-stripe)
 
   (stripe-actor chan-contr-stripe (count A) chan-stripe-sw-1 chan-stripe-sw-2 chan-stripe-sw-3 chan-stripe-sw-4)
 
+  (fan-out-actor chan-contr-fan chan-fan-sw-1 chan-fan-sw-2 chan-fan-sw-3 chan-fan-sw-4)
 
-  (sw-cell )
-  (sw-cell )
-  (sw-cell )
-  (sw-cell-end )
+
+  (sw-cell chan-fan-sw-1 chan-stripe-sw-1 chan-sw-1-2 chan-sw-out-1 )
+  (sw-cell chan-fan-sw-2 chan-stripe-sw-2 chan-sw-2-3 chan-sw-out-2 )
+  (sw-cell chan-fan-sw-3 chan-stripe-sw-3 chan-sw-3-4 chan-sw-out-3 )
+  (sw-cell-end chan-fan-sw-4 chan-stripe-sw-4 chan-sw-4-1 chan-sw-out-4 )
 
 
   (print-actor chan-stripe-sw-1)
