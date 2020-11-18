@@ -112,41 +112,32 @@
       )
 
       (do
-        (let [nextDir
-                (key (apply max-key val
-                (hash-map
-                :n (get (get matrix (first n)) (second n))
-                :w (get (get matrix (first w)) (second w))
-                :nw (get (get matrix (first nw)) (second nw))
-                )))
+        (println row col)
+        (let [
+              value (get (get matrix row) col)
+              use-n (+ (get (get matrix (first n)) (second n)) penalty)
+              use-w (+ (get (get matrix (first w)) (second w)) penalty)
+              use-nw-match (+ (get (get matrix (first nw)) (second nw)) match)
+              use-nw-mismatch (+ (get (get matrix (first nw)) (second nw)) mismatch)
               ]
 
+              (if (= use-n value)
+                (recur (str (get A (- row 1)) res-a) (str "-" res-b) A B matrix n)
 
-          (if (= nextDir :nw)
-            (do
+                (if (= use-w value)
+                  (recur (str "-" res-a) (str (get B (- col 1)) res-b) A B matrix w)
 
-              (recur (str (get A (second nw)) res-a) (str (get B (first nw)) res-b) A B matrix nw)
-            )
+                  (if (or (= use-nw-match value) (= use-nw-mismatch value))
+                    (recur (str (get A (- row 1)) res-a) (str (get B (- col 1)) res-b) A B matrix nw)
 
-            (if (= nextDir :w)
-              (do
-
-                (recur (str (get A (first w)) res-a) (str "-" res-b) A B matrix w)
                 )
-
-              (if (= nextDir :n)
-              (do
-
-                (recur (str "-" res-a) (str (get B (second n)) res-b) A B matrix n)
-                )
-
               )
-            )
-            )
+
             )
           )
       )
     )
+  )
   )
 
   (defn aligner [A B c1 c2 c3 c4 out]
@@ -163,6 +154,7 @@
               (if (= new-row 4)
               (do
                 (>!! out (trace-back "" "" A B new-matrix (index-of-largest-elem-in-matrix new-matrix)))
+                ;(println new-matrix)
               )
               (recur new-row new-matrix))
               )
@@ -266,8 +258,8 @@
 
 (defn -main  [& args]
 
-    (def A "HEJ")
-    (def B "JHE")
+    (def A "LAJ")
+    (def B "HEJ")
     (print-actor chan-4-print)
 
     (sw-cell chan-con-1 chan-con-b1  chan-con-1-zero chan-1-2 chan-aln-1 "0")
