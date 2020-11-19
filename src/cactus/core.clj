@@ -100,8 +100,8 @@
 
 (defn -main  [& args]
 
-  (def A "BBBBHEJA")
-  (def B "BHEBJABBBBBB") ;En multipppel av 4. I det här fallet 16.
+  (def A "HEJJAGHETER")
+  (def B "HEJJAGHETERB") ;En multipppel av 4. I det här fallet 16.
   (def width 4)
 
   (go (>! chan-1 A))
