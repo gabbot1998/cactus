@@ -11,10 +11,10 @@
 
 (defn index-of-largest-elem-in-matrix [matrix]
  (let [flattenedMatrix (flatten matrix)
-       index-of-max (+ 1 (.indexOf flattenedMatrix (apply max flattenedMatrix) ))
+       index-of-max (.indexOf flattenedMatrix (apply max flattenedMatrix) )
        ]
-   (let [col (mod (.indexOf flattenedMatrix (apply max flattenedMatrix) ) (count (get matrix 0)))
-         row (int (/ (.indexOf flattenedMatrix (apply max flattenedMatrix)) (count matrix)))
+   (let [col (mod index-of-max (count (get matrix 0)))
+         row (int (/ index-of-max (count (get matrix 0))))
          ]
      [row col]
      )
@@ -29,17 +29,17 @@
  (let [n [(dec row) col]
        w [row (dec col)]
        nw [(dec row) (dec col)]]
-  (println "recured")
- (if (or (< row 0) (< col 0) (= 0 (get (get matrix row) col)))
+  ;(println "recured")
+ (if (or (= row 0) (= col 0) (= 0 (get (get matrix row) col)))
 
      (do
-       (println "returning value")
+       ;(println "returning value")
        [res-a res-b]
 
      )
 
      (do
-       (println row col)
+       ;(println row col)
        (let [
              value (get (get matrix row) col)
              use-n (+ (get (get matrix (first n)) (second n)) penalty)
@@ -169,9 +169,10 @@
 
               (if (= row (- number-of-rows 1))
                 (do
-                  (println (padd (fill-matrix A B new-temp-matrix)))
-                  (println (trace-back "" "" A B (padd (fill-matrix A B new-temp-matrix)) [4 7] ))
-                  (>! out (padd (fill-matrix A B new-temp-matrix)))
+
+                  (println (index-of-largest-elem-in-matrix (padd (fill-matrix A B new-temp-matrix))))
+                  (println (trace-back "" "" A B (padd (fill-matrix A B new-temp-matrix)) (index-of-largest-elem-in-matrix (padd (fill-matrix A B new-temp-matrix))) ))
+                  ;(>! out (padd (fill-matrix A B new-temp-matrix)))
                   )
 
               )

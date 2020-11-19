@@ -29,12 +29,12 @@
    0)
  )
 
- (defn sw-cell-end [a b an w v aln-v name]
+ (defn sw-cell-end [a b an w v aln-v name tot-rows]
     (go
       (doseq [i (range an)]
         (>! v 0)
       )
-      (loop [nw 0 n 0 i 0];;Set initial state
+      (loop [nw 0 n 0 i 0 j 0];;Set initial state
         (let [new-a (<! a) new-b (<! b) new-w (<! w)] ;;Wait for ports
           (let [
                 new-nw new-w
@@ -44,11 +44,11 @@
             (>! aln-v new-n)
             (if (= i (dec an))
               (do
-                  ;(println "The index is reset" an)
-                  (recur 0 0 0)
+                  (println j "/" tot-rows)
+                  (recur 0 0 0 (inc j))
                 )
               (do
-                (recur new-nw new-n (inc i))
+                (recur new-nw new-n (inc i) (inc j))
                 )
             )
           )
