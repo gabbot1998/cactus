@@ -5,6 +5,68 @@
              :refer [>! go-loop <! >!! <!! go chan buffer close! thread]
              ]))
 
+             (def match 8)
+             (def mismatch -3)
+             (def penalty -2)
+
+(defn index-of-largest-elem-in-matrix [matrix]
+ (let [flattenedMatrix (flatten matrix)
+       index-of-max (+ 1 (.indexOf flattenedMatrix (apply max flattenedMatrix) ))
+       ]
+   (let [col (mod (.indexOf flattenedMatrix (apply max flattenedMatrix) ) (count (get matrix 0)))
+         row (int (/ (.indexOf flattenedMatrix (apply max flattenedMatrix)) (count matrix)))
+         ]
+     [row col]
+     )
+   )
+ )
+
+(defn print-matrix [matrix]
+ (doseq [row matrix] (println row))
+ )
+
+(defn trace-back [res-a res-b A B matrix [row col]]; row col is the index of largest element in matrix
+ (let [n [(dec row) col]
+       w [row (dec col)]
+       nw [(dec row) (dec col)]]
+  (println "recured")
+ (if (or (< row 0) (< col 0) (= 0 (get (get matrix row) col)))
+
+     (do
+       (println "returning value")
+       [res-a res-b]
+
+     )
+
+     (do
+       (println row col)
+       (let [
+             value (get (get matrix row) col)
+             use-n (+ (get (get matrix (first n)) (second n)) penalty)
+             use-w (+ (get (get matrix (first w)) (second w)) penalty)
+             use-nw-match (+ (get (get matrix (first nw)) (second nw)) match)
+             use-nw-mismatch (+ (get (get matrix (first nw)) (second nw)) mismatch)
+             ]
+
+             (if (= use-n value)
+               (recur (str (get A (dec row)) res-a) (str "-" res-b) A B matrix n)
+
+               (if (= use-w value)
+                 (recur (str "-" res-a) (str (get B (dec col)) res-b) A B matrix w)
+
+                 (if (or (= use-nw-match value) (= use-nw-mismatch value))
+                   (recur (str (get A (dec row)) res-a) (str (get B (dec col)) res-b) A B matrix nw)
+
+               )
+             )
+
+           )
+         )
+     )
+   )
+ )
+ )
+
 ;vector has to be of length k * width where k is an integer
 (defn modify-row [mult vector new-part] ;Multiple of 4, ie col, the original vector, and the 4 new values
 (let [
@@ -60,6 +122,34 @@
       )
   )
 
+  (defn padd [matrix]
+    (let [
+          first-row (vec (repeat (+ 1 (count (nth matrix 0))) 0))
+          ]
+
+
+          (loop
+            [
+            new-matrix matrix
+            row 0
+            rows-in-matrix (count matrix)
+            ]
+            (if (= (inc row) rows-in-matrix)
+              (vec (concat [first-row]
+                (assoc new-matrix row (vec (concat [0] (nth new-matrix row))))
+                ))
+              (recur
+                (assoc new-matrix row (vec (concat [0] (nth new-matrix row))))
+                (inc row)
+                rows-in-matrix
+              )
+
+            )
+
+        )
+      )
+    )
+
 
 (defn aligner [A B n c1 c2 c3 c4 out]
   (let [
@@ -79,7 +169,9 @@
 
               (if (= row (- number-of-rows 1))
                 (do
-                  (>! out (fill-matrix A B new-temp-matrix))
+                  (println (padd (fill-matrix A B new-temp-matrix)))
+                  (println (trace-back "" "" A B (padd (fill-matrix A B new-temp-matrix)) [4 7] ))
+                  (>! out (padd (fill-matrix A B new-temp-matrix)))
                   )
 
               )
