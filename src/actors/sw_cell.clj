@@ -29,7 +29,7 @@
    0)
  )
 
- (defn sw-cell [a b w v aln-v name]
+ (defn sw-cell [a b an w v aln-v name]
     (go
       (loop [nw 0 n 0 i 0];;Set initial state
         (let [new-a (<! a) new-b (<! b) new-w (<! w)] ;;Wait for ports
@@ -39,8 +39,18 @@
                 ] ;;Assign new local state and execute body
             (>! v new-n);;Set output
             (>! aln-v new-n)
-            ;(println (str i name ": " new-n "\n\n"))
-            (recur new-nw new-n (inc i)) ;;Recur
+            (if (= i an)
+              (do
+
+                  (recur 0 0 0)
+                )
+              (do
+                (recur new-nw new-n (inc i))
+                )
+            )
+
+
+             ;;Recur
           )
         )
       )

@@ -29,9 +29,9 @@
    0)
  )
 
- (defn sw-cell [a b n w v aln-v name]
+ (defn sw-cell-end [a b an w v aln-v name]
     (go
-      (doseq [i (range n)]
+      (doseq [i (range an)]
         (>! v 0)
       )
       (loop [nw 0 n 0 i 0];;Set initial state
@@ -42,8 +42,15 @@
                 ] ;;Assign new local state and execute body
             (>! v new-n);;Set output
             (>! aln-v new-n)
-            ;(println (str i name ": " new-n "\n\n"))
-            (recur new-nw new-n (inc i)) ;;Recur
+            (if (= i an)
+              (do
+                  ;(println "The index is reset")
+                  (recur 0 0 0)
+                )
+              (do
+                (recur new-nw new-n (inc i))
+                )
+            )
           )
         )
       )
