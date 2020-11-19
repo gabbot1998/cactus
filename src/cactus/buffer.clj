@@ -1,8 +1,10 @@
 (ns cactus.buffer
   (:require [cactus.protocols :as cactus.impl]
             [clojure.core.async.impl.protocols :as impl]
+            ;; [cactus.ringbuffer :as ringbuffer :refer  [ringbuffer ring-buffer]]
             )
-  (:import java.util.ArrayList)
+
+  (:import java.util.ArrayList )
   )
 
 (deftype ringbuffer [size
@@ -12,8 +14,8 @@
                      ^{:volatile-mutable true} ^ArrayList buf
                      ^{:volatile-mutable true} capacity
                      wrapper-index]
-  impl/Buffer
-    (remove!
+  cactus.impl/RingBuffer
+    (take!
     [this]
       (if (= (inc @start) @n)
           (let [return-val (.get @buf 0)]
@@ -28,7 +30,8 @@
             return-val)
             )
          )
-   (add!*
+
+  (add!
     [this e]
       (if (= @capacity @n)
         (do (.set @buf 0 e)
@@ -60,23 +63,18 @@
                 )
               )
             )
-    (full? [this]
-      false)
-    (close-buf! [this])
-
-    cactus.impl/Buffer
-    (look
+    (peep
       [this i]
       (.get @buf (wrapper-index (+ @start i)))
-      )
-
-    clojure.lang.Counted
-    (count
+     )
+    (size
       [this]
-      (.size @buf))
+      (.size @buf)
+      )
     )
 
-;; initialization function
+;; initalization states for the ringbuff class
+
 (defn ring-buffer [size]
   (let [^{:volatile-mutable true} n (volatile! size)
         ^{:volatile-mutable true} start (volatile! 0)
@@ -89,6 +87,24 @@
    )
   )
 
+;;clojures own fixedbbuffer that we change a bit and make it take ring-buff
+(deftype FixedBuffer [^ringbuffer buf ^long n]
+  impl/Buffer
+  (full? [this]
+    false) ;;ringbuffer can never be full
+  (remove! [this]
+    (.take! buf))
+  (add!* [this itm]
+    (.add! buf itm)
+    this)
+  (close-buf! [this]);;????
+  clojure.lang.Counted
+  (count [this]
+    (.size buf))
+  cactus.impl/Buffer
+  (look [this index]
+    (.peep buf index))
+    )
 
 (defn fixed-buffer [^long n]
-  (ring-buffer 40)) ;;kan man skick med en long? default value 40 längd
+  (FixedBuffer. (ring-buffer 40) n)) ;;kan man skick med en long? default value 40 längd

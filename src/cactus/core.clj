@@ -88,18 +88,15 @@
     (go
       (>! chan-1 3)
       (>! chan-1 2)
+      (>! chan-1 10)
+      (>! chan-1 10)
       )
 
 
     (go
-      (println (<<! chan-1 1 ) )
-      (println (<<! chan-1 1 ) )
-      (println "wow")
-      )
-
-    (go
-      (println (<<! chan-1 1) )
-      (println "nice")
+        (println (<! chan-1))
+        (println (<! chan-1))
+        (println (<! chan-1))
       )
 
 
