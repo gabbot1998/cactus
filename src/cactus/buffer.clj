@@ -5,6 +5,7 @@
   (:import [java.util LinkedList Queue])
   )
 
+
 (deftype FixedBuffer [^LinkedList buf ^long n]
   impl/Buffer
   (full? [this]

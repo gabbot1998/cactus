@@ -71,7 +71,6 @@
     ;skriva hårdkodad guard
     ;macros
 
-
     ; <?
     ; <°
     ; <*
@@ -90,6 +89,7 @@
       (>! chan-1 3)
       (>! chan-1 2)
       )
+
 
     (go
       (println (<<! chan-1 1 ) )
