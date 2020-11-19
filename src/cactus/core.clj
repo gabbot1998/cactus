@@ -100,7 +100,7 @@
 
 (defn -main  [& args]
 
-  (def A "HEJA")
+  (def A "BBBBHEJA")
   (def B "BHEBJABBBBBB") ;En multipppel av 4. I det här fallet 16.
   (def width 4)
 
@@ -114,10 +114,10 @@
   (fan-out-actor chan-contr-fan-a chan-fan-sw-1 chan-fan-sw-2 chan-fan-sw-3 chan-fan-sw-4)
 
 
-  (sw-cell chan-fan-sw-1 chan-stripe-sw-1 (- (count A) 1) chan-sw-4-1 chan-sw-1-2  chan-sw-out-1 "1")
-  (sw-cell chan-fan-sw-2 chan-stripe-sw-2 (- (count A) 1) chan-sw-1-2 chan-sw-2-3 chan-sw-out-2 "2")
-  (sw-cell chan-fan-sw-3 chan-stripe-sw-3 (- (count A) 1) chan-sw-2-3 chan-sw-3-4 chan-sw-out-3 "3")
-  (sw-cell-end chan-fan-sw-4 chan-stripe-sw-4 (- (count A) 1) chan-sw-3-4 chan-sw-4-1 chan-sw-out-4 "4")
+  (sw-cell chan-fan-sw-1 chan-stripe-sw-1 (count A) chan-sw-4-1 chan-sw-1-2  chan-sw-out-1 "1")
+  (sw-cell chan-fan-sw-2 chan-stripe-sw-2 (count A) chan-sw-1-2 chan-sw-2-3 chan-sw-out-2 "2")
+  (sw-cell chan-fan-sw-3 chan-stripe-sw-3 (count A) chan-sw-2-3 chan-sw-3-4 chan-sw-out-3 "3")
+  (sw-cell-end chan-fan-sw-4 chan-stripe-sw-4 (count A) chan-sw-3-4 chan-sw-4-1 chan-sw-out-4 "4")
 
   (aligner A B width chan-sw-out-1 chan-sw-out-2 chan-sw-out-3 chan-sw-out-4 chan-res)
 

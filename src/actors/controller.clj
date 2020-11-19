@@ -16,6 +16,7 @@
                                 (>! chan-stripe (subs new-B (* n i) (* n (+ i 1)))); pick out the strings
 
                                 (doseq [j (range (count new-A))]
+                                  ;(println "The controller is sending: " (nth new-A j))
                                   (>! chan-first-sw (nth new-A j))
 
                                 )

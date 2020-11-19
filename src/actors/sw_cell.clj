@@ -39,9 +39,8 @@
                 ] ;;Assign new local state and execute body
             (>! v new-n);;Set output
             (>! aln-v new-n)
-            (if (= i an)
+            (if (= i (dec an))
               (do
-
                   (recur 0 0 0)
                 )
               (do

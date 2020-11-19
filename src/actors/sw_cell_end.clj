@@ -42,9 +42,9 @@
                 ] ;;Assign new local state and execute body
             (>! v new-n);;Set output
             (>! aln-v new-n)
-            (if (= i an)
+            (if (= i (dec an))
               (do
-                  ;(println "The index is reset")
+                  ;(println "The index is reset" an)
                   (recur 0 0 0)
                 )
               (do
