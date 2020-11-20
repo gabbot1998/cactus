@@ -18,13 +18,14 @@
     (take!
     [this]
       (if (= (inc @start) @n)
-          (let [return-val (.get @buf 0)]
+          (let [return-val (.get @buf @start)]
             (.set @buf @start nil)
             (vreset! start 0)
             (vswap! capacity inc)
             return-val)
           (let [return-val (.get @buf @start)]
             (.set @buf @start nil)
+            (println "buffer after take" @buf)
             (vswap! start inc)
             (vswap! capacity inc)
             return-val)
@@ -35,8 +36,11 @@
     [this e]
       (if (= @capacity @n)
         (do (.set @buf 0 e)
-        (vswap! capacity dec))
-        (if (and (not= @capacity 0) (not= @start (inc @end)))
+            (vswap! capacity dec)
+            (vreset! start 0)
+            (vreset! end 0)
+            )
+        (if (not= @capacity 0) 
           (if (= (inc @end) @n)
               (do
                 (vreset! end 0)
@@ -45,6 +49,7 @@
                 )
               (do
                 (.set @buf (inc @end) e)
+                (println "buffer after add" @buf)
                 (vswap! end inc)
                 (vswap! capacity dec)
                 ))
@@ -55,6 +60,7 @@
               (.set new-buf @n e)
               (vreset! buf new-buf)
               )
+            (println "buffer after resizing add" @buf)
             (vreset! start 0)
             (vreset! end @n)
             (vreset! capacity @n)
@@ -69,8 +75,7 @@
      )
     (size
       [this]
-      (.size @buf)
-      )
+      (- @n @capacity))
     )
 
 ;; initalization states for the ringbuff class
@@ -107,4 +112,4 @@
     )
 
 (defn fixed-buffer [^long n]
-  (FixedBuffer. (ring-buffer 40) n)) ;;kan man skick med en long? default value 40 längd
+  (FixedBuffer. (ring-buffer 5) n)) ;;kan man skick med en long? default value 40 längd

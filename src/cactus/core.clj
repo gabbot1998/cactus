@@ -86,17 +86,35 @@
 
 
     (go
-      (>! chan-1 3)
-      (>! chan-1 2)
-      (>! chan-1 10)
-      (>! chan-1 10)
-      )
-
-
-    (go
-        (println (<! chan-1))
-        (println (<! chan-1))
-        (println (<! chan-1))
+      (>! chan-1 333)
+      (println "we grab one", (<! chan-1))
+      (>! chan-1 1337)
+      (>! chan-1 122)
+      (>! chan-1 1333333)
+      (>! chan-1 17271)
+      (println "we grab elite", (<! chan-1))
+      (println "we grabd", (<! chan-1))
+      (>! chan-1 17271)
+      (>! chan-1 17271)
+      (>! chan-1 17271)
+      (>! chan-1 17271)
+      (>! chan-1 17271)
+      (>! chan-1 17271)
+      (>! chan-1 17271)
+      (>! chan-1 17271)
+      (println "we grab after huge oversize", (<! chan-1))
+      (println "we grab after huge oversize", (<! chan-1))
+      (println "we grab after huge oversize", (<! chan-1))
+      (println "we grab after huge oversize", (<! chan-1))
+      (println "we grab after huge oversize", (<! chan-1))
+      (println "we grab after huge oversize", (<! chan-1))
+      (println "we grab after huge oversize", (<! chan-1))
+      (println "we grab after huge oversize", (<! chan-1))
+      (>! chan-1 "tjene")
+      (>! chan-1 "tjeneneen")
+      (println "we should get 17271", (<! chan-1))
+      (println "we should get 17271", (<! chan-1))
+      (println "shoudl get tjene", (<! chan-1))
       )
 
 
