@@ -66,55 +66,15 @@
 
 (defn -main  [& args]
 
-    ;implementera random access peek
-    ;byta datastruktur
-    ;skriva hårdkodad guard
-    ;macros
-
-    ; <?
-    ; <°
-    ; <*
-    ; <-
-    ; <=
-    ; <%
-    ; <)
-    ; <}
-    ; ◊
-    ; <>
-    ; ‡
-    ; **
-
 
     (go
       (>! chan-1 333)
-      (println "we grab one", (<! chan-1))
       (>! chan-1 1337)
       (>! chan-1 122)
-      (>! chan-1 1333333)
-      (>! chan-1 17271)
-      (println "we grab elite", (<! chan-1))
-      (println "we grabd", (<! chan-1))
-      (>! chan-1 17271)
-      (>! chan-1 17271)
-      (>! chan-1 17271)
-      (>! chan-1 17271)
-      (>! chan-1 17271)
-      (>! chan-1 17271)
-      (>! chan-1 17271)
-      (>! chan-1 17271)
-      (println "we grab after huge oversize", (<! chan-1))
-      (println "we grab after huge oversize", (<! chan-1))
-      (println "we grab after huge oversize", (<! chan-1))
-      (println "we grab after huge oversize", (<! chan-1))
-      (println "we grab after huge oversize", (<! chan-1))
-      (println "we grab after huge oversize", (<! chan-1))
-      (println "we grab after huge oversize", (<! chan-1))
-      (println "we grab after huge oversize", (<! chan-1))
-      (>! chan-1 "tjene")
-      (>! chan-1 "tjeneneen")
-      (println "we should get 17271", (<! chan-1))
-      (println "we should get 17271", (<! chan-1))
-      (println "shoudl get tjene", (<! chan-1))
+      )
+
+   (go
+      (println "peeping ", (<<! chan-1 101))
       )
 
 

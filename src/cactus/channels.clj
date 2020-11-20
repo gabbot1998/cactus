@@ -13,11 +13,11 @@
 
   (defmacro didexecute?
   [body]
-  `(if (not 😊 false
+  `(if (not (= false
                (try
                  ~body
                  (catch Exception e#
-                   false)))
+                   false))))
 
      true
      false))

@@ -25,7 +25,6 @@
             return-val)
           (let [return-val (.get @buf @start)]
             (.set @buf @start nil)
-            (println "buffer after take" @buf)
             (vswap! start inc)
             (vswap! capacity inc)
             return-val)
@@ -49,7 +48,6 @@
                 )
               (do
                 (.set @buf (inc @end) e)
-                (println "buffer after add" @buf)
                 (vswap! end inc)
                 (vswap! capacity dec)
                 ))
@@ -60,7 +58,6 @@
               (.set new-buf @n e)
               (vreset! buf new-buf)
               )
-            (println "buffer after resizing add" @buf)
             (vreset! start 0)
             (vreset! end @n)
             (vreset! capacity @n)
@@ -71,7 +68,10 @@
             )
     (peep
       [this i]
-      (.get @buf (wrapper-index (+ @start i)))
+      (if (> (inc i) (- @n @capacity))
+        (throw (Exception. "peep too deep"))
+        (.get @buf (wrapper-index (+ @start i)))
+      )
      )
     (size
       [this]
