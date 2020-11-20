@@ -11,17 +11,6 @@
 
   )
 
-  (defmacro didexecute?
-  [body]
-  `(if (not (= false
-               (try
-                 ~body
-                 (catch Exception e#
-                   false))))
-
-     true
-     false))
-
 (defmacro did-execute? [body]
   `(if (not (= false (try
     ~body

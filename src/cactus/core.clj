@@ -65,8 +65,6 @@
 
 
 (defn -main  [& args]
-
-
     (go
       (>! chan-1 333)
       (>! chan-1 1337)
@@ -74,7 +72,7 @@
       )
 
    (go
-      (println "peeping ", (<<! chan-1 101))
+      (println "this peek should park wtf ", (<<! chan-1 100))
       )
 
 

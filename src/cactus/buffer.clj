@@ -1,9 +1,7 @@
 (ns cactus.buffer
   (:require [cactus.protocols :as cactus.impl]
             [clojure.core.async.impl.protocols :as impl]
-            ;; [cactus.ringbuffer :as ringbuffer :refer  [ringbuffer ring-buffer]]
             )
-
   (:import java.util.ArrayList )
   )
 
