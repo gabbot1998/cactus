@@ -52,7 +52,7 @@
   (stripe width)
 
 (network
-  (~> (controller :to-stripe) (stripe :bs) )
+  (~> (controller :to-stripe) (stripe :bs) 100) ;Optional chanelbuffer size
   (~> (controller :to-fanout) (fanout :a))
 
   )
