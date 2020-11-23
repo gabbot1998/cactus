@@ -22,6 +22,7 @@
 
   ;bs is suposed to be a string in this actor
   (defaction [bs] ==> [sw-0 sw-1 sw-2 sw-3]
+    ;This could be any clojure code which would run when the actor is fired.
     (doseq [i (range width)]
       (>! sw-0 (nth bs 0))
       (>! sw-1 (nth bs 1))
