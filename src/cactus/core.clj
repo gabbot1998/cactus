@@ -92,16 +92,14 @@
       )
 
     (go
-      (println (<<! chan-1 1 ) )
-      (println (<<! chan-1 1 ) )
-      (println "wow")
-      )
-
-    (go
-      (println (<<! chan-1 1) )
+      (println (<<! chan-1 100) )
       (println "nice")
       )
 
+  (go
+    (println (<<! chan-1 1) )
+    (println "denna ska printa ")
+    )
 
 
 

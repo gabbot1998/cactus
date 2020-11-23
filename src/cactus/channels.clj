@@ -11,17 +11,6 @@
 
   )
 
-  (defmacro didexecute?
-  [body]
-  `(if (not 😊 false
-               (try
-                 ~body
-                 (catch Exception e#
-                   false)))
-
-     true
-     false))
-
 (defmacro did-execute? [body]
   `(if (not (= false (try
     ~body
@@ -96,9 +85,16 @@
                                         (let [ret (and (impl/active? taker) (impl/commit taker))]
                                           (.unlock taker)
                                           (if ret
-                                            (let [val (impl/remove! buf)]
-                                              (.remove iter)
-                                              (recur (conj takers (fn [] (ret val)))))
+                                            (if (cactus.impl/peek? taker)
+                                              (do
+                                                (if (did-execute? (cactus.impl/look buf (cactus.impl/peek-depth taker)))
+                                                  (let [val (cactus.impl/look buf (cactus.impl/peek-depth taker))]
+                                                    (.remove iter)
+                                                    (recur (conj takers (fn [] (ret val)))))
+                                                  (recur takers )))
+                                              (let [val (impl/remove! buf)]
+                                                (.remove iter)
+                                                (recur (conj takers (fn [] (ret val))))))
                                             (recur takers))))
                                       takers))]
                      (if (seq take-cbs)
