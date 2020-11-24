@@ -1,5 +1,4 @@
-(ns
-   cactus.async
+(ns cactus.async
    (:require [clojure.core.async.impl.dispatch :as dispatch]
              [clojure.core.async
               :as async
@@ -9,37 +8,52 @@
               [clojure.core.async.impl.ioc-macros :as ioc]
               [cactus.async_ioc_macros :as cactus.ioc]
               [cactus.channels :as channels]
-
     )
-
+   (:import [cactus.buffer ringbuffer])
   )
 
-(defn buffer
-  "Returns a fixed buffer of size n. When full, puts will block/park."
-  [n]
-  (assert (pos? n) "fixed buffers must have size > 0")
-  (buffer/fixed-buffer n))
 
-(defn chan
-  "Creates a channel with an optional buffer, an optional transducer
-  (like (map f), (filter p) etc or a composition thereof), and an
-  optional exception-handler.  If buf-or-n is a number, will create
-  and use a fixed buffer of that size. If a transducer is supplied a
-  buffer must be specified. ex-handler must be a fn of one argument -
-  if an exception occurs during transformation it will be called with
-  the Throwable as an argument, and any non-nil return value will be
-  placed in the channel."
-  ([] (chan nil))
-  ([buf-or-n] (chan buf-or-n nil))
-  ([buf-or-n xform] (chan buf-or-n xform nil))
-  ([buf-or-n xform ex-handler]
-     (when xform (assert buf-or-n "buffer must be supplied when transducer is"))
-     (channels/chan (if (number? buf-or-n) (buffer buf-or-n) buf-or-n) xform ex-handler)))
+(defn buffer [size]
+  (let [^{:volatile-mutable true} n (volatile! size)
+        ^{:volatile-mutable true} start (volatile! 0)
+        ^{:volatile-mutable true} end (volatile! 0)
+        ^{:volatile-mutable true} buf (volatile! (java.util.ArrayList. (range size)))
+        ^{:volatile-mutable true} capacity (volatile! size)
+        wrapper-index (fn [x] (let [m (mod x @n)]
+                               (if (< m 0) (+ m @n) m)))]
+    (ringbuffer. size n start end buf capacity wrapper-index)
+    )
+  )
+
+;; (defn buffer
+;;   "Returns a ring buffer of default size 10. Grows in size with queue"
+;;   []
+;;   (let [^ringbuffer rb (buffer/ring-buffer 10)]
+;;     rb))
+;;   )
+
+(defn chan []
+  (channels/chan (buffer 10)))
+
+;; (defn chan
+;;   "Creates a channel with an optional buffer, an optional transducer
+;;   (like (map f), (filter p) etc or a composition thereof), and an
+;;   optional exception-handler.  If buf-or-n is a number, will create
+;;   and use a fixed buffer of that size. If a transducer is supplied a
+;;   buffer must be specified. ex-handler must be a fn of one argument -
+;;   if an exception occurs during transformation it will be called with
+;;   the Throwable as an argument, and any non-nil return value will be
+;;   placed in the channel."
+;;   ([] (chan nil))
+;;   ([buf-or-n] (chan buf-or-n nil))
+;;   ([buf-or-n xform] (chan buf-or-n xform nil))
+;;   ([buf-or-n xform ex-handler]
+;;      (when xform (assert buf-or-n "buffer must be supplied when transducer is"))
+;;      (channels/chan (if (number? buf-or-n) (buffer buf-or-n) buf-or-n) xform ex-handler)))
 
 (defn <<!
   "peeks a val from port. Must be called inside a (go ...) block. Will
   return nil if closed. Will park if nothing is available."
-
   [port index]
    (assert nil "<<! used not in (go ...) block"))
 
@@ -58,7 +72,7 @@
   completed"
   [& body]
   (let [crossing-env (zipmap (keys &env) (repeatedly gensym))]
-    `(let [c# (chan 1)
+    `(let [c# (chan )
            captured-bindings# (clojure.lang.Var/getThreadBindingFrame)]
        (dispatch/run
          (^:once fn* []
