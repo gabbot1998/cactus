@@ -166,18 +166,6 @@
 ;
 ;   )
 
-(defmacro entities
- ([& actors-then-network]
-    ;(println "\nThe network is currently: " (network-builder (first (reverse actors-then-network))) "\n")
-    (println (first (butlast actors-then-network)))
-    (let [map (network-builder (first (reverse actors-then-network)))]
-      `(do
-        (println "All actors on stand by.")
-        (while true )
-        )
-      )
-   )
- )
 
 ;Read the list. Parse the network. Use the symbol after the actor keyword as the key in the connections map.
 ;Expand the list after the keyword as an actor. Use the correct actor defined using the defactor macro.
@@ -222,33 +210,94 @@
 ;      )
 ;   )
 
-(defmacro defactor
-  [name parameters connections-in arrow connections-out & actions]
+;The actor macro should treat argument one as the key to the connections map, argument two as the list containing: 1. The name of the actor, &2. the rest of the arguments. These should be fed to the actor instant.
 
-  (println name)
-  (println parameters)
-  (println connections-in)
-  (println arrow)
-  (println connections-out)
+;defaction should take
+; (defaction :in [x] ==>
+;   (println x)
+;    )
 
-  (println (vec (concat parameters connections-in connections-out) ))
-  (println name)
+; (defmacro actor-expander
+;   [actor-spec connections-map]
+;     `(reverse (cons ~connections-map (reverse ~@actor-spec)))
+;   )
 
-  `(defn ~(symbol name) ~(vec (concat parameters connections-in connections-out)) (println ~(first connections-in)))
+(defn actor-expander
+  [actor-list connections]
+    (let [var-name (second actor-list)
+          actor-spec (nth actor-list 2)
+          connections-map (connections (keyword var-name))
+          ]
+
+          (reverse (cons connections-map (reverse actor-spec)))
+
+      )
   )
 
-;The actor macro should treat argument one as the key to the connections map, argument two as the list containing: 1. The name of the actor, &2. the rest of the arguments. These should be fed to the actor instant.
+(defmacro entities
+ ([& actors-then-network]
+    ;(println "\nThe network is currently: " (network-builder (first (reverse actors-then-network))) "\n")
+    ;(println (first (butlast actors-then-network)))
+    (let [
+          connections (network-builder (first (reverse actors-then-network)))
+          actors-list (butlast actors-then-network)
+          ]
+
+          (loop [
+                new-actors-list actors-list
+                accumulator '()
+                ]
+
+
+                (if (= '() new-actors-list)
+                  accumulator
+                  (recur (rest new-actors-list) (cons (actor-expander (first new-actors-list) connections) accumulator))
+                )
+              )
+
+      )
+    )
+   )
+
+; (do
+;   (print-actor {:in #object[cactus.channels.ManyToManyChannel 0x201c1d99 cactus.channels.ManyToManyChannel@201c1d99]})
+;   (feed-actor what {:out #object[cactus.channels.ManyToManyChannel 0x201c1d99 cactus.channels.ManyToManyChannel@201c1d99]})
+;   )
+
+
+(defmacro defactor
+  [name parameters connections-in arrow connections-out & actions]
+  ;(println (vec (conj parameters (symbol "connections-in-map") (symbol "connections-out-map"))))
+  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map)) ~@actions)
+  )
+
+
+(def chan-1 (chan 50))
 
 (defn -main  [& args]
 
-  (println (defactor print-actor [] [in] ==> []
-    (defaction :in [x] ==>
-      (println x)
-       )
+  (defactor feed-actor [str out] [] ==> [out]
+    (go (>! out str))
+    )
+
+  (defactor print-actor [in] [in] ==> []
+      (go (println (<! in)))
+    )
+
+
+
+
+  (entities
+    ('actor feed-once (feed-actor "what"  ))
+    ('actor printer   (print-actor       ))
+
+    (network
+      (connection (feed-once :out) (printer :in))
       )
     )
 
-  (print-actor "Det här ska printas")
+
+  (while true )
 
   ; (entities
   ;    (actor feeder-actor-0 (feeder "Lorem ipsum dolor sit amet" 5))
