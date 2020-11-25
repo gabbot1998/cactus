@@ -28,10 +28,10 @@
              :refer [fan-out-actor]
              ]
 
-             [actors.print_actor
-             :as print-actor
-             :refer [print-actor]
-             ]
+             ; [actors.print_actor
+             ; :as print-actor
+             ; :refer [print-actor]
+             ; ]
 
              [actors.guarded_actor
              :as guarded_actor
@@ -154,8 +154,22 @@
     )
   )
 
+; (defactor print-actor [] [in] ==> []
+;   (defaction :in [x] ==>
+;     (println x)
+;      )
+;   )
+
+
+
+; (defmacro actor [name actor]
+;
+;   )
+
 (defmacro entities
  ([& actors-then-network]
+    ;(println "\nThe network is currently: " (network-builder (first (reverse actors-then-network))) "\n")
+    (println (first (butlast actors-then-network)))
     (let [map (network-builder (first (reverse actors-then-network)))]
       `(do
         (println "All actors on stand by.")
@@ -164,6 +178,12 @@
       )
    )
  )
+
+;Read the list. Parse the network. Use the symbol after the actor keyword as the key in the connections map.
+;Expand the list after the keyword as an actor. Use the correct actor defined using the defactor macro.
+
+; (defmacro actor
+;   )
 
 ; (defn print-actor [in]
 ;   (go-loop [];No initial state
@@ -202,19 +222,45 @@
 ;      )
 ;   )
 
+(defmacro defactor
+  [name parameters connections-in arrow connections-out & actions]
+
+  (println name)
+  (println parameters)
+  (println connections-in)
+  (println arrow)
+  (println connections-out)
+
+  (println (vec (concat parameters connections-in connections-out) ))
+  (println name)
+
+  `(defn ~(symbol name) ~(vec (concat parameters connections-in connections-out)) (println ~(first connections-in)))
+  )
+
+;The actor macro should treat argument one as the key to the connections map, argument two as the list containing: 1. The name of the actor, &2. the rest of the arguments. These should be fed to the actor instant.
+
 (defn -main  [& args]
 
-  (entities
-     (actor feeder-actor-0 (feeder "Lorem ipsum dolor sit amet" 5))
-     (actor feeder-actor-1 (feeder "Lorem ipsum dolor sit amet" 5))
-     (actor print-actor (print-two-actor ))
+  (println (defactor print-actor [] [in] ==> []
+    (defaction :in [x] ==>
+      (println x)
+       )
+      )
+    )
 
-   (network
-    (connection (feeder-actor-0 :out) (print-actor :in-0) {:chan-size 1000} )
-    (connection (feeder-actor-1 :out) (print-actor :in-1) {} )
+  (print-actor "Det här ska printas")
 
-     )
-   )
+  ; (entities
+  ;    (actor feeder-actor-0 (feeder "Lorem ipsum dolor sit amet" 5))
+  ;    (actor feeder-actor-1 (feeder "Lorem ipsum dolor sit amet" 5))
+  ;    (actor print-actor (print-two-actor ))
+  ;
+  ;  (network
+  ;   (connection (feeder-actor-0 :out) (print-actor :in-0) {:chan-size 1000} )
+  ;   (connection (feeder-actor-1 :out) (print-actor :in-1) {} )
+  ;
+  ;    )
+  ;  )
  )
 
 
