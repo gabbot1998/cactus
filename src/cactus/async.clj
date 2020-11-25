@@ -1,15 +1,15 @@
 (ns cactus.async
-   (:require [clojure.core.async.impl.dispatch :as dispatch]
-             [clojure.core.async
-              :as async
-              :refer []
-              ]
-              [cactus.buffer :as buffer]
-              [clojure.core.async.impl.ioc-macros :as ioc]
-              [cactus.async_ioc_macros :as cactus.ioc]
-              [cactus.channels :as channels]
-    )
-   (:import [cactus.buffer ringbuffer])
+  (:require [clojure.core.async.impl.dispatch :as dispatch]
+            [clojure.core.async
+             :as async
+             :refer []
+             ]
+            [cactus.buffer :as buffer]
+            [clojure.core.async.impl.ioc-macros :as ioc]
+            [cactus.async_ioc_macros :as cactus.ioc]
+            [cactus.channels :as channels]
+            )
+  (:import [cactus.buffer ringbuffer])
   )
 
 
@@ -32,8 +32,9 @@
 ;;     rb))
 ;;   )
 
-(defn chan []
-  (channels/chan (buffer 10)))
+(defn chan
+  ([] (channels/chan (buffer 10) []))
+  ([init] (channels/chan (buffer 10) init)))
 
 ;; (defn chan
 ;;   "Creates a channel with an optional buffer, an optional transducer
@@ -52,13 +53,16 @@
 ;;      (channels/chan (if (number? buf-or-n) (buffer buf-or-n) buf-or-n) xform ex-handler)))
 
 (defn <<!
-  "peeks a val from port. Must be called inside a (go ...) block. Will
+"peeks a val from port. Must be called inside a (go ...) block. Will
   return nil if closed. Will park if nothing is available."
-  [port index]
-   (assert nil "<<! used not in (go ...) block"))
+[port index]
+(assert nil "<<! used not in (go ...) block"))
+
+(defn size?
+[port])
 
 (defmacro go
-  "Asynchronously executes the body, returning immediately to the
+"Asynchronously executes the body, returning immediately to the
   calling thread. Additionally, any visible calls to <!, >! and alt!/alts!
   channel operations within the body will block (if necessary) by
   'parking' the calling thread rather than tying up an OS thread (or
@@ -70,16 +74,16 @@
   core.async blocking ops (those ending in !!) and other blocking IO.
   Returns a channel which will receive the result of the body when
   completed"
-  [& body]
-  (let [crossing-env (zipmap (keys &env) (repeatedly gensym))]
-    `(let [c# (chan )
-           captured-bindings# (clojure.lang.Var/getThreadBindingFrame)]
-       (dispatch/run
-         (^:once fn* []
-          (let [~@(mapcat (fn [[l sym]] [sym `(^:once fn* [] ~(vary-meta l dissoc :tag))]) crossing-env)
-                f# ~(ioc/state-machine `(do ~@body) 1 [crossing-env &env] cactus.ioc/async-custom-terminators)
-                state# (-> (f#)
-                           (ioc/aset-all! ioc/USER-START-IDX c#
-                                          ioc/BINDINGS-IDX captured-bindings#))]
-            (ioc/run-state-machine-wrapped state#))))
-       c#)))
+[& body]
+(let [crossing-env (zipmap (keys &env) (repeatedly gensym))]
+  `(let [c# (chan )
+         captured-bindings# (clojure.lang.Var/getThreadBindingFrame)]
+     (dispatch/run
+       (^:once fn* []
+        (let [~@(mapcat (fn [[l sym]] [sym `(^:once fn* [] ~(vary-meta l dissoc :tag))]) crossing-env)
+              f# ~(ioc/state-machine `(do ~@body) 1 [crossing-env &env] cactus.ioc/async-custom-terminators)
+              state# (-> (f#)
+                         (ioc/aset-all! ioc/USER-START-IDX c#
+                                        ioc/BINDINGS-IDX captured-bindings#))]
+          (ioc/run-state-machine-wrapped state#))))
+     c#)))
