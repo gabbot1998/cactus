@@ -49,7 +49,7 @@
 
              [cactus.actor_macros
              :as cactus.actors
-             :refer [defactor entities]
+             :refer [defactor entities actor connection network]
              ]
 
              )
@@ -103,24 +103,35 @@
 ;     )
 ;   )
 
-(defactor feed-actor [str] [] ==> [out]
+(defactor feed-actor [str n] [] ==> [out]
   (go
-    (doseq [i (range 100)]
+    (doseq [i (range n)]
       (>! (connections-map :out) str)
       )
     )
   )
 
+  (defactor feed-once [str] [] ==> [out]
+    (go
+        (>! (connections-map :out) str)
+      )
+    )
+
 (defactor print-actor [] [in] ==> []
   (go
+    (println connections-map)
     (println (<! (connections-map :in)))
     )
   )
 
 (defactor print-two-actor [] [in-0 in-1] ==> []
   (go
+    (println "consuming")
     (loop []
-    (println (<! (connections-map :in-0)) (<! (connections-map :in-1)))
+      (println
+      (<! (connections-map :in-0))
+      (<! (connections-map :in-1))
+      )
     (recur )
     )
     )
@@ -132,16 +143,15 @@
 (defn -main  [& args]
 
   (entities
-    ('actor feeder-0 (feed-actor "Printing 0" ))
-    ('actor feeder-1 (feed-actor "Printing 1" ))
+    (actor feeder-0 (feed-once "Printing 0"))
 
-    ('actor print-two   (print-two-actor ))
+    (actor printer (print-actor ))
 
     (network
-      (connection (feeder-0 :out) (print-two :in-0))
-      (connection (feeder-1 :out) (print-two :in-1))
+      (connection (feeder-0 :out) (printer :in))
       )
     )
+
 
   (while true )
 

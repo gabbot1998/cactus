@@ -28,7 +28,7 @@
       standard-chan-size
     )
   )
-  
+
 (defn is-nil? [map key1 key2]
   (if (= (map key1) nil)
     true
@@ -72,6 +72,13 @@
 
         ]
 
+        (println connection)
+        ; (if (not= connection 'network)
+        ;   (do
+        ;     (assert (= (first connection) 'connection) "Only connections or networks should be declared inside the network block.")
+        ;     )
+        ; )
+
         (if (not= rest-nw ())
           ;If we have not reached the network token we are not done.
           (let [
@@ -98,7 +105,7 @@
 (defn network-builder
   ([network]
       (if (not= (first network) 'network)
-        (throw (Exception. (str "The last list inside entities has to be a network.")))
+        (throw (Exception. (str "The last list inside the entities block has to be a network.")))
         (create-connections-map (reverse network))
       )
 
@@ -107,11 +114,16 @@
 
 (defn actor-expander
   [actor-list connections]
-    (let [var-name (second actor-list)
-          actor-spec (nth actor-list 2)
+    (let [
+          keyword (first actor-list)
+          var-name (second actor-list)
+          actor-spec (nth actor-list 2 nil)
           connections-map (connections (keyword var-name))
           ]
 
+          (assert (= keyword 'actor) "Only actors and networks should be declared inside the entities block.")
+          (assert var-name "The declaration of an actor requires a variable name.")
+          (assert actor-spec (str "actor varible: " var-name " has not been defined."))
           (reverse (cons connections-map (reverse actor-spec)))
 
       )
@@ -138,8 +150,6 @@
 
 (defmacro entities
  ([& actors-then-network]
-    ;(println "\nThe network is currently: " (network-builder (first (reverse actors-then-network))) "\n")
-    ;(println (first (butlast actors-then-network)))
     (let [
           connections (network-builder (first (reverse actors-then-network)))
           actors-list (butlast actors-then-network)
@@ -147,21 +157,21 @@
                 new-actors-list actors-list
                 accumulator '()
                 ]
+                (println connections)
 
                 (if (= '() new-actors-list)
                   accumulator
-                  (recur (rest new-actors-list) (conj accumulator (actor-expander (first new-actors-list) connections)))
+                  (do
+                    ;Evaluate the macro. Testing for completeness.
+                    (recur (rest new-actors-list) (conj accumulator (actor-expander (first new-actors-list) connections)))
+                    )
                 )
               )
           execute (create-let-with-channels (connections :number-of-channels) calls-to-actors)
-          test '(chan 50)
-          test2 '(do (println {:a (chan 50)}) (println "wassa") )
           ]
 
         `(do
           ~execute
-          (println "All actors expanded")
-          (while true)
           )
 
 
@@ -169,9 +179,22 @@
     )
    )
 
+(defmacro network
+  [& connections]
+  (assert nil "network defined outside (entities ...) block.")
+  )
+
+(defmacro actor
+  [var-name [actor-type & args]]
+  (assert nil "actor used outside (entities ...) block.")
+  )
+
+(defmacro connection
+  [from to]
+  (assert nil "connection defined outside (network ...) block.")
+  )
 
 (defmacro defactor
  [name parameters connections-in arrow connections-out & actions]
- ;(println (vec (conj parameters (symbol "connections-in-map") (symbol "connections-out-map"))))
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map)) ~@actions)
  )
