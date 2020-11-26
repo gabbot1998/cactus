@@ -56,10 +56,6 @@
              )
    )
 
-; (def chan-1 (chan 50))
-; (def chan-2 (chan 50))
-
-
 (def in '((con (feeder-2 :out) (print-actor :in-2)) (con (feeder-1 :out) (print-actor :in-1)) network))
 
 (def chan-size :chan-size)
@@ -234,6 +230,16 @@
       )
   )
 
+
+; (defmacro entities
+;  ([& actors-then-network]
+;    (let [s '(1 2 3)]
+;
+;    `(println "wow")
+;    )
+;   )
+;   )
+
 (defmacro entities
  ([& actors-then-network]
     ;(println "\nThe network is currently: " (network-builder (first (reverse actors-then-network))) "\n")
@@ -241,27 +247,50 @@
     (let [
           connections (network-builder (first (reverse actors-then-network)))
           actors-list (butlast actors-then-network)
-          ]
-
-          (loop [
+          calls-to-actors (loop [
                 new-actors-list actors-list
                 accumulator '()
                 ]
 
-
                 (if (= '() new-actors-list)
                   accumulator
-                  (recur (rest new-actors-list) (cons (actor-expander (first new-actors-list) connections) accumulator))
+                  (recur (rest new-actors-list) (conj accumulator (actor-expander (first new-actors-list) connections)))
                 )
               )
+          execute (conj calls-to-actors 'do )
+          test {:a (chan 50)}
+          test2 '(do (println {:a (chan 50)}) (println "wassa") )
+          ]
+
+          (println test)
+        `(do
+          (println (~test :a))
+          ;(println ~test)
+          ;~execute
+          (println "hej")
+          (while true)
+          )
+
 
       )
     )
    )
+   
+; [x__10637__auto__ [:feed-once {:out #object[cactus.channels.ManyToManyChannel 0xbd8f424 "cactus.channels.ManyToManyChannel@bd8f424"]}]
+;                   [:printer {:in #object[cactus.channels.ManyToManyChannel 0xbd8f424 "cactus.channels.ManyToManyChannel@bd8f424"]}]
+; ]
+
+; [cactus.core/conns [:feed-once {:out #object[cactus.channels.ManyToManyChannel 0x620ba2b0 "cactus.channels.ManyToManyChannel@620ba2b0"]}]
+;                     [:printer {:in #object[cactus.channels.ManyToManyChannel 0x620ba2b0 "cactus.channels.ManyToManyChannel@620ba2b0"]}]
+;                     ]
+; (do
+;   (print-actor {:in #object[cactus.channels.ManyToManyChannel 0x3c0b9643 cactus.channels.ManyToManyChannel@3c0b9643]})
+;   (feed-actor what {:out #object[cactus.channels.ManyToManyChannel 0x3c0b9643 cactus.channels.ManyToManyChannel@3c0b9643]})
+;   )
 
 ; (do
-;   (print-actor {:in #object[cactus.channels.ManyToManyChannel 0x201c1d99 cactus.channels.ManyToManyChannel@201c1d99]})
-;   (feed-actor what {:out #object[cactus.channels.ManyToManyChannel 0x201c1d99 cactus.channels.ManyToManyChannel@201c1d99]})
+;   (print-actor {:in #object[cactus.channels.ManyToManyChannel 0x18dda2e1 cactus.channels.ManyToManyChannel@18dda2e1]})
+;   (feed-actor what {:out #object[cactus.channels.ManyToManyChannel 0x18dda2e1 cactus.channels.ManyToManyChannel@18dda2e1]})
 ;   )
 
 
@@ -277,13 +306,12 @@
 (defn -main  [& args]
 
   (defactor feed-actor [str out] [] ==> [out]
-    (go (>! out str))
+    (println "Expanded feed-actor")
     )
 
   (defactor print-actor [in] [in] ==> []
-      (go (println (<! in)))
+    (println "Expanded print-actor")
     )
-
 
 
 
@@ -313,7 +341,10 @@
  )
 
 
-
+; ((()
+; feed-actor what {:out #object[cactus.channels.ManyToManyChannel 0x2b39e77d cactus.channels.ManyToManyChannel@2b39e77d]})
+; print-actor {:in #object[cactus.channels.ManyToManyChannel 0x2b39e77d cactus.channels.ManyToManyChannel@2b39e77d]}
+; )
 
 
   ;Read the network. For every con make a channel.
