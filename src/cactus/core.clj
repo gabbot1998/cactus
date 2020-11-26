@@ -107,6 +107,7 @@
 
 (defn create-connections-map [network]
   (loop [
+          i 0
           connection (first network)
           rest-nw (rest network)
           connections-map {}
@@ -122,7 +123,7 @@
           (let [
                 new-connection (first rest-nw)
                 new-rest-nw (rest rest-nw)
-                new-channel (chan (return-chan-size arguments-map))
+                new-channel (symbol (str "channel-" i))
                 new-connections-map (assoc-connections connections-map connector-0 connector-1 new-channel)
 
                 new-arguments-map (if (= (class new-connection) clojure.lang.PersistentList) (last new-connection) nil)
@@ -130,11 +131,11 @@
                 new-connector-1 (if (= (class new-connection) clojure.lang.PersistentList) (nth new-connection 2 nil) nil)
                 ]
 
-            (recur new-connection new-rest-nw new-connections-map new-arguments-map new-connector-0 new-connector-1)
+            (recur (inc i) new-connection new-rest-nw new-connections-map new-arguments-map new-connector-0 new-connector-1)
             )
 
             ;If we have reached the network token we return the connections-map
-            connections-map
+            (assoc connections-map :number-of-channels i)
 
           )
       )
@@ -240,6 +241,25 @@
 ;   )
 ;   )
 
+(defn create-channel-constructor-calls
+  [n]
+  (loop [
+          i (dec n)
+          accumulator '()
+          ]
+          (if (< i 0)
+            accumulator
+            (recur (dec i) (conj accumulator `( ~(symbol (str "channel-" i)) (chan 50)) ))
+            )
+    )
+  )
+
+(defn create-let-with-channels [n body]
+    `(let ~(vec (apply concat (create-channel-constructor-calls n)))
+      ~(conj body 'do)
+    )
+  )
+
 (defmacro entities
  ([& actors-then-network]
     ;(println "\nThe network is currently: " (network-builder (first (reverse actors-then-network))) "\n")
@@ -257,17 +277,14 @@
                   (recur (rest new-actors-list) (conj accumulator (actor-expander (first new-actors-list) connections)))
                 )
               )
-          execute (conj calls-to-actors 'do )
-          test {:a (chan 50)}
+          execute (create-let-with-channels (connections :number-of-channels) calls-to-actors)
+          test '(chan 50)
           test2 '(do (println {:a (chan 50)}) (println "wassa") )
           ]
 
-          (println test)
         `(do
-          (println (~test :a))
-          ;(println ~test)
-          ;~execute
-          (println "hej")
+          ~execute
+          (println "All actors expanded")
           (while true)
           )
 
@@ -275,7 +292,7 @@
       )
     )
    )
-   
+
 ; [x__10637__auto__ [:feed-once {:out #object[cactus.channels.ManyToManyChannel 0xbd8f424 "cactus.channels.ManyToManyChannel@bd8f424"]}]
 ;                   [:printer {:in #object[cactus.channels.ManyToManyChannel 0xbd8f424 "cactus.channels.ManyToManyChannel@bd8f424"]}]
 ; ]
@@ -305,22 +322,28 @@
 
 (defn -main  [& args]
 
-  (defactor feed-actor [str out] [] ==> [out]
-    (println "Expanded feed-actor")
+  (defactor feed-actor [str] [] ==> [out]
+    (go
+      (>! (connections-map :out) str)
+    )
     )
 
-  (defactor print-actor [in] [in] ==> []
-    (println "Expanded print-actor")
+  (defactor print-actor [] [in] ==> []
+    (go
+      (println (<! (connections-map :in)))
+    )
     )
 
 
 
   (entities
-    ('actor feed-once (feed-actor "what"  ))
+    ('actor feed-once (feed-actor "Oh my lordi lord"  ))
     ('actor printer   (print-actor       ))
 
     (network
       (connection (feed-once :out) (printer :in))
+      ; (connection (feed-once :out-1) (printer :in-1))
+      ; (connection (feed-once :out-2) (printer :in-2))
       )
     )
 
