@@ -6,56 +6,21 @@
              ]))
 
 
-             (defn controller [A B c1 c2 c3 c4 c5 w] ;;c51 - c54 is chanel to send b
+             (defn controller [A B n chan-first-sw chan-stripe] ;;c51 - c54 is chanel to send b
                    (go
-
                      (loop [];;Set initial state
                        (let [new-A (<! A) new-B (<! B)];;Wait for ports
                          (let [] ;;Assign new local state and execute body
                            (do
-                             ;(println "round 1")
-                             (>! c1 "")
-                             (>! c2 (nth new-A 0))
-                             (>! c3 (nth new-A 1))
-                             (>! c4 (nth new-A 2))
+                             (doseq [i (range (/ (count new-B) n))]
+                                (>! chan-stripe (subs new-B (* n i) (* n (+ i 1)))); pick out the strings
 
-                             (>! c5 "")
+                                (doseq [j (range (count new-A))]
+                                  ;(println "The controller is sending: " (nth new-A j))
+                                  (>! chan-first-sw (nth new-A j))
 
-                             (>! w 0)
-
-                             ;(println "round 2")
-
-
-                             (>! c1 "")
-                             (>! c2 (nth new-A 0))
-                             (>! c3 (nth new-A 1))
-                             (>! c4 (nth new-A 2))
-
-                             (>! c5 (nth new-B 0))
-
-                             (>! w 0)
-
-                             ;(println "round 3")
-
-                             (>! c1 "")
-                             (>! c2 (nth new-A 0))
-                             (>! c3 (nth new-A 1))
-                             (>! c4 (nth new-A 2))
-
-                             (>! c5 (nth new-B 1))
-
-                             (>! w 0)
-                             ;(println "round 4")
-
-                             (>! c1 "")
-                             (>! c2 (nth new-A 0))
-                             (>! c3 (nth new-A 1))
-                             (>! c4 (nth new-A 2))
-
-                             (>! c5 (nth new-B 2))
-
-                             (>! w 0)
-
+                                )
+                               )
 
                              (recur );;Recur
                            )

@@ -1,9 +1,3 @@
-;;"marcus"
-;;"cactus"
-;;match = 5
-;;mismatch = -1
-;;space = 0
-
 (ns cactus.core
   (:gen-class)
   (:require
@@ -18,37 +12,108 @@
     :refer [size? go <<! chan]
     ]
 
+     [cactus.actor_macros
+     :as cactus.actors
+     :refer [defactor entities actor connection network]
+     ]
+
+     )
    )
+
+
+
+
+; (defactor print-actor [] [in] ==> []
+;   (defaction :in [x] ==>
+;     (println x)
+;      )
+;   )
+
+; (defmacro actor
+;   )
+
+; (defn print-actor [in]
+;   (go-loop [];No initial state
+;     (let [
+;           x (<<! in 0)
+;         ]
+;         (if true; Default true guard
+;           ;True
+;           (do
+;             (consume-tokens [in 1])
+;             (println x)
+;             (recur )
+;             )
+;           ;False
+;           (do
+;             (recur )
+;             )
+;         )
+;       )
+;     )
+;   )
+
+; (defactor print-two-actor [] [in-1 in-2] ==> []
+;     (defaction in-1: [x] in-2: [y]  ==>
+;       (println x)
+;       (println y)
+;       )
+;     )
+;
+; (defactor feeder-actor [string n] [] ==> [out]
+;   (defaction [] ==>
+;     (doseq [i (range n)]
+;       (out: string)
+;       )
+;     )
+;   )
+
+(defactor feed-actor [str n] [] ==> [out]
+  (go
+    (doseq [i (range n)]
+      (>! (connections-map :out) str)
+      )
+    )
   )
 
-(def chan-1 (chan [1337 1337 1377 1337]))
-(def chan-2 (chan))
+  (defactor feed-once [str] [] ==> [out]
+    (go
+        (>! (connections-map :out) str)
+      )
+    )
 
+(defactor print-actor [] [in] ==> []
+  (go
+    (while (< (size? (connections-map :in)) 1))
+    (println (<! (connections-map :in)))
+    )
+  )
+
+(defactor print-two-actor [] [in-0 in-1] ==> []
+  (go
+    (println "consuming")
+    (loop []
+      (println
+      (<! (connections-map :in-0))
+      (<! (connections-map :in-1))
+      )
+    (recur )
+    )
+    )
+  )
 
 (defn -main  [& args]
 
-  (>!! chan-1 2992929299292)
-  (>!! chan-1 29299292)
-  (>!! chan-1 29299292)
-  (>!! chan-1 2992929299292)
-  (>!! chan-1 2992929299292)
-  (>!! chan-1 2992929299292)
-  (>!! chan-1 3)
-  (>!! chan-1 3)
-  (>!! chan-1 29299292)
-  (>!! chan-1 29299292)
-  (>!! chan-1 29299292)
+  (entities
+    (actor feeder-0 (feed-once "Printing 0"))
+    (actor printer (print-actor ))
 
-  (go
-    (println (<! chan-1))
-    (println (<! chan-1))
-    (println (<! chan-1))
-    (println (<! chan-1))
-    (println (<! chan-1))
-    (println (<! chan-1))
+    (network
+      (connection (feeder-0 :out) (printer :in) )
+      )
     )
 
 
-  (while true);(guarded-actor chan)
+  (while true )
 
-  )
+ )
