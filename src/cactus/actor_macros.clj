@@ -73,11 +73,14 @@
         ]
 
         (println connection)
-        ; (if (not= connection 'network)
-        ;   (do
-        ;     (assert (= (first connection) 'connection) "Only connections or networks should be declared inside the network block.")
-        ;     )
-        ; )
+        (if (not= connection 'network)
+          (do
+            (assert (= (nth connection 0 nil) 'connection) "Only connections or networks should be declared inside the network block.")
+            (assert (nth connection 1 nil) "The connection needs two ports.")
+            (assert (nth connection 2 nil) "The connection needs two ports.")
+            (assert (= nil (nth connection 3 nil)) "The connection only takes two ports.")
+            )
+        )
 
         (if (not= rest-nw ())
           ;If we have not reached the network token we are not done.
@@ -115,13 +118,13 @@
 (defn actor-expander
   [actor-list connections]
     (let [
-          keyword (first actor-list)
-          var-name (second actor-list)
+          kw (nth actor-list 0 nil)
+          var-name (nth actor-list 1 nil)
           actor-spec (nth actor-list 2 nil)
           connections-map (connections (keyword var-name))
           ]
 
-          (assert (= keyword 'actor) "Only actors and networks should be declared inside the entities block.")
+          (assert (= kw 'actor) "Only actors and networks should be declared inside the entities block.")
           (assert var-name "The declaration of an actor requires a variable name.")
           (assert actor-spec (str "actor varible: " var-name " has not been defined."))
           (reverse (cons connections-map (reverse actor-spec)))
@@ -157,7 +160,6 @@
                 new-actors-list actors-list
                 accumulator '()
                 ]
-                (println connections)
 
                 (if (= '() new-actors-list)
                   accumulator

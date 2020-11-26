@@ -119,7 +119,6 @@
 
 (defactor print-actor [] [in] ==> []
   (go
-    (println connections-map)
     (println (<! (connections-map :in)))
     )
   )
@@ -136,8 +135,6 @@
     )
     )
   )
-
-
 
 
 (defn -main  [& args]
