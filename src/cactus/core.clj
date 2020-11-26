@@ -317,33 +317,45 @@
   `(defn ~(symbol name) ~(vec (conj parameters 'connections-map)) ~@actions)
   )
 
-
-(def chan-1 (chan 50))
-
 (defn -main  [& args]
+
+
+
 
   (defactor feed-actor [str] [] ==> [out]
     (go
-      (>! (connections-map :out) str)
-    )
+      (doseq [i (range 100)]
+        (>! (connections-map :out) str)
+        )
+      )
     )
 
   (defactor print-actor [] [in] ==> []
     (go
       (println (<! (connections-map :in)))
+      )
     )
+
+  (defactor print-two-actor [] [in-0 in-1] ==> []
+    (go
+      (loop []
+      (println (<! (connections-map :in-0)) (<! (connections-map :in-1)))
+      (recur )
+      )
+      )
     )
 
 
 
   (entities
-    ('actor feed-once (feed-actor "Oh my lordi lord"  ))
-    ('actor printer   (print-actor       ))
+    ('actor feeder-0 (feed-actor "Printing 0" ))
+    ('actor feeder-1 (feed-actor "Printing 1" ))
+
+    ('actor print-two   (print-two-actor ))
 
     (network
-      (connection (feed-once :out) (printer :in))
-      ; (connection (feed-once :out-1) (printer :in-1))
-      ; (connection (feed-once :out-2) (printer :in-2))
+      (connection (feeder-0 :out) (print-two :in-0))
+      (connection (feeder-1 :out) (print-two :in-1))
       )
     )
 
