@@ -229,7 +229,7 @@
 
           (if (= action-list '())
             (do
-                  `(while ~(conj (reverse accumulator) 'and) (println "Still no tokens"))
+                  `(while ~(conj (reverse accumulator) 'and) )
                   ;(conj (reverse accumulator) 'and)
               )
 

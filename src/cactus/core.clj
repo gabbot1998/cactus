@@ -70,17 +70,7 @@
   `(~(symbol ">!") (~(symbol "connections-map") ~(keyword channel)) ~val)
   )
 
-(defactor print-actor [] [in] ==> []
-  (defaction in [a b] ==>
-    (println "Printer has started")
-    (println (<! (connections-map :in)))
-    )
 
-  ; (defaction b [j] c [k] ==>
-  ;   (these are some nice things inside of the body)
-  ;   (println str)
-  ;   )
-  )
 
 ; (defactor print-actor [] [in] ==> []
 ;     (while (< 1 (size? (connections-map :in)) ) (println "There is nothing on the channel"))
@@ -95,13 +85,6 @@
 ;       (clojure.core/< (clojure.core/count (quote [str])) (cactus.async/size? ((quote (clojure.core/symbol connections-map)) :in)))
 ;       )) (clojure.core/println Still no tokens))
 
-(defactor feed-once [str] [] ==> [out]
-  (defaction ==>
-      (println "feed has fed")
-      (>>! out str)
-      (>>! out str)
-    )
-  )
 
 ; (and
 ;   (or
@@ -140,14 +123,32 @@
 ;
 ;   )
 
+
+(defactor print-actor [] [in-0 in-1] ==> []
+  (defaction in-0 [a b] in-1 [c] ==>
+    (println "Printer has started")
+    (println (<! (connections-map :in-0)))
+    (println (<! (connections-map :in-1)))
+    )
+  )
+
+(defactor feed-once [str] [] ==> [out]
+  (defaction ==>
+      (println "feed has fed")
+      (>>! out str)
+    )
+  )
+
 (defn -main  [& args]
 
   (entities
-    (actor feeder-0 (feed-once "This is the string being sent."))
+    (actor feeder-0 (feed-once "String from feeder-0"))
+    (actor feeder-1 (feed-once "String from feeder-1"))
     (actor printer (print-actor ))
 
     (network
-      (connection (feeder-0 :out) (printer :in) )
+      (connection (feeder-0 :out) (printer :in-0) )
+      (connection (feeder-1 :out) (printer :in-1) )
       )
     )
 
