@@ -125,8 +125,11 @@
 
 
 (defactor print-actor [] [in-0 in-1] ==> []
+  (defaction in-0 [a b c] in-1 [c] ==>
+    (println (<! (connections-map :in-0)))
+    )
+
   (defaction in-0 [a b] in-1 [c] ==>
-    (println "Printer has started")
     (println (<! (connections-map :in-0)))
     (println (<! (connections-map :in-1)))
     )
@@ -134,7 +137,6 @@
 
 (defactor feed-once [str] [] ==> [out]
   (defaction ==>
-      (println "feed has fed")
       (>>! out str)
     )
   )
