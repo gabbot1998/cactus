@@ -3,7 +3,7 @@
   (:require
    [clojure.core.async
     :as async
-    :refer [ <! >! <!! >!!]
+    :refer [ <! >! <!! >!! timeout]
     :exclude [chan go]
     ]
 
@@ -71,9 +71,9 @@
   )
 
 (defactor print-actor [] [in] ==> []
-  (defaction in [str] ==>
-    ;(println ((symbol connections-map) :in))
-    (println "(<! (connections-map :in))")
+  (defaction in [a b] ==>
+    (println "Printer has started")
+    (println (<! (connections-map :in)))
     )
 
   ; (defaction b [j] c [k] ==>
@@ -97,7 +97,8 @@
 
 (defactor feed-once [str] [] ==> [out]
   (defaction ==>
-      (println "feed once has fed")
+      (println "feed has fed")
+      (>>! out str)
       (>>! out str)
     )
   )

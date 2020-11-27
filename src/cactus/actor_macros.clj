@@ -198,8 +198,7 @@
 
 (defn available-tokens?
   [channel bindingsvector]
-  (println )
-  `(< (count '~bindingsvector) (size? ( ~(symbol "connections-map") ~(keyword (str channel))) ))
+  `(> (count '~bindingsvector) ( ~(symbol "size?") ( ~(symbol "connections-map") ~(keyword (str channel))) ))
   )
 
 (defn expand-channels
@@ -230,7 +229,8 @@
 
           (if (= action-list '())
             (do
-                 `(while ~(conj (reverse accumulator) 'and) (println "Still no tokens"))
+                  `(while ~(conj (reverse accumulator) 'and) (println "Still no tokens"))
+                  ;(conj (reverse accumulator) 'and)
               )
 
             (do
@@ -266,14 +266,13 @@
 (defmacro defactor
  [name parameters connections-in arrow connections-out & actions]
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
-      ;(loop [];TODO This is not going to work with state. Will need to make better handler for actions
-        ;(println "Started the waiting for tokens in: " ~(str name))
-        ;(<! ('connections-map ':in))
+    (go
+        ;(println "Det här ska printas: " ~(str name))
         (wait-for-tokens ~@actions)
-        ;(println "Finnished wait-for-tokens in: " ~(str name))
-        ;~(println (first actions))
+        ;(println (str (wait-for-tokens ~@actions)" is the value from: " ~(str name) "\n\n\n"))
+        ;(println "Det här ska inte printas: " ~(str name))
+        ;(println (wait-for-tokens ~@actions))
         ~@actions
-        ;(recur )
-        ;)
+      )
     )
  )
