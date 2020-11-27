@@ -20,92 +20,129 @@
      )
    )
 
+   ;TODO
+   ;1. Get a loop going inside the defactor XXX;
+
+   ;2. Create a function that counts the number of bindings in each channel. XXX
+
+   ;3,5. Create the while that checks for the availability of the elements. XXX
+
+   ;Försök hinna detta innan lunch
+
+   ;3. Implement the guard statements inside of defaction
+   ;4. Create the consume and return function that consumes tokens from the inputs.
+   ;5. create the let statement and bind the bindingsvector
+   ;6. Add the body into execution.
+   ;7. First version of cactus is done.
+   ;Försök hinna detta efter lunch.
+   ;8. Send the update to Jorn and ask him to try it out.
+   ;9. Rejoice for the weekend.
 
 
+
+(defmacro defaction
+  [& list-to-parse]
+  ;(println list-to-parse)
+  (let [
+        [body bindings] (loop [parse list-to-parse
+                               bindings '()
+                               ]
+
+                               ;(println (rest parse))
+                              (if (= (first parse) '==>)
+                                 [(conj (rest parse) 'do)
+                                  (reverse bindings)
+                                  ]
+                                (recur (rest parse) (conj bindings (first parse)))
+                                )
+                              )
+          ]
+
+              ; (println bindings)
+              ; (println body)
+              body
+      )
+    )
+
+
+(defmacro >>!
+  [channel val]
+  `(~(symbol ">!") (~(symbol "connections-map") ~(keyword channel)) ~val)
+  )
+
+(defactor print-actor [] [in] ==> []
+  (defaction in [str] ==>
+    ;(println ((symbol connections-map) :in))
+    (println "(<! (connections-map :in))")
+    )
+
+  ; (defaction b [j] c [k] ==>
+  ;   (these are some nice things inside of the body)
+  ;   (println str)
+  ;   )
+  )
 
 ; (defactor print-actor [] [in] ==> []
-;   (defaction :in [x] ==>
-;     (println x)
-;      )
+;     (while (< 1 (size? (connections-map :in)) ) (println "There is nothing on the channel"))
+;     (println (<! (connections-map :in)))
 ;   )
 
-; (defmacro actor
-;   )
 
-; (defn print-actor [in]
-;   (go-loop [];No initial state
-;     (let [
-;           x (<<! in 0)
-;         ]
-;         (if true; Default true guard
-;           ;True
-;           (do
-;             (consume-tokens [in 1])
-;             (println x)
-;             (recur )
-;             )
-;           ;False
-;           (do
-;             (recur )
-;             )
-;         )
+; The while expands to:
+; (clojure.core/while
+;   (and
+;     (or false
+;       (clojure.core/< (clojure.core/count (quote [str])) (cactus.async/size? ((quote (clojure.core/symbol connections-map)) :in)))
+;       )) (clojure.core/println Still no tokens))
+
+(defactor feed-once [str] [] ==> [out]
+  (defaction ==>
+      (println "feed once has fed")
+      (>>! out str)
+    )
+  )
+
+; (and
+;   (or
+;     (clojure.core/< (clojure.core/count (quote [str])) (cactus.async/size? ((clojure.core/symbol connections-map) (clojure.core/keyword (quote in))))
 ;       )
 ;     )
 ;   )
 
-; (defactor print-two-actor [] [in-1 in-2] ==> []
-;     (defaction in-1: [x] in-2: [y]  ==>
-;       (println x)
-;       (println y)
+; (defactor print-actor [] [in] ==> []
+;   (defaction in [str] ==>
+;     (println str)
+;     )
+;
+;   ;This should be in defactor
+;   (go
+;     (loop [];no state
+;       (while (or
+;                   (and (< (size? (connections-map :in) (count bindingsvector))) );Check the number of tokens for all the ports needed for the action
+;                   ;Potentially check other actions.
+;
+;                   )
+;
+;                   )
+;
+;       ;This should expand inside defaction.
+;       (when guard-statement-this-action ;Check the guard for this action
+;         (let [bindingsvector (consume-and-return (connections-map :in) (count bindingsvector))] ;Consume tokens and bind them to the correct bindings
+;           ;Execute the body
+;         )
+;
+;       )
+;
+;       (recur ); This is where the updating of the state should happen.
 ;       )
 ;     )
 ;
-; (defactor feeder-actor [string n] [] ==> [out]
-;   (defaction [] ==>
-;     (doseq [i (range n)]
-;       (out: string)
-;       )
-;     )
 ;   )
-
-(defactor feed-actor [str n] [] ==> [out]
-  (go
-    (doseq [i (range n)]
-      (>! (connections-map :out) str)
-      )
-    )
-  )
-
-  (defactor feed-once [str] [] ==> [out]
-    (go
-        (>! (connections-map :out) str)
-      )
-    )
-
-(defactor print-actor [] [in] ==> []
-  (go
-    (while (< (size? (connections-map :in)) 1))
-    (println (<! (connections-map :in)))
-    )
-  )
-
-(defactor print-two-actor [] [in-0 in-1] ==> []
-  (go
-    (println "consuming")
-    (loop []
-      (println
-      (<! (connections-map :in-0))
-      (<! (connections-map :in-1))
-      )
-    (recur )
-    )
-    )
-  )
 
 (defn -main  [& args]
 
   (entities
-    (actor feeder-0 (feed-once "Printing 0"))
+    (actor feeder-0 (feed-once "This is the string being sent."))
     (actor printer (print-actor ))
 
     (network
@@ -117,3 +154,110 @@
   (while true )
 
  )
+
+
+
+ ; ;For this actor specifically we want to read all the inputs. Find the ==>.
+ ; (defactor feeder-actor [string n] [] ==> [out]
+ ;   (defaction [] ==>
+ ;     (doseq [i (range n)]
+ ;       (>>! out string)
+ ;       )
+ ;     )
+ ;   )
+
+
+ ; (defactor feed-actor [str n] [] ==> [out]
+ ;   (go
+ ;     (doseq [i (range n)]
+ ;       (>>! out str)
+ ;       )
+ ;     )
+ ;   )
+ ;
+ ; (defactor feed-once [str] [] ==> [out]
+ ;   (defaction ==>
+ ;       (>>! out str)
+ ;       (>>! out str)
+ ;       (>>! out str)
+ ;       (>>! out str)
+ ;     )
+ ;   )
+
+ ; (defactor print-actor [] [in-1 in-2] ==> []
+ ;   (defaction :in-1 [x] :in-2 [y] ==>
+ ;     (println x)
+ ;      )
+ ;   )
+
+ ; (defactor feed-once [str] [] ==> [out]
+ ;   (go
+ ;     (loop []
+ ;
+ ;       (>>! out str)
+ ;
+ ;       (recur )
+ ;       )
+ ;     )
+ ;   )
+
+
+
+ ; (defactor print-actor [] [in] ==> []
+ ;   (loop []
+ ;     (while (< (size? (connections-map :in)) 1))
+ ;     (println (<! (connections-map :in)))
+ ;     (recur )
+ ;     )
+ ;   )
+
+ ; (defactor print-two-actor [] [in-0 in-1] ==> []
+ ;   (go
+ ;     (println "consuming")
+ ;     (loop []
+ ;       (println
+ ;       (<! (connections-map :in-0))
+ ;       (<! (connections-map :in-1))
+ ;       )
+ ;     (recur )
+ ;     )
+ ;     )
+ ;   )
+
+ ; (defactor print-actor [] [in] ==> []
+ ;   (defaction :in [x] ==>
+ ;     (println x)
+ ;      )
+ ;   )
+
+ ; (defmacro actor
+ ;   )
+
+ ; (defn print-actor [in]
+ ;   (go-loop [];No initial state
+ ;     (let [
+ ;           x (<<! in 0)
+ ;         ]
+ ;         (if true; Default true guard
+ ;           ;True
+ ;           (do
+ ;             (consume-tokens [in 1])
+ ;             (println x)
+ ;             (recur )
+ ;             )
+ ;           ;False
+ ;           (do
+ ;             (recur )
+ ;             )
+ ;         )
+ ;       )
+ ;     )
+ ;   )
+
+ ; (defactor print-two-actor [] [in-1 in-2] ==> []
+ ;     (defaction in-1: [x] in-2: [y]  ==>
+ ;       (println x)
+ ;       (println y)
+ ;       )
+ ;     )
+ ;

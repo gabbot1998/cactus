@@ -9,7 +9,7 @@
 
              [cactus.async
              :as cactus.async
-             :refer [go <<! chan]
+             :refer [go <<! chan size?]
              ]
 
              )
@@ -72,7 +72,7 @@
 
         ]
 
-        
+
         (if (not= connection 'network)
           (do
             (assert (= (nth connection 0 nil) 'connection) "Only connections or networks should be declared inside the network block.")
@@ -196,7 +196,84 @@
   (assert nil "connection defined outside (network ...) block.")
   )
 
+(defn available-tokens?
+  [channel bindingsvector]
+  (println )
+  `(< (count '~bindingsvector) (size? ( ~(symbol "connections-map") ~(keyword (str channel))) ))
+  )
+
+(defn expand-channels
+  [& actions]
+
+  (loop [channels-and-bindings (rest (nth actions 0 nil))
+        channel (nth channels-and-bindings 0 nil)
+        bindingsvector (nth channels-and-bindings 1 nil)
+        accumulator '( false)
+        ]
+
+        (if (= channels-and-bindings '())
+            (conj (reverse accumulator) 'or)
+            (recur (rest (rest channels-and-bindings))
+                    (nth (rest (rest channels-and-bindings)) 0 nil)
+                    (nth (rest (rest channels-and-bindings)) 1 nil)
+                    (conj accumulator (available-tokens? channel bindingsvector))
+                    )
+          )
+        )
+  )
+
+(defmacro wait-for-tokens
+  [& actions]
+    (loop [action-list actions
+           accumulator '()
+          ]
+
+          (if (= action-list '())
+            (do
+                 `(while ~(conj (reverse accumulator) 'and) (println "Still no tokens"))
+              )
+
+            (do
+              (let [bindings (loop [parse (first action-list)
+                     bindings '()
+                     ]
+
+                     ;(println "the rest of the parse is" (rest parse))
+                    (if (= (first parse) '==>)
+                        (reverse bindings)
+                        (recur (rest parse) (conj bindings (first parse)))
+                      )
+                    )]
+                (recur (rest action-list) (conj accumulator (expand-channels bindings)))
+                )
+              )
+          )
+    )
+
+    ;'(println "This should print once")
+  )
+
+; (clojure.core/while
+;   (and
+;     (or
+;       false
+;       (clojure.core/< (clojure.core/count (quote [str])) (cactus.async/size? (connections-map :in)))
+;       )
+;       )
+;       (clojure.core/println Still no tokens)
+;       )
+
 (defmacro defactor
  [name parameters connections-in arrow connections-out & actions]
- `(defn ~(symbol name) ~(vec (conj parameters 'connections-map)) ~@actions)
+ `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
+      ;(loop [];TODO This is not going to work with state. Will need to make better handler for actions
+        ;(println "Started the waiting for tokens in: " ~(str name))
+        ;(<! ('connections-map ':in))
+        (wait-for-tokens ~@actions)
+        ;(println "Finnished wait-for-tokens in: " ~(str name))
+        ;~(println (first actions))
+        ~@actions
+        ;(recur )
+        ;)
+    )
  )
