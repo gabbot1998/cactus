@@ -14,7 +14,7 @@
 
      [cactus.actor_macros
      :as cactus.actors
-     :refer [defactor entities actor connection network]
+     :refer [defactor entities actor connection network defaction >>! guard]
      ]
 
      )
@@ -27,48 +27,24 @@
 
    ;3,5. Create the while that checks for the availability of the elements. XXX
 
-   ;Försök hinna detta innan lunch
 
-   ;3. Implement the guard statements inside of defaction
+   ;3. Implement the guard statements inside of defaction X
+
    ;4. Create the consume and return function that consumes tokens from the inputs.
-   ;5. create the let statement and bind the bindingsvector
-   ;6. Add the body into execution.
+
+   ;5. create the let statement and bind the bindingsvector XXX
+
+   ;6. Add the body into execution. XXX
+
    ;7. First version of cactus is done.
+
    ;Försök hinna detta efter lunch.
+
    ;8. Send the update to Jorn and ask him to try it out.
    ;9. Rejoice for the weekend.
 
 
 
-(defmacro defaction
-  [& list-to-parse]
-  ;(println list-to-parse)
-  (let [
-        [body bindings] (loop [parse list-to-parse
-                               bindings '()
-                               ]
-
-                               ;(println (rest parse))
-                              (if (= (first parse) '==>)
-                                 [(conj (rest parse) 'do)
-                                  (reverse bindings)
-                                  ]
-                                (recur (rest parse) (conj bindings (first parse)))
-                                )
-                              )
-          ]
-
-              ; (println bindings)
-              ; (println body)
-              body
-      )
-    )
-
-
-(defmacro >>!
-  [channel val]
-  `(~(symbol ">!") (~(symbol "connections-map") ~(keyword channel)) ~val)
-  )
 
 
 
@@ -125,27 +101,40 @@
 
 
 (defactor print-actor [] [in-0 in-1] ==> []
-  (defaction in-0 [a b c] in-1 [c] ==>
-    (println (<! (connections-map :in-0)))
+  (defaction in-0 [a b] in-1 [c] ==> (guard (= a "hej"))
+    (println "a, b, c: " a ", " b ", " c)
+    (<! (connections-map :in-0))
+    (<! (connections-map :in-0))
+    (<! (connections-map :in-1))
+    ;(println "Det finns två tokens.")
     )
 
-  (defaction in-0 [a b] in-1 [c] ==>
-    (println (<! (connections-map :in-0)))
-    (println (<! (connections-map :in-1)))
+  (defaction in-0 [d e f] ==>
+    (println "Cosnuming three on in-0")
+    (<! (connections-map :in-0))
+    (<! (connections-map :in-0))
+    (<! (connections-map :in-0))
+    ;(println "Det finns tre tokens.")
     )
+
   )
 
-(defactor feed-once [str] [] ==> [out]
+(defactor feed-once [x y] [] ==> [out]
   (defaction ==>
-      (>>! out str)
+      (>>! out x)
+      (>>! out y)
+      (>>! out x)
+      (>>! out x)
+      (>>! out x)
+      (while true)
     )
   )
 
 (defn -main  [& args]
 
   (entities
-    (actor feeder-0 (feed-once "String from feeder-0"))
-    (actor feeder-1 (feed-once "String from feeder-1"))
+    (actor feeder-0 (feed-once "hej" "second"))
+    (actor feeder-1 (feed-once "Supposed to be C" "Supposed to be C"))
     (actor printer (print-actor ))
 
     (network

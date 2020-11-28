@@ -196,83 +196,209 @@
   (assert nil "connection defined outside (network ...) block.")
   )
 
-(defn available-tokens?
-  [channel bindingsvector]
-  `(> (count '~bindingsvector) ( ~(symbol "size?") ( ~(symbol "connections-map") ~(keyword (str channel))) ))
+;Legacy version
+; (defn available-tokens?
+;   [channel bindingsvector]
+;   `(> (count '~bindingsvector) ( ~(symbol "size?") ( ~(symbol "connections-map") ~(keyword (str channel))) ))
+;   )
+
+; (defn expand-channels
+;   [& actions]
+;
+;   (loop [channels-and-bindings (rest (nth actions 0 nil))
+;         channel (nth channels-and-bindings 0 nil)
+;         bindingsvector (nth channels-and-bindings 1 nil)
+;         accumulator '( false)
+;         ]
+;
+;         (if (= channels-and-bindings '())
+;             (conj (reverse accumulator) 'or)
+;             (recur (rest (rest channels-and-bindings))
+;                     (nth (rest (rest channels-and-bindings)) 0 nil)
+;                     (nth (rest (rest channels-and-bindings)) 1 nil)
+;                     (conj accumulator (available-tokens? channel bindingsvector))
+;                     )
+;           )
+;         )
+;   )
+
+; (defmacro wait-for-tokens
+;   [& actions]
+;     (loop [action-list actions
+;            accumulator '()
+;           ]
+;
+;           (if (= action-list '())
+;             (do
+;                   `(while ~(conj (reverse accumulator) 'and) (println "no tokens"))
+;                   ;(conj (reverse accumulator) 'and)
+;               )
+;
+;             (do
+;               (let [bindings (loop [parse (first action-list)
+;                      bindings '()
+;                      ]
+;
+;                      ;(println "the rest of the parse is" (rest parse))
+;                     (if (= (first parse) '==>)
+;                         (reverse bindings)
+;                         (recur (rest parse) (conj bindings (first parse)))
+;                       )
+;                     )]
+;                 (recur (rest action-list) (conj accumulator (expand-channels bindings)))
+;                 )
+;               )
+;           )
+;     )
+;     ;'(println "This should print once")
+;   )
+
+(defmacro >>!
+  [channel val]
+  `(~(symbol ">!") (~(symbol "connections-map") ~(keyword channel)) ~val)
   )
 
-(defn expand-channels
-  [& actions]
+(defn peek-channel
+  [channel variables]
 
-  (loop [channels-and-bindings (rest (nth actions 0 nil))
-        channel (nth channels-and-bindings 0 nil)
-        bindingsvector (nth channels-and-bindings 1 nil)
-        accumulator '( false)
+  (loop [i 0
+         vars variables
+         current-var (nth variables 0 nil)
+         accumulator '[]
         ]
 
-        (if (= channels-and-bindings '())
-            (conj (reverse accumulator) 'or)
-            (recur (rest (rest channels-and-bindings))
-                    (nth (rest (rest channels-and-bindings)) 0 nil)
-                    (nth (rest (rest channels-and-bindings)) 1 nil)
-                    (conj accumulator (available-tokens? channel bindingsvector))
-                    )
-          )
+        (if (= vars '[])
+          (vec (apply concat accumulator))
+          (recur (inc i) (rest vars) (nth (rest vars) 0 nil) (conj accumulator `[~current-var (~(symbol "<<!") (~(symbol "connections-map") ~(keyword channel)) ~i) ] ) )
+
+
         )
+
+    )
   )
 
-(defmacro wait-for-tokens
-  [& actions]
-    (loop [action-list actions
-           accumulator '()
+
+(defn create-bindingsvector
+  [bindings]
+
+  (loop [bindings-list bindings
+         channel (nth bindings-list 0 nil)
+         variables (nth bindings-list 1 nil)
+         accumulator '[]
+        ]
+
+        (if (= bindings-list '())
+          (vec accumulator)
+          (recur (rest (rest bindings-list)) (nth (rest (rest bindings)) 0 nil) (nth (rest (rest bindings)) 1 nil) (concat accumulator (peek-channel channel variables)) )
+        )
+
+    )
+  )
+
+(defmacro guard
+  [& predicate]
+  ;(println predicate)
+  `(identity ~@predicate)
+  )
+
+(defn expand-guard
+  [[do guard & body]]
+
+  (if (= (nth guard 0 nil) 'guard)
+    `(when ~guard ~@body)
+    `(do ~guard ~@body)
+    )
+  )
+
+(defn expand-body
+  [[do-stmt guard & body]]
+
+  (if (= (nth guard 0 nil) 'guard)
+    `(do ~@body)
+    `(do ~guard ~@body)
+    )
+  )
+;(do (<! (connections-map :in-0)) ((<! (connections-map :in-0)) (<! (connections-map :in-0)) ))
+;(do (println a, b, c:  a ,  b ,  c) (<! (connections-map :in-0)) (<! (connections-map :in-0)) (<! (connections-map :in-1)))
+; (
+; (do
+;   (guard false)
+;   (println a, b, c:  a ,  b ,  c)
+;   )
+;   )
+
+(defn bind-variables-and-check-guard
+  [bindings body-and-guard]
+
+  `(let ~(create-bindingsvector bindings)
+      ~(expand-guard body-and-guard)
+      ;~(expand-body body-and-guard)
+      )
+  )
+
+
+  ;The structure should be,
+  ;(when (and (< (count [bindingsvector]) (size? (connections-map :in)))
+  ;   (let [en (<<! (connections-map :in) 0)
+  ;         token (<<! (connections-map :in) 1)
+  ;         ]
+  ;         (if (guard)
+  ;          (do
+  ;             (consume-tokens (count [bindingsvector]))
+  ;             ~@body
+  ;           )
+  ;           (do
+  ;             (println "The guard is false")
+  ;           )
+  ;          )
+  ;
+  ;   )
+  ;)
+
+(defn available-tokens?
+  [channel bindingsvector]
+  `(<= (count '~bindingsvector) ( ~(symbol "size?") ( ~(symbol "connections-map") ~(keyword (str channel))) ))
+  )
+
+(defn expand-action
+  [[channel bindingsvector :as bindings] body-and-guard]
+
+  (if (and (= bindingsvector nil) (= channel nil))
+    `(when true ~(bind-variables-and-check-guard bindings body-and-guard))
+    `(when ~(available-tokens? channel bindingsvector) ~(bind-variables-and-check-guard bindings body-and-guard))
+  )
+  )
+
+(defmacro defaction
+  [& list-to-parse]
+  ;(println list-to-parse)
+  (let [
+        [body-and-guard bindings] (loop [parse list-to-parse
+                               bindings '()
+                               ]
+
+                              (if (= (first parse) '==>)
+                                 [(conj (rest parse) 'do)
+                                  (reverse bindings)
+                                  ]
+                                (recur (rest parse) (conj bindings (first parse)))
+                                )
+                              )
           ]
-
-          (if (= action-list '())
-            (do
-                  `(while ~(conj (reverse accumulator) 'and) )
-                  ;(conj (reverse accumulator) 'and)
-              )
-
-            (do
-              (let [bindings (loop [parse (first action-list)
-                     bindings '()
-                     ]
-
-                     ;(println "the rest of the parse is" (rest parse))
-                    (if (= (first parse) '==>)
-                        (reverse bindings)
-                        (recur (rest parse) (conj bindings (first parse)))
-                      )
-                    )]
-                (recur (rest action-list) (conj accumulator (expand-channels bindings)))
-                )
-              )
-          )
+              (expand-action bindings body-and-guard)
+      )
     )
 
-    ;'(println "This should print once")
-  )
 
-; (clojure.core/while
-;   (and
-;     (or
-;       false
-;       (clojure.core/< (clojure.core/count (quote [str])) (cactus.async/size? (connections-map :in)))
-;       )
-;       )
-;       (clojure.core/println Still no tokens)
-;       )
 
 (defmacro defactor
  [name parameters connections-in arrow connections-out & actions]
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
     (go
-        ;(println "Det här ska printas: " ~(str name))
-        (wait-for-tokens ~@actions)
-        ;(println (str (wait-for-tokens ~@actions)" is the value from: " ~(str name) "\n\n\n"))
-        ;(println "Det här ska inte printas: " ~(str name))
-        ;(println (wait-for-tokens ~@actions))
+        (loop []
         ~@actions
+        (recur )
+        )
       )
     )
  )
