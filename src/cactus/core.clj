@@ -32,9 +32,9 @@
     )
   )
 
-(defactor print-actor [] [in-0] ==> []
-  (defaction in-0 [a b c] ==>
-    (println "a, b, c: " a ", " b ", " c)
+(defactor print-actor [name] [in] ==> []
+  (defaction in [a] ==>
+    (println "From " name " got value: " a)
     )
   )
 
@@ -63,15 +63,32 @@
 
 (defn -main  [& args]
 
-  (entities
-    (actor feeder (has-initial-tokens ))
-    (actor printer (print-actor ))
-    (actor takes-arguments (arg-actor "hej" 2 ["wow" "hello"]))
+(entities
+  (actor t (has-two-actions ))
+  (actor f0 (has-initial-tokens))
+  (actor f1 (has-initial-tokens))
 
-    (network
-      (connection (feeder :out) (printer :in-0) {:initial-tokens [1 2 3]})
-      )
+  (actor p0 (print-actor "Actor 0"))
+  (actor p1 (print-actor "Actor 1"))
+
+  (network
+    (connection (f0 :out) (t :in-0) {:initial-tokens ["Value for 0"]})
+    (connection (f1 :out) (t :in-1) {:initial-tokens ["Value for 1"]})
+
+    (connection (t :out-0) (p0 :in))
+    (connection (t :out-1) (p1 :in))
     )
+  )
+
+  ; (entities
+  ;   (actor feeder (has-initial-tokens ))
+  ;   (actor printer (print-actor ))
+  ;   (actor takes-arguments (arg-actor "hej" 2 ["wow" "hello"]))
+  ;
+  ;   (network
+  ;     (connection (feeder :out) (printer :in-0) {:initial-tokens [1 2 3]})
+  ;     )
+  ;   )
 
 
   (while true )
