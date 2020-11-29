@@ -44,8 +44,8 @@
   )
 
 (defactor arg-actor [a b c] [] ==> [out]
-  (defaction ==>
-    ;(println a b c)
+  (defaction ==> (guard true)
+    (println a b c)
     )
   )
 
@@ -64,7 +64,7 @@
 (defn -main  [& args]
 
 (entities
-  (actor t (has-two-actions ))
+  (actor t (has-two-actions))
   (actor f0 (has-initial-tokens))
   (actor f1 (has-initial-tokens))
 
