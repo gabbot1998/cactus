@@ -50,7 +50,7 @@
     (actor printer (print-actor ))
 
     (network
-      (connection (feeder-0 :out) (printer :in-0) )
+      (connection (feeder-0 :out) (printer :in-0) {:initial-tokens []})
       (connection (feeder-1 :out) (printer :in-1) )
       )
     )
