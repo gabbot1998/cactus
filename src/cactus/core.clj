@@ -22,7 +22,7 @@
 
 (defactor print-actor [] [in-0 in-1] ==> []
   (defaction in-0 [a b c] in-1 [d] ==> (guard (= a "hej"))
-    (println "a, b, c: " a ", " b ", " c)
+    (println "a, b, d: " a ", " b ", " d)
     )
 
   (defaction in-0 [d e f] ==>
@@ -46,7 +46,7 @@
 
   (entities
     (actor feeder-0 (feed-once "hej" "second"))
-    (actor feeder-1 (feed-once "Supposed to be C" "Supposed to be C"))
+    (actor feeder-1 (feed-once "Supposed to be d" "Supposed to be d"))
     (actor printer (print-actor ))
 
     (network
