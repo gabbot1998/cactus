@@ -163,11 +163,9 @@
 
                 (if (= '() new-actors-list)
                   accumulator
-                  (do
-                    ;Evaluate the macro. Testing for completeness.
-                    (recur (rest new-actors-list) (conj accumulator (actor-expander (first new-actors-list) connections)))
-                    )
-                )
+                  ;Evaluate the macro. Testing for completeness.
+                  (recur (rest new-actors-list) (conj accumulator (actor-expander (first new-actors-list) connections)))
+                  )
               )
           execute (create-let-with-channels (connections :number-of-channels) calls-to-actors)
           ]
@@ -240,25 +238,19 @@
 
 (defmacro guard
   [& predicate]
-  ;(println predicate)
   `(identity ~@predicate)
   )
 
 (defn consume-for-channel
   [channel tokens]
-  
+
   (loop [n-tokens (count tokens)
          accumulator '()
         ]
 
         (if (= 0 n-tokens)
-          (do
-            ;(println "The accumulator is: " (conj accumulator 'do))
             (conj accumulator 'do)
-            )
-          (do
             (recur (dec n-tokens) (conj accumulator `(~(symbol "<!") (~(symbol "connections-map") ~(keyword channel)))))
-            )
         )
     )
   )
@@ -300,25 +292,6 @@
       )
   )
 
-
-  ;The structure should be,
-  ;(when (and (< (count [bindingsvector]) (size? (connections-map :in)))
-  ;   (let [en (<<! (connections-map :in) 0)
-  ;         token (<<! (connections-map :in) 1)
-  ;         ]
-  ;         (if (guard)
-  ;          (do
-  ;             (consume-tokens (count [bindingsvector]))
-  ;             ~@body
-  ;           )
-  ;           (do
-  ;             (println "The guard is false")
-  ;           )
-  ;          )
-  ;
-  ;   )
-  ;)
-
 (defn available-tokens?
   [channel bindingsvector]
   `(<= (count '~bindingsvector) ( ~(symbol "size?") ( ~(symbol "connections-map") ~(keyword (str channel))) ))
@@ -335,7 +308,7 @@
 
 (defmacro defaction
   [& list-to-parse]
-  ;(println list-to-parse)
+
   (let [
         [body-and-guard bindings] (loop [parse list-to-parse
                                bindings '()
