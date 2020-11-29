@@ -196,63 +196,6 @@
   (assert nil "connection defined outside (network ...) block.")
   )
 
-;Legacy version
-; (defn available-tokens?
-;   [channel bindingsvector]
-;   `(> (count '~bindingsvector) ( ~(symbol "size?") ( ~(symbol "connections-map") ~(keyword (str channel))) ))
-;   )
-
-; (defn expand-channels
-;   [& actions]
-;
-;   (loop [channels-and-bindings (rest (nth actions 0 nil))
-;         channel (nth channels-and-bindings 0 nil)
-;         bindingsvector (nth channels-and-bindings 1 nil)
-;         accumulator '( false)
-;         ]
-;
-;         (if (= channels-and-bindings '())
-;             (conj (reverse accumulator) 'or)
-;             (recur (rest (rest channels-and-bindings))
-;                     (nth (rest (rest channels-and-bindings)) 0 nil)
-;                     (nth (rest (rest channels-and-bindings)) 1 nil)
-;                     (conj accumulator (available-tokens? channel bindingsvector))
-;                     )
-;           )
-;         )
-;   )
-
-; (defmacro wait-for-tokens
-;   [& actions]
-;     (loop [action-list actions
-;            accumulator '()
-;           ]
-;
-;           (if (= action-list '())
-;             (do
-;                   `(while ~(conj (reverse accumulator) 'and) (println "no tokens"))
-;                   ;(conj (reverse accumulator) 'and)
-;               )
-;
-;             (do
-;               (let [bindings (loop [parse (first action-list)
-;                      bindings '()
-;                      ]
-;
-;                      ;(println "the rest of the parse is" (rest parse))
-;                     (if (= (first parse) '==>)
-;                         (reverse bindings)
-;                         (recur (rest parse) (conj bindings (first parse)))
-;                       )
-;                     )]
-;                 (recur (rest action-list) (conj accumulator (expand-channels bindings)))
-;                 )
-;               )
-;           )
-;     )
-;     ;'(println "This should print once")
-;   )
-
 (defmacro >>!
   [channel val]
   `(~(symbol ">!") (~(symbol "connections-map") ~(keyword channel)) ~val)
@@ -301,38 +244,59 @@
   `(identity ~@predicate)
   )
 
-(defn expand-guard
-  [[do guard & body]]
+(defn consume-for-channel
+  [channel tokens]
+  
+  (loop [n-tokens (count tokens)
+         accumulator '()
+        ]
 
-  (if (= (nth guard 0 nil) 'guard)
-    `(when ~guard ~@body)
-    `(do ~guard ~@body)
+        (if (= 0 n-tokens)
+          (do
+            ;(println "The accumulator is: " (conj accumulator 'do))
+            (conj accumulator 'do)
+            )
+          (do
+            (recur (dec n-tokens) (conj accumulator `(~(symbol "<!") (~(symbol "connections-map") ~(keyword channel)))))
+            )
+        )
     )
   )
 
-(defn expand-body
-  [[do-stmt guard & body]]
+(defn consume-tokens
+  [bindings]
+  (loop [bindings-list bindings
+         channel  (nth bindings-list 0 nil)
+         bindingsvector (nth bindings-list 1 nil)
+         accumulator '()
+        ]
 
-  (if (= (nth guard 0 nil) 'guard)
-    `(do ~@body)
-    `(do ~guard ~@body)
+        (if (= bindings-list '())
+          (do
+            (conj accumulator 'do)
+            )
+          (do
+            (recur (rest (rest bindings-list)) (nth (rest (rest bindings-list)) 0 nil) (nth (rest (rest bindings-list)) 1 nil) (conj accumulator (consume-for-channel channel bindingsvector)))
+            )
+        )
+    )
+
+  )
+
+(defn expand-guard-and-consume-tokens
+  [bindings [do guard? & body]]
+
+  (if (= (nth guard? 0 nil) 'guard)
+    `(when ~guard? ~(consume-tokens bindings) ~@body)
+    `(do ~guard? ~(consume-tokens bindings) ~@body)
     )
   )
-;(do (<! (connections-map :in-0)) ((<! (connections-map :in-0)) (<! (connections-map :in-0)) ))
-;(do (println a, b, c:  a ,  b ,  c) (<! (connections-map :in-0)) (<! (connections-map :in-0)) (<! (connections-map :in-1)))
-; (
-; (do
-;   (guard false)
-;   (println a, b, c:  a ,  b ,  c)
-;   )
-;   )
 
-(defn bind-variables-and-check-guard
+(defn bind-variables-check-guard-consume-tokens
   [bindings body-and-guard]
 
   `(let ~(create-bindingsvector bindings)
-      ~(expand-guard body-and-guard)
-      ;~(expand-body body-and-guard)
+      ~(expand-guard-and-consume-tokens bindings body-and-guard)
       )
   )
 
@@ -364,8 +328,8 @@
   [[channel bindingsvector :as bindings] body-and-guard]
 
   (if (and (= bindingsvector nil) (= channel nil))
-    `(when true ~(bind-variables-and-check-guard bindings body-and-guard))
-    `(when ~(available-tokens? channel bindingsvector) ~(bind-variables-and-check-guard bindings body-and-guard))
+    `(when true ~(bind-variables-check-guard-consume-tokens bindings body-and-guard))
+    `(when ~(available-tokens? channel bindingsvector) ~(bind-variables-check-guard-consume-tokens bindings body-and-guard))
   )
   )
 

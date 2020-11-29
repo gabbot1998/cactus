@@ -28,9 +28,9 @@
    ;3,5. Create the while that checks for the availability of the elements. XXX
 
 
-   ;3. Implement the guard statements inside of defaction X
+   ;3. Implement the guard statements inside of defaction XXX
 
-   ;4. Create the consume and return function that consumes tokens from the inputs.
+   ;4. Create the consume and return function that consumes tokens from the inputs. XXX
 
    ;5. create the let statement and bind the bindingsvector XXX
 
@@ -44,77 +44,13 @@
    ;9. Rejoice for the weekend.
 
 
-
-
-
-
-; (defactor print-actor [] [in] ==> []
-;     (while (< 1 (size? (connections-map :in)) ) (println "There is nothing on the channel"))
-;     (println (<! (connections-map :in)))
-;   )
-
-
-; The while expands to:
-; (clojure.core/while
-;   (and
-;     (or false
-;       (clojure.core/< (clojure.core/count (quote [str])) (cactus.async/size? ((quote (clojure.core/symbol connections-map)) :in)))
-;       )) (clojure.core/println Still no tokens))
-
-
-; (and
-;   (or
-;     (clojure.core/< (clojure.core/count (quote [str])) (cactus.async/size? ((clojure.core/symbol connections-map) (clojure.core/keyword (quote in))))
-;       )
-;     )
-;   )
-
-; (defactor print-actor [] [in] ==> []
-;   (defaction in [str] ==>
-;     (println str)
-;     )
-;
-;   ;This should be in defactor
-;   (go
-;     (loop [];no state
-;       (while (or
-;                   (and (< (size? (connections-map :in) (count bindingsvector))) );Check the number of tokens for all the ports needed for the action
-;                   ;Potentially check other actions.
-;
-;                   )
-;
-;                   )
-;
-;       ;This should expand inside defaction.
-;       (when guard-statement-this-action ;Check the guard for this action
-;         (let [bindingsvector (consume-and-return (connections-map :in) (count bindingsvector))] ;Consume tokens and bind them to the correct bindings
-;           ;Execute the body
-;         )
-;
-;       )
-;
-;       (recur ); This is where the updating of the state should happen.
-;       )
-;     )
-;
-;   )
-
-
 (defactor print-actor [] [in-0 in-1] ==> []
-  (defaction in-0 [a b] in-1 [c] ==> (guard (= a "hej"))
+  (defaction in-0 [a b c] in-1 [d] ==> (guard (= a "hej"))
     (println "a, b, c: " a ", " b ", " c)
-    (<! (connections-map :in-0))
-    (<! (connections-map :in-0))
-    (<! (connections-map :in-1))
-    ;(println "Det finns två tokens.")
     )
 
   (defaction in-0 [d e f] ==>
     (println "Cosnuming three on in-0")
-    (<! (connections-map :in-0))
-    (<! (connections-map :in-0))
-    (<! (connections-map :in-0))
-    ;(println "Det finns tre tokens.")
     )
 
   )
