@@ -20,30 +20,6 @@
      )
    )
 
-   ;TODO
-   ;1. Get a loop going inside the defactor XXX;
-
-   ;2. Create a function that counts the number of bindings in each channel. XXX
-
-   ;3,5. Create the while that checks for the availability of the elements. XXX
-
-
-   ;3. Implement the guard statements inside of defaction XXX
-
-   ;4. Create the consume and return function that consumes tokens from the inputs. XXX
-
-   ;5. create the let statement and bind the bindingsvector XXX
-
-   ;6. Add the body into execution. XXX
-
-   ;7. First version of cactus is done.
-
-   ;Försök hinna detta efter lunch.
-
-   ;8. Send the update to Jorn and ask him to try it out.
-   ;9. Rejoice for the weekend.
-
-
 (defactor print-actor [] [in-0 in-1] ==> []
   (defaction in-0 [a b c] in-1 [d] ==> (guard (= a "hej"))
     (println "a, b, c: " a ", " b ", " c)
