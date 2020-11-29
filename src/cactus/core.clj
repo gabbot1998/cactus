@@ -20,38 +20,56 @@
      )
    )
 
-(defactor print-actor [] [in-0 in-1] ==> []
-  (defaction in-0 [a b c] in-1 [d] ==> (guard (= a "hej"))
-    (println "a, b, d: " a ", " b ", " d)
+(defactor guarded-actor [] [] ==> []
+  (defaction ==> (guard true)
+    (println "This actor always fires")
     )
-
-  (defaction in-0 [d e f] ==>
-    (println "Cosnuming three on in-0")
-    )
-
   )
 
-(defactor feed-once [x y] [] ==> [out]
+(defactor print-two-actro [] [X Y] ==> []
+  (defaction X [x] Y [y] ==>
+      (println x y)
+    )
+  )
+
+(defactor print-actor [] [in-0] ==> []
+  (defaction in-0 [a b c] ==>
+    (println "a, b, c: " a ", " b ", " c)
+    )
+  )
+
+(defactor has-initial-tokens [] [] ==> [out]
   (defaction ==>
-      (>>! out x)
-      (>>! out y)
-      (>>! out x)
-      (>>! out x)
-      (>>! out x)
-      (while true)
     )
   )
+
+(defactor arg-actor [a b c] [] ==> [out]
+  (defaction ==>
+    ;(println a b c)
+    )
+  )
+
+(defactor has-two-actions [] [in-0 in-1] ==> [out-0 out-1]
+  (defaction in-0 [a] ==>
+      (println "output on out-0")
+      (>>! out-0 a)
+    )
+  (defaction in-1 [b] ==>
+      (println "output on out-1")
+      (>>! out-1 b)
+    )
+  )
+
 
 (defn -main  [& args]
 
   (entities
-    (actor feeder-0 (feed-once "hej" "second"))
-    (actor feeder-1 (feed-once "Supposed to be d" "Supposed to be d"))
+    (actor feeder (has-initial-tokens ))
     (actor printer (print-actor ))
+    (actor takes-arguments (arg-actor "hej" 2 ["wow" "hello"]))
 
     (network
-      (connection (feeder-0 :out) (printer :in-0) {:initial-tokens []})
-      (connection (feeder-1 :out) (printer :in-1) )
+      (connection (feeder :out) (printer :in-0) {:initial-tokens [1 2 3]})
       )
     )
 

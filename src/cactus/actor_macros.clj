@@ -68,7 +68,7 @@
          connections-map {}
          arguments-map {} ;Has the structure {:channel-0 {:initial-tokens [1 0 0 2]}}
 
-         current-connections-args (if (and (= (class connection) clojure.lang.PersistentList) (= (last connection) clojure.lang.PersistentArrayMap)) (last connection) nil)
+         current-connections-args (if (and (= (class connection) clojure.lang.PersistentList) (= (class (last connection)) clojure.lang.PersistentArrayMap)) (last connection) nil)
          connector-0 (if (= (class connection) clojure.lang.PersistentList) (nth connection 1 nil) nil)
          connector-1 (if (= (class connection) clojure.lang.PersistentList) (nth connection 2 nil) nil)
         ]
@@ -135,15 +135,14 @@
 (defn create-channel-constructor-calls
   [n channel-arguments]
 
-  (loop [i (dec n)
+  (loop [i 0
          accumulator '()
          initial-tokens (if (not= nil (channel-arguments (keyword (str "channel-" i)))) ((channel-arguments (keyword (str "channel-" i))) :initial-tokens) [])
         ]
 
-        (println initial-tokens)
-        (if (< i 0)
+        (if (= i n)
           accumulator
-          (recur (dec i) (conj accumulator `( ~(symbol (str "channel-" i)) (chan ~initial-tokens))) (if (not= nil (channel-arguments (keyword (str "channel-" (dec i))))) ((channel-arguments (keyword (str "channel-" (dec i)))) :initial-tokens) []) )
+          (recur (inc i) (conj accumulator `( ~(symbol (str "channel-" i)) (chan ~initial-tokens))) (if (not= nil (channel-arguments (keyword (str "channel-" (inc i))))) ((channel-arguments (keyword (str "channel-" (inc i)))) :initial-tokens) []) )
           )
         )
   )
