@@ -1,11 +1,6 @@
 (ns cactus.actor_macros
   (:gen-class)
 (:require
-            [clojure.core.async
-             :as async
-             :refer [>! go-loop <! >!! <!! buffer close! thread]
-             :exclude [chan go]
-             ]
 
              [cactus.async
              :as cactus.async

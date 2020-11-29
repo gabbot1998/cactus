@@ -1,10 +1,10 @@
 (ns cactus.core
   (:gen-class)
   (:require
+
    [clojure.core.async
     :as async
-    :refer [ <! >! <!! >!! timeout]
-    :exclude [chan go]
+    :refer [<! >!]
     ]
 
    [cactus.async
