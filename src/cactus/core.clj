@@ -44,13 +44,13 @@
   )
 
 (defactor arg-actor [a b c] [] ==> [out]
-  (defaction ==> (guard true)
+  (defaction ==> (guard true )
     (println a b c)
     )
   )
 
-(defactor has-two-actions [] [in-0 in-1] ==> [out-0 out-1]
-  (defaction in-0 [a] ==>
+(defactor has-two-actions [] [in-0 in-1 in-2] ==> [out-0 out-1 out-2]
+  (defaction in-0 [a] ==> (guard true)
       (println "output on out-0")
       (>>! out-0 a)
     )
@@ -58,8 +58,14 @@
       (println "output on out-1")
       (>>! out-1 b)
     )
+  (defaction in-2 [b] ==>
+      (println "output on out-2")
+      (>>! out-2 b)
+    )
   )
 
+  ; (defactor has-two-actions [] [in-0 in-1] ==> [out-0 out-1]
+  ;   )
 
 (defn -main  [& args]
 
@@ -67,16 +73,20 @@
   (actor t (has-two-actions))
   (actor f0 (has-initial-tokens))
   (actor f1 (has-initial-tokens))
+  (actor f2 (has-initial-tokens))
 
   (actor p0 (print-actor "Actor 0"))
   (actor p1 (print-actor "Actor 1"))
+  (actor p2 (print-actor "Actor 2"))
 
   (network
     (connection (f0 :out) (t :in-0) {:initial-tokens ["Value for 0"]})
     (connection (f1 :out) (t :in-1) {:initial-tokens ["Value for 1"]})
+    (connection (f2 :out) (t :in-2) {:initial-tokens ["Value for 2"]})
 
-    (connection (t :out-0) (p0 :in))
+    (connection (t :out-0) (p0 :in) )
     (connection (t :out-1) (p1 :in))
+    (connection (t :out-2) (p2 :in))
     )
   )
 

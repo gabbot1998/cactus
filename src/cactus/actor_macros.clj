@@ -75,10 +75,11 @@
 
         (if (not= connection 'network)
           (do
+            (assert (or (= (count connection) 3) (= (count connection) 4)) "Connections take two ports and an optional ArrayMap of arguments.")
             (assert (= (nth connection 0 nil) 'connection) "Only connections or networks should be declared inside the network block.")
             (assert (nth connection 1 nil) "The connection needs two ports.")
             (assert (nth connection 2 nil) "The connection needs two ports.")
-            (assert (or (= nil (nth connection 3 nil)) (= (class (nth connection 3 nil)) clojure.lang.PersistentArrayMap)) "The connection takes two ports or an optional arguments ArrayMap.")
+            (assert (or (= nil (nth connection 3 nil)) (= (class (nth connection 3 nil)) clojure.lang.PersistentArrayMap)) (str "The last arguemnt has to be an ArrayMap, was: " (class (nth connection 3 nil))))
             )
           )
 
@@ -242,6 +243,7 @@
 (defmacro guard
   [& predicate]
 
+  (assert predicate "A guard can't be nil.")
   `(identity ~@predicate)
   )
 
@@ -333,6 +335,7 @@
 (defmacro defactor
  [name parameters connections-in arrow connections-out & actions]
 
+ (assert actions (str "Actor: " name " has to have at least one action." ))
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
     (go
         (loop []
