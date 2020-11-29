@@ -90,7 +90,7 @@
                 new-arguments-map (assoc arguments-map (keyword new-channel) current-connections-args)
                 new-connections-map (assoc-connections connections-map connector-0 connector-1 new-channel)
 
-                new-current-connections-args (if (= (class new-connection) clojure.lang.PersistentList) (last new-connection) nil)
+                new-current-connections-args (if (and (= (class new-connection) clojure.lang.PersistentList) (= (class (last new-connection)) clojure.lang.PersistentArrayMap)) (last new-connection) nil)
                 new-connector-0 (if (= (class new-connection) clojure.lang.PersistentList) (nth new-connection 1 nil) nil)
                 new-connector-1 (if (= (class new-connection) clojure.lang.PersistentList) (nth new-connection 2 nil) nil)
                 ]
@@ -100,6 +100,7 @@
 
             ;If we have reached the network token we return the connections-map
             (assoc (assoc connections-map :number-of-channels i) :channel-arguments arguments-map)
+
 
           )
       )
@@ -301,7 +302,7 @@
 (defn expand-action
   [[channel bindingsvector :as bindings] body-and-guard]
 
-  (if (and (= bindingsvector nil) (= channel nil))
+  (if (and (= bindingsvector nil) (= channel nil));When there are no bindings or input-channels
     `(when true ~(bind-variables-check-guard-consume-tokens bindings body-and-guard))
     `(when ~(available-tokens? channel bindingsvector) ~(bind-variables-check-guard-consume-tokens bindings body-and-guard))
     )
