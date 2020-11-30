@@ -26,7 +26,7 @@
     )
   )
 
-(defactor print-two-actro [] [X Y] ==> []
+(defactor print-two-actor [] [X Y] ==> []
   (defaction X [x] Y [y] ==>
       (println x y)
     )
