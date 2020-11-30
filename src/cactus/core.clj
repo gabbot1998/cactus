@@ -33,8 +33,10 @@
   )
 
 (defactor print-actor [name] [in] ==> []
+  ;(println name ": is running")
+
   (defaction in [a] ==>
-    (println "From " name " got value: " a)
+    (println "Name running")
     )
   )
 
@@ -50,10 +52,16 @@
   )
 
 (defactor has-two-actions [] [in-0 in-1 in-2] ==> [out-0 out-1 out-2]
+  ;(println "Inga tokens ")
   (defaction in-0 [a] ==> (guard true)
       (println "output on out-0")
       (>>! out-0 a)
     )
+
+    ; (defaction in-0 [a b] ==> (guard true)
+    ;     (println "output on out-0")
+    ;     (>>! out-0 a)
+    ;   )
 
   (defaction in-1 [b] ==>
       (println "output on out-1")
@@ -69,6 +77,7 @@
       ; (:= n 0)
       ; (:= n (n + 1))
     )
+
   (defaction in-2 [b] ==>
       (println "output on out-2")
       (>>! out-2 b)
@@ -89,15 +98,28 @@
   (actor p0 (print-actor "Actor 0"))
   (actor p1 (print-actor "Actor 1"))
   (actor p2 (print-actor "Actor 2"))
+  (actor p3 (print-actor "Actor 3"))
+  (actor p4 (print-actor "Actor 4"))
+  (actor p5 (print-actor "Actor 5"))
+  (actor p6 (print-actor "Actor 6"))
+  (actor p7 (print-actor "Actor 7"))
+  (actor p8 (print-actor "Actor 8"))
+
 
   (network
     (connection (f0 :out) (t :in-0) {:initial-tokens ["Value for 0"]})
     (connection (f1 :out) (t :in-1) {:initial-tokens ["Value for 1"]})
     (connection (f2 :out) (t :in-2) {:initial-tokens ["Value for 2"]})
 
-    (connection (t :out-0) (p0 :in) )
+    (connection (t :out-0) (p0 :in))
     (connection (t :out-1) (p1 :in))
     (connection (t :out-2) (p2 :in))
+    (connection (t :out-3) (p3 :in))
+    (connection (t :out-4) (p4 :in))
+    (connection (t :out-5) (p5 :in))
+    (connection (t :out-6) (p6 :in))
+    (connection (t :out-7) (p7 :in))
+    (connection (t :out-8) (p8 :in))
     )
   )
 
