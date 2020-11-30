@@ -10,22 +10,6 @@
              )
    )
 
-(def chan-size :chan-size)
-(def standard-chan-size 50)
-
-(defn return-chan-size
-  [arg-map]
-
-  (if (= arg-map clojure.lang.PersistentArrayMap)
-    (if
-      (not= (arg-map :chan-size) nil)
-        (arg-map chan-size)
-        standard-chan-size
-      )
-      standard-chan-size
-    )
-  )
-
 (defn is-nil?
   [map key1 key2]
 

@@ -54,9 +54,20 @@
       (println "output on out-0")
       (>>! out-0 a)
     )
+
   (defaction in-1 [b] ==>
       (println "output on out-1")
       (>>! out-1 b)
+
+      ; (loop [n 0]
+      ;   (let [n (+ n 1)]
+      ;     (let [n (+ n 1)]
+      ;       (recur n)
+      ;       )
+      ;     )
+      ;   )
+      ; (:= n 0)
+      ; (:= n (n + 1))
     )
   (defaction in-2 [b] ==>
       (println "output on out-2")
