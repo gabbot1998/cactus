@@ -10,22 +10,6 @@
              )
    )
 
-(def chan-size :chan-size)
-(def standard-chan-size 50)
-
-(defn return-chan-size
-  [arg-map]
-
-  (if (= arg-map clojure.lang.PersistentArrayMap)
-    (if
-      (not= (arg-map :chan-size) nil)
-        (arg-map chan-size)
-        standard-chan-size
-      )
-      standard-chan-size
-    )
-  )
-
 (defn is-nil?
   [map key1 key2]
 
@@ -75,10 +59,11 @@
 
         (if (not= connection 'network)
           (do
+            (assert (or (= (count connection) 3) (= (count connection) 4)) "Connections take two ports and an optional ArrayMap of arguments.")
             (assert (= (nth connection 0 nil) 'connection) "Only connections or networks should be declared inside the network block.")
             (assert (nth connection 1 nil) "The connection needs two ports.")
             (assert (nth connection 2 nil) "The connection needs two ports.")
-            (assert (or (= nil (nth connection 3 nil)) (= (class (nth connection 3 nil)) clojure.lang.PersistentArrayMap)) "The connection takes two ports or an optional arguments ArrayMap.")
+            (assert (or (= nil (nth connection 3 nil)) (= (class (nth connection 3 nil)) clojure.lang.PersistentArrayMap)) (str "The last arguemnt has to be an ArrayMap, was: " (class (nth connection 3 nil))))
             )
           )
 
@@ -242,6 +227,7 @@
 (defmacro guard
   [& predicate]
 
+  (assert predicate "A guard can't be nil.")
   `(identity ~@predicate)
   )
 
@@ -328,17 +314,67 @@
         )
   )
 
+(defmacro defstate
+  [bindingsvector]
 
+  (assert nil "State has to be defined inside actor.")
+  )
+
+(defn expand-state-vector
+  [[defstate bindingsvector]]
+
+  (assert bindingsvector "defstate takes vector of bindings.")
+  (loop [bindingsvector bindingsvector
+         variable (nth bindingsvector 0 nil)
+         expression (nth bindingsvector 1 nil)
+         accumulator '[]
+        ]
+
+        (if (= '() bindingsvector)
+          (vec (apply concat accumulator))
+          (recur (rest (rest bindingsvector)) (nth (rest (rest bindingsvector)) 0 nil) (nth (rest (rest bindingsvector)) 1 nil) (conj accumulator `[~variable (volatile! ~expression)] ))
+          )
+
+        )
+  )
+
+(defmacro --
+  [variable expression]
+
+  `(vreset! ~variable ~expression)
+  )
+
+(defn expand-state-and-actions
+  [state?-and-actions]
+
+  (let [state? (nth state?-and-actions 0 nil)
+        actions (nth state?-and-actions 1 nil)
+       ]
+
+        (if (= (nth state? 0 nil) 'defstate)
+          `(let ~(expand-state-vector state?)
+            (loop []
+              ~actions
+              (recur )
+              )
+             )
+
+          `(loop []
+            ~@state?-and-actions
+            (recur )
+            )
+
+          )
+        )
+  )
 
 (defmacro defactor
- [name parameters connections-in arrow connections-out & actions]
+ [name parameters connections-in arrow connections-out & state?-and-actions]
 
+ (assert state?-and-actions (str "Actor: " name " has to have at least one action." ))
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
     (go
-        (loop []
-        ~@actions
-        (recur )
-        )
+      ~(expand-state-and-actions state?-and-actions)
       )
     )
  )
