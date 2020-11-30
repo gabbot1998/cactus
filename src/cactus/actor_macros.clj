@@ -314,18 +314,68 @@
         )
   )
 
+(defmacro defstate
+  [bindingsvector]
 
+  (assert nil "State has to be defined inside actor.")
+  )
+
+(defn expand-state-vector
+  [[defstate bindingsvector]]
+
+  (assert bindingsvector "defstate takes vector of bindings.")
+  (loop [bindingsvector bindingsvector
+         variable (nth bindingsvector 0 nil)
+         expression (nth bindingsvector 1 nil)
+         accumulator '[]
+        ]
+
+        (if (= '() bindingsvector)
+          (vec (apply concat accumulator))
+          (recur (rest (rest bindingsvector)) (nth (rest (rest bindingsvector)) 0 nil) (nth (rest (rest bindingsvector)) 1 nil) (conj accumulator `[~variable (volatile! ~expression)] ))
+          )
+
+        )
+  )
+
+(defmacro --
+  [variable expression]
+
+  `(vreset! ~variable ~expression)
+  )
+
+(defn expand-state-and-actions
+  [state?-and-actions]
+
+  (let [state? (nth state?-and-actions 0 nil)
+        actions (nth state?-and-actions 1 nil)
+       ]
+
+        (if (= (nth state? 0 nil) 'defstate)
+          `(let ~(expand-state-vector state?)
+            (loop []
+              ~actions
+              (recur )
+              )
+             )
+
+          `(loop []
+            ~@state?-and-actions
+            (recur )
+            )
+
+          )
+        )
+  )
 
 (defmacro defactor
- [name parameters connections-in arrow connections-out & actions]
+ [name parameters connections-in arrow connections-out & state?-and-actions]
 
- (assert actions (str "Actor: " name " has to have at least one action." ))
+ (assert state?-and-actions (str "Actor: " name " has to have at least one action." ))
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
     (go
-        (loop []
-        ~@actions
-        (recur )
-        )
+      ~(expand-state-and-actions state?-and-actions)
+      ;(loop [] ~@state?-and-actions (recur ))
       )
     )
  )
