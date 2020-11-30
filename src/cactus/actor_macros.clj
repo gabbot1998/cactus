@@ -375,7 +375,6 @@
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
     (go
       ~(expand-state-and-actions state?-and-actions)
-      ;(loop [] ~@state?-and-actions (recur ))
       )
     )
  )
