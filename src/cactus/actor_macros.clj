@@ -216,8 +216,11 @@
          accumulator '[]
         ]
 
+        (println bindings)
+        (println channel)
         (if (= bindings-list '())
-          (vec accumulator)
+          (do (println (vec accumulator))
+          (vec accumulator))
           (recur (rest (rest bindings-list)) (nth (rest (rest bindings)) 0 nil) (nth (rest (rest bindings)) 1 nil) (concat accumulator (peek-channel channel variables)) )
           )
 
