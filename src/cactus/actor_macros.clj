@@ -84,7 +84,9 @@
             )
 
             ;If we have reached the network token we return the connections-map
-            (assoc (assoc connections-map :number-of-channels i) :channel-arguments arguments-map)
+            (do ;(println   (assoc (assoc connections-map :number-of-channels i) :channel-arguments arguments-map))
+              (assoc (assoc connections-map :number-of-channels i) :channel-arguments arguments-map)
+            )
 
 
           )
@@ -218,7 +220,7 @@
 
         (if (= bindings-list '())
           (vec accumulator)
-          (recur (rest (rest bindings-list)) (nth (rest (rest bindings)) 0 nil) (nth (rest (rest bindings)) 1 nil) (concat accumulator (peek-channel channel variables)) )
+          (recur (rest (rest bindings-list)) (nth (rest (rest bindings-list)) 0 nil) (nth (rest (rest bindings-list)) 1 nil) (concat accumulator (peek-channel channel variables)) )
           )
 
         )
@@ -280,17 +282,31 @@
   )
 
 (defn available-tokens?
-  [channel bindingsvector]
+  [bindings]
 
-  `(<= (count '~bindingsvector) ( ~(symbol "size?") ( ~(symbol "connections-map") ~(keyword (str channel))) ))
+  ;(println bindings)
+
+  (loop [bindings-list bindings
+         channel (nth bindings-list 0 nil)
+         bindingsvector (nth bindings-list 1 nil)
+         accumulator '()
+        ]
+
+        (if (= bindings-list '())
+          (conj accumulator 'and)
+          (recur (rest (rest bindings-list)) (nth (rest (rest bindings-list)) 0 nil) (nth (rest (rest bindings-list)) 1 nil) (conj accumulator `(<= (count '~bindingsvector) ( ~(symbol "size?") ( ~(symbol "connections-map") ~(keyword (str channel))) ))))
+          )
+        )
   )
 
-(defn expand-action
-  [[channel bindingsvector :as bindings] body-and-guard]
 
-  (if (and (= bindingsvector nil) (= channel nil));When there are no bindings or input-channels
+(defn expand-action
+  [bindings body-and-guard]
+
+  ;(println bindings)
+  (if (= bindings '());When there are no bindings or input-channels
     `(when true ~(bind-variables-check-guard-consume-tokens bindings body-and-guard))
-    `(when ~(available-tokens? channel bindingsvector) ~(bind-variables-check-guard-consume-tokens bindings body-and-guard))
+    `(when ~(available-tokens? bindings) ~(bind-variables-check-guard-consume-tokens bindings body-and-guard))
     )
   )
 
@@ -301,6 +317,7 @@
                                          bindings '()
                                          ]
 
+                                         (assert parse "End the defaction bindings with a ==>.")
                                          (if (= (first parse) '==>)
                                            [(conj (rest parse) 'do)
                                             (reverse bindings)

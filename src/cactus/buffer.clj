@@ -15,12 +15,12 @@
     [this]
     (if (= (inc @start) @n)
       (let [return-val (.get @buf @start)]
-        (.set @buf @start nil)
+        ;(.set @buf @start nil)
         (vreset! start 0)
         (vswap! capacity inc)
         return-val)
       (let [return-val (.get @buf @start)]
-        (.set @buf @start nil)
+        ;(.set @buf @start nil)
         (vswap! start inc)
         (vswap! capacity inc)
         return-val)
@@ -75,7 +75,3 @@
   )
 
 ;; initalization states for the ringbuff class
-
-
-
-
