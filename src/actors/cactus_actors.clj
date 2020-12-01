@@ -64,3 +64,14 @@
 
     )
   )
+
+  (defactor stripe-actor [n] [b-chan] ==> [chan-1 chan-2 chan-3 chan-4]
+    (defaction b-chan [bs] ==>
+      (doseq [i (range n)]
+        (>>! chan-1 (nth bs 0))
+        (>>! chan-2 (nth bs 1))
+        (>>! chan-3 (nth bs 2))
+        (>>! chan-4 (nth bs 3))
+        )
+      )
+    )
