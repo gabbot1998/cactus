@@ -214,7 +214,7 @@
     (let [new-nw new-west
           new-n (cell-action @nw @n new-west a b)
          ]
-         (println "fired sw")
+         ;(println new-n)
          (>>! value new-n)
          (>>! aligner-value new-n)
          (if (= @i (dec a-length))
@@ -236,7 +236,7 @@
 
 (defactor stripe-actor [a-length] [b-chan] ==> [chan-0 chan-1 chan-2 chan-3 ]
   (defaction b-chan [bs] ==>
-    (println "stripeactor sends: " bs)
+    ;(println "stripeactor sends: " bs)
     (doseq [i (range a-length)]
       (>>! chan-0 (nth bs 0))
       (>>! chan-1 (nth bs 1))
@@ -248,7 +248,7 @@
 
 (defactor fanout-actor [] [in-chan] ==> [chan-0 chan-1 chan-2 chan-3 ]
   (defaction in-chan [in] ==>
-    (println "fanout sends: " in)
+    ;(println "fanout sends: " in)
     (>>! chan-0 in)
     (>>! chan-1 in)
     (>>! chan-2 in)
@@ -285,10 +285,10 @@
   (defaction ==> (guard (not @fired))
       (println @fired)
       (doseq [i (range (/ (count B) width))]
-        (println "Sent: " (subs B (* width i) (* width (inc i))) " to stripe")
+        ;(println "Sent: " (subs B (* width i) (* width (inc i))) " to stripe")
         (>>! chan-stripe (subs B (* width i) (* width (inc i))))
         (doseq [j (range (count A))]
-          (println "Sent: " (nth A j) " to fanout.")
+          ;(println "Sent: " (nth A j) " to fanout.")
           (>>! chan-contr-fan-a (nth A j))
           )
         )

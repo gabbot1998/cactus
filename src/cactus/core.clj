@@ -33,10 +33,11 @@
 
 (defn -main  [& args]
     (println "started")
-    (def A "HEJ");Kan vara vilken som helst
-    (def B "HEJHEJSS") ;En multipppel av 4. I det här fallet 16.
+    (def A "JDSALASDFSF");Kan vara vilken som helst
+    (def B "HEJAHEJAJASJDLJDWASS") ;En multipppel av 4. I det här fallet 16.
     (def width 4)
 
+    (println (count B))
 
     (entities
       (actor controller (controller-actor A B width))
