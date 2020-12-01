@@ -284,7 +284,7 @@
 (defn available-tokens?
   [bindings]
 
-  (println bindings)
+  ;(println bindings)
 
   (loop [bindings-list bindings
          channel (nth bindings-list 0 nil)

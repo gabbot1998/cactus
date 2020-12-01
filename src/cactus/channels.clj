@@ -24,7 +24,12 @@
   impl/ReadPort
   (take!
     [this handler]
-    (box (.plop! buf)))
+    (do
+      (.lock mutex)
+      (let [val (.plop! buf)]
+      (.unlock mutex)
+      (box val))))
+
 
   impl/WritePort
   (put!

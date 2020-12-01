@@ -181,32 +181,59 @@
   0)
 )
 
-(defactor sw-cell-printing [a-length tot-rows] [a-chan b-chan west] ==> [value aligner-value]
-  (defstate [nw 0 n 0 i 0 j 0])
-  (defaction a-chan [a] b-chan [b] west [new-west] ==>
-    (let [new-nw new-west
-          new-n (cell-action @nw @n new-west a b)
-         ]
-         (println @j " / " tot-rows)
-         (-- j (inc @j))
-         (>>! value new-n)
-         (>>! aligner-value new-n)
-         (if (= i (dec a-length))
-           (do
-             (-- nw 0)
-             (-- n 0)
-             (-- i 0)
-             )
-           (do
-             (-- nw new-nw)
-             (-- n new-n)
-             (-- i (inc @i))
-             )
-         )
-         )
+; (defactor sw-cell-printing-old [a-length tot-rows] [a-chan b-chan west] ==> [value aligner-value]
+;   (defstate [nw 0 n 0 i 0 j 0])
+;   (defaction a-chan [a] b-chan [b] west [new-west] ==>
+;     (let [new-nw new-west
+;           new-n (cell-action @nw @n new-west a b)
+;          ]
+;          (println @j " / " tot-rows)
+;          (-- j (inc @j))
+;          (>>! value new-n)
+;          (>>! aligner-value new-n)
+;          (if (= i (dec a-length))
+;            (do
+;              (-- nw 0)
+;              (-- n 0)
+;              (-- i 0)
+;              )
+;            (do
+;              (-- nw new-nw)
+;              (-- n new-n)
+;              (-- i (inc @i))
+;              )
+;          )
+;          )
+;
+;     )
+;   )
 
+  (defactor sw-cell-printing [a-length tot-rows] [a-chan b-chan west] ==> [value aligner-value]
+    (defstate [nw 0 n 0 i 0 j 0])
+    (defaction a-chan [a] b-chan [b] west [new-west] ==>
+      (let [new-nw new-west
+            new-n (cell-action @nw @n new-west a b)
+           ]
+           (println @j " / " tot-rows)
+           (-- j (inc @j))
+           (>>! value new-n)
+           (>>! aligner-value new-n)
+           (if (= @i (dec a-length))
+             (do
+               (-- nw 0)
+               (-- n 0)
+               (-- i 0)
+               )
+             (do
+               (-- nw new-nw)
+               (-- n new-n)
+               (-- i (inc @i))
+               )
+             )
+           )
+
+      )
     )
-  )
 
 (defactor sw-cell [a-length] [a-chan b-chan west] ==> [value aligner-value]
   (defstate [nw 0 n 0 i 0])
@@ -214,7 +241,6 @@
     (let [new-nw new-west
           new-n (cell-action @nw @n new-west a b)
          ]
-         ;(println new-n)
          (>>! value new-n)
          (>>! aligner-value new-n)
          (if (= @i (dec a-length))
@@ -266,16 +292,18 @@
     (let [new-row (inc @row)
           new-temp-matrix (assoc @temp-matrix @row [c0 c1 c2 c3])
          ]
-    (if (= @row (dec @number-of-rows))
-      (do
-        (println (index-of-largest-elem-in-matrix (padd (fill-matrix A B new-temp-matrix))))
-        (println (trace-back "" "" A B (padd (fill-matrix A B new-temp-matrix)) (index-of-largest-elem-in-matrix (padd (fill-matrix A B new-temp-matrix))) ))
-        ;(>>! out (padd (fill-matrix A B new-temp-matrix)))
-        )
-    )
+          ;(print-matrix new-temp-matrix)
+          (if (= @row (dec @number-of-rows))
+            (do
+              (print-matrix (padd (fill-matrix A B new-temp-matrix)))
+              (println (index-of-largest-elem-in-matrix (padd (fill-matrix A B new-temp-matrix))))
+              (println (trace-back "" "" A B (padd (fill-matrix A B new-temp-matrix)) (index-of-largest-elem-in-matrix (padd (fill-matrix A B new-temp-matrix))) ))
+              ;(>>! out (padd (fill-matrix A B new-temp-matrix)))
+              )
+              )
 
-      (-- row new-row)
-      (-- temp-matrix new-temp-matrix)
+              (-- row new-row)
+              (-- temp-matrix new-temp-matrix)
     )
   )
 )
