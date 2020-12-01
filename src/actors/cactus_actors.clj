@@ -217,7 +217,7 @@
     )
   )
 
-(defactor aligner [A B stripe-width] [chan-0 chan-1 chan-2 chan-3] ==> [out]
+(defactor align-actor [A B stripe-width] [chan-0 chan-1 chan-2 chan-3] ==> [out]
   (defstate [row 0
              number-of-rows (* (/ (count B) stripe-width) (count A))
              temp-matrix (vec (repeat number-of-rows (vec (repeat stripe-width 0))))
@@ -240,3 +240,19 @@
     )
   )
 )
+
+(defactor controller-actor [A B width] [] ==> [chan-contr-fan-a chan-stripe]
+  (defstate [fired false])
+  (defaction ==>
+    (when (not fired )
+      (doseq [i (range (/ (count B) width))]
+        (>>! chan-stripe (subs B (* width i) (* width (inc i))))
+        (doseq [j (range (count A))]
+          (>>! chan-contr-fan-a (nth A j))
+          )
+        )
+
+      (-- fired true)
+      )
+    )
+  )
