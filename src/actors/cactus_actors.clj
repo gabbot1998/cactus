@@ -209,18 +209,27 @@
 (defactor stripe-actor [a-length] [b-chan] ==> [chan-0 chan-1 chan-2 chan-3 ]
   (defaction b-chan [bs] ==>
     (doseq [i (range a-length)]
-      (>>! chan-1 (nth bs 0))
-      (>>! chan-2 (nth bs 1))
-      (>>! chan-3 (nth bs 2))
-      (>>! chan-4 (nth bs 3))
+      (>>! chan-0 (nth bs 0))
+      (>>! chan-1 (nth bs 1))
+      (>>! chan-2 (nth bs 2))
+      (>>! chan-3 (nth bs 3))
       )
+    )
+  )
+
+(defactor fanout-actor [] [in-chan] ==> [chan-0 chan-1 chan-2 chan-3 ]
+  (defaction in-chan [in] ==>
+    (>>! chan-0 (nth in 0))
+    (>>! chan-1 (nth in 1))
+    (>>! chan-2 (nth in 2))
+    (>>! chan-3 (nth in 3))
     )
   )
 
 (defactor align-actor [A B stripe-width] [chan-0 chan-1 chan-2 chan-3] ==> [out]
   (defstate [row 0
              number-of-rows (* (/ (count B) stripe-width) (count A))
-             temp-matrix (vec (repeat number-of-rows (vec (repeat stripe-width 0))))
+             temp-matrix (vec (repeat @number-of-rows (vec (repeat stripe-width 0))))
             ]
             )
   (defaction chan-0 [c0] chan-1 [c1] chan-2 [c2] chan-3 [c3] ==>

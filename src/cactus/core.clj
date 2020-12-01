@@ -14,7 +14,7 @@
 
     [actors.cactus_actors
     :as cactus.actors.cactus_actors
-    :refer [sw-cell]
+    :refer [sw-cell align-actor controller-actor fanout-actor stripe-actor]
     ]
 
      [cactus.actor_macros
@@ -33,57 +33,51 @@
 
 
 (defn -main  [& args]
-
-  ; (entities
-  ;   (actor controller (controller-actor width))
-  ;   (actor stripe (stripe-actor width))
-  ;
-  ;   (actor fanout (fanout-actor ))
-  ;
-  ;   (actor sw0 (sw-cell ))
-  ;   (actor sw1 (sw-cell ))
-  ;   (actor sw2 (sw-cell ))
-  ;   (actor sw3 (sw-cell ))
-  ;
-  ;   (actor aligner (aligner-actor))
-  ;
-  ;   (network
-  ;     (connection (f0 :out) (t :in-0) {:initial-tokens ["Value for 0"]})
-  ;     (connection (f1 :out) (t :in-1) {:initial-tokens ["Value for 1"]})
-  ;
-  ;     (connection (t :out-0) (p0 :in))
-  ;     (connection (t :out-1) (p1 :in))
-  ;     )
-  ;   )
-
     (println "started")
     (def A "JLKSDFSDFKJSDFÖSJDLFKNNLCNSDLKNLKNFSLJDFÖEKENNDNFNFNFNFFNFNFNNASDFLDSNVLJNLDFJGLSKDFGHJAJFSDHFJGNHFGHVDTHGHJHGKFGHSDGDFVBFGBFGHFHKHG");Kan vara vilken som helst
     (def B "SCAIJHUFZFTYKBYDLDJDWCYCGKBYSRVRGCFNUFKLENAWRCRZBUAJEVLXXWJUYPYLUTYTEVQBAEQHATLEXYDQSWJNURUBEISJIVTMBDORIFMUACGIPGMRJUSSGZXGSSRBNARKLFDGOFHQCYUYKIWTVRRWEWUQCYDFGHYARHSARWTKVQGVNJJQFRWDYXVZYANBJBOGTQKYNTLOGDBWPNXASKOWZYIXJNPFNDWFYRRIUDGXKVVQKNFOSCYYRPDQXWUESICYKAVILXVXBRGETRIEXKSQHJJJADWXYAANVXZXFLHPMUCEOEVKERCAZZYAYPCWAYQTJYFXJUCFWCJMQLBBHYVRQBOJDSURKSALPRWVKUFUCCSNKDMAHMDCZNVFHULWYMPSILCAXOSLDMHVYZIVTTSMESERKRMOEEMZSMPXWAFGWGCFJUQEMNSTKHWMXNILOTDNJSDHLYIDWZUTTSAHZLPQDVPUFYJYTNMEBUDPKEEWJELTSBNTGZKMQZJDCMKHOFBTYNLOQPZGWSFWDNYJSIPESFQOPXNFRPQSWLGABADQZSSSKKNRSODMRXHWEQYKSINQSOPQUMUWUEYKYYTKGYBSRMWIOPQOITUQJEAYYJTNADDBWTWOEYTNXCRVWHRNRTFQKVLSNJPLBDAMOLFDVDXFRBXNVTDVSTBXIIHNNKGHSWDVQKDIRMZUNVPBVAOJUWQNSNIUOFHDBHGOVPUWMXLYAFXJHFNNCTOIRNYQTCIECJPIDCSZOKPRLYEFJRCCWXUFOAUGXQEVUXPGBDKOHCKYBEJAJBCBSLVKLVOMKDJIPETYVLXUONMHFDWVFFXLLMXWTRIZMONQCUNKUWSRCKQMJSSZDDRPCOWZHSCTJJGHYLHZOAZYSDOYKSFKYPPTASPCFHVGDHBWMHSSTMCFNHJAEHEFDSDITQHBSXJRXVVDBLDAWTNRCOFGMOUUUOOZVOBWGGMHVLXQEUJJOGDQELUPUAHCOISOPRBDLGOPOGVYREMFHGOSBJSPWMNDPSEJTQRPILPDFADXQAUGASETQRHGKAKNYJVPEBWEEXLXOLWUTZEABNUWRQHLNJFRQEKPHBTTNUGOUAVJJPEQJIQFRWYPXVLRAVMCYFEVYXPTQSPAITDYTGZAIYBQQEEUZPDNAEWLUAMFZTTQVRDHRJZOQLQKGGTPPYYNLKDNJPVQTUNFWVNIYQSOXTRUBVODEWJGMTCNSSLRUIFGBSNVNIFTQBXPNTYMEZTFMCVRTFOCYTNGKSXWBWKHVOZPEMURIYKFVFIWCCTMFVYKVHHSAUPKWRBUEEWORHTEEPPZSQIDGLFEIWIVFWWMDJDCNXICACCLMKXIKEBTKIZLGNXLXZZQNIVQINMSDYVEIHDPGIMFDCNCOZYGYJTEQHBNIMLAYAISAAKMXHUDDFZVVANEYLNCMLRUBKNSESVZDJLCIBGUFBERAVNNTJBOQRMVSDGPEEUTZJYIRRLQBRVLUMOPIHUVHNCBNHXWBPMTTFFNZOQYLRFTYBJGGESSLWAJYPMJZVIDPMJXFWVSLFUPFPTUJAIGDDMVDZAEDZUPVCUJMCLZJMHZYCAUKZVIGVROUSLGBIIEFXOPDOXKEXSHEVNOYTRQGBLHAJUDTXMTSPUXJYNWMHSMGCFWHAIRPGEFHJLBRQUWWXCSJOHUDWWQEHGTSMQEXYLZBMTBGQBRXOSDIRRMCSMHQTRRUAWYPPMCCWJSECKWCQUVXUFYSICYXGXNTIBVYUIMQSDTFNHFCKDSKJHPEKLOYQDLCKDGCKRZTXDASIFJNHIFORRQQJONQCCEUMBCPNSEDVVSITCRTAETDTIHDWRJBOPCPYXMFWLYEYNMVZNLBBUYXKUHYPWUUIZMNXTZYNKAVVYJHWUZGJQHHUVTTWPENYZGPYSZJBMDYUQKVCLWSBBONAWQVKGPFWXOIHUIVLHTBVRFJGVOBSYVBMGSCGAEVTRCTOYOLMNZFMTJISOBBICZZWSRWBBQFZMMPLHHBYLEVJMFYIQLHPVAIFNTCHPTAYHZMAZCUGZRBWWDBJDODVSJXEIS") ;En multipppel av 4. I det här fallet 16.
     (def width 4)
 
-    ; (go (>! chan-1 A))
-    ; (go (>! chan-2 B))
-    ;
-    ; (controller chan-1 chan-2 width chan-contr-fan-a chan-contr-stripe-bs)
-    ;
-    ; (stripe-actor chan-contr-stripe-bs (count A) chan-stripe-sw-1 chan-stripe-sw-2 chan-stripe-sw-3 chan-stripe-sw-4)
-    ;
-    ; (fan-out-actor chan-contr-fan-a chan-fan-sw-1 chan-fan-sw-2 chan-fan-sw-3 chan-fan-sw-4)
-    ;
-    ;
-    ; (sw-cell chan-fan-sw-1 chan-stripe-sw-1 (count A) chan-sw-4-1 chan-sw-1-2  chan-sw-out-1 "1")
-    ; (sw-cell chan-fan-sw-2 chan-stripe-sw-2 (count A) chan-sw-1-2 chan-sw-2-3 chan-sw-out-2 "2")
-    ; (sw-cell chan-fan-sw-3 chan-stripe-sw-3 (count A) chan-sw-2-3 chan-sw-3-4 chan-sw-out-3 "3")
-    ; (sw-cell-end chan-fan-sw-4 chan-stripe-sw-4 (count A) chan-sw-3-4 chan-sw-4-1 chan-sw-out-4 "4" (* (/ (count B) width ) (count A)))
-    ;
-    ; (aligner A B width chan-sw-out-1 chan-sw-out-2 chan-sw-out-3 chan-sw-out-4 chan-res)
-    ;
-    ; (print-actor chan-res)
-    ;
-    ;
-    ;
-    ; (while true )
 
+    (entities
+      (actor controller (controller-actor A B width))
+      (actor stripe (stripe-actor (count A)))
+
+      (actor fanout (fanout-actor ))
+
+      (actor sw0 (sw-cell (count A)))
+      (actor sw1 (sw-cell (count A)))
+      (actor sw2 (sw-cell (count A)))
+      (actor sw3 (sw-cell (count A)))
+
+      (actor aligner (align-actor A B width))
+
+      (network
+        (connection (controller :chan-contr-fan-a) (fanout :in-chan) )
+        (connection (controller :chan-stripe) (stripe :b-chan) )
+
+        (connection (stripe :chan-0) (sw0 :b-chan) )
+        (connection (stripe :chan-1) (sw1 :b-chan) )
+        (connection (stripe :chan-2) (sw2 :b-chan) )
+        (connection (stripe :chan-3) (sw3 :b-chan) {:initial-tokens (vec (repeat (count A) 0))})
+
+        (connection (fanout :chan-0) (sw0 :a-chan) )
+        (connection (fanout :chan-1) (sw1 :a-chan) )
+        (connection (fanout :chan-2) (sw2 :a-chan) )
+        (connection (fanout :chan-3) (sw3 :a-chan) )
+
+        (connection (sw0 :value) (sw1 :west) )
+        (connection (sw1 :value) (sw2 :west) )
+        (connection (sw2 :value) (sw3 :west) )
+        (connection (sw3 :value) (sw0 :west) )
+
+        (connection (sw0 :aligner-value) (aligner :chan-0))
+        (connection (sw1 :aligner-value) (aligner :chan-1))
+        (connection (sw2 :aligner-value) (aligner :chan-2))
+        (connection (sw3 :aligner-value) (aligner :chan-3))
+
+        )
+      )
 
   (while true )
 
