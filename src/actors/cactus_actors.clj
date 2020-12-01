@@ -42,7 +42,7 @@
 
 (defactor sw-cell [a-length] [a-chan b-chan west] ==> [value aligner-value]
   (defstate [nw 0 n 0 i 0])
-  (defaction a-chan [a] b-chan [b] west [w] ==>
+  (defaction a-chan [a] b-chan [b] west [new-west] ==>
     (let [new-nw new-west
           new-n (cell-action @nw @n new-west a b)
          ]
