@@ -43,25 +43,24 @@
 (defactor sw-cell [a-length] [a-chan b-chan west] ==> [value aligner-value]
   (defstate [nw 0 n 0 i 0])
   (defaction a-chan [a] b-chan [b] west [w] ==>
-    (println w)
-    ; (let [new-nw new-west
-    ;       new-n (cell-action @nw @n new-west a b)
-    ;      ]
-    ;      (>>! value new-n)
-    ;      (>>! aligner-value new-n)
-    ;      (if (= i (dec a-length))
-    ;        (do
-    ;          (-- nw 0)
-    ;          (-- n 0)
-    ;          (-- i 0)
-    ;          )
-    ;        (do
-    ;          (-- nw new-nw)
-    ;          (-- n new-n)
-    ;          (-- i (inc @i))
-    ;          )
-    ;      )
-    ;      )
+    (let [new-nw new-west
+          new-n (cell-action @nw @n new-west a b)
+         ]
+         (>>! value new-n)
+         (>>! aligner-value new-n)
+         (if (= i (dec a-length))
+           (do
+             (-- nw 0)
+             (-- n 0)
+             (-- i 0)
+             )
+           (do
+             (-- nw new-nw)
+             (-- n new-n)
+             (-- i (inc @i))
+             )
+         )
+         )
 
     )
   )
