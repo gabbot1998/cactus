@@ -178,8 +178,6 @@
               )
 
               (recur new-row new-temp-matrix)
-              ;)
-            ;(if (= row 3) (println new-temp-matrix) )
           )
 
       )

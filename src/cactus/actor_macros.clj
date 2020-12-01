@@ -301,6 +301,7 @@
                                          bindings '()
                                          ]
 
+                                         (assert parse "End the defaction bindings with a ==>.")
                                          (if (= (first parse) '==>)
                                            [(conj (rest parse) 'do)
                                             (reverse bindings)
