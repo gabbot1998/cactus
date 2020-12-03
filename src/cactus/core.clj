@@ -14,62 +14,51 @@
 
      [cactus.actor_macros
      :as cactus.actors
-     :refer [defactor entities actor connection network defaction >>! guard defstate --]
+     :refer [defactor entities actor con network defaction >>! guard defstate --]
      ]
 
      )
    )
 
-(defactor guarded-actor [] [] ==> []
-  (defaction ==> (guard true)
-    (println "This actor always fires")
+(defactor feed-one [send] [] ==> [out]
+  (defstate [fired true])
+  (defaction ==> (guard @fired)
+      (-- fired false)
+      (>>! out send)
+
     )
   )
 
-(defactor print-two-actor [] [X Y] ==> []
-  (defaction X [x] Y [y] ==>
-      (println x y)
+(defactor print-one [] [in] ==> []
+  (defaction in [token] ==>
+      (println token)
     )
   )
 
-(defactor print-actor [] [in-0] ==> []
-  (defaction in-0 [a b c] ==>
-    (println "a, b, c: " a ", " b ", " c)
-    )
-  )
-
-(defactor has-initial-tokens [] [] ==> [out]
-  (defaction ==>
-    )
-  )
-
-(defactor arg-actor [a b c] [] ==> [out]
-  (defaction ==>
-    ;(println a b c)
-    )
-  )
-
-(defactor has-two-actions [] [in-0 in-1] ==> [out-0 out-1]
-  (defaction in-0 [a] ==>
-      (println "output on out-0")
-      (>>! out-0 a)
-    )
-  (defaction in-1 [b] ==>
-      (println "output on out-1")
-      (>>! out-1 b)
-    )
-  )
 
 
 (defn -main  [& args]
 
+  ;(con (feed out) (p0 in) {:intial-tokens [0]})
   (entities
-    (actor feeder (has-initial-tokens ))
-    (actor printer (print-actor ))
-    ;(actor takes-arguments (arg-actor "hej" 2 ["wow" "hello"]))
+
+    (actor feed (feed-one "wap"))
+
+    (actor p0 (print-one ))
+    (actor p1 (print-one ))
+    (actor p2 (print-one ))
+
+
+
+    (for [i (range 2)]
+      `(actor ~(symbol (str "feed" i)) (feed-one ~i))
+      )
 
     (network
-      (connection (feeder :out) (printer :in-0) {:initial-tokens [1 2 3]})
+      (con (feed :out) (p0 :in))
+      (for [i (range 2)]
+        `(con (~(symbol (str "feed" i)) :out) (~(symbol (str "print" i)) :in))
+        )
       )
     )
 

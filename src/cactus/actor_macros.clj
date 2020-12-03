@@ -60,36 +60,34 @@
         (if (not= connection 'network)
           (do
             (assert (or (= (count connection) 3) (= (count connection) 4)) "Connections take two ports and an optional ArrayMap of arguments.")
-            (assert (= (nth connection 0 nil) 'con) "Only connections or networks should be declared inside the network block.")
+            (assert (or (= (nth connection 0 nil) 'con) (= (nth connection 0 nil) 'for)) "Only connections, networks or for loops should be declared inside the network block.")
             (assert (nth connection 1 nil) "The connection needs two ports.")
             (assert (nth connection 2 nil) "The connection needs two ports.")
             (assert (or (= nil (nth connection 3 nil)) (= (class (nth connection 3 nil)) clojure.lang.PersistentArrayMap)) (str "The last arguemnt has to be an ArrayMap, was: " (class (nth connection 3 nil))))
             )
           )
 
-        (if (not= rest-nw ())
-          ;If we have not reached the network token we are not done.
-          (let [new-connection (first rest-nw)
-                new-rest-nw (rest rest-nw)
-                new-channel (symbol (str "channel-" i))
-                new-arguments-map (assoc arguments-map (keyword new-channel) current-connections-args)
-                new-connections-map (assoc-connections connections-map connector-0 connector-1 new-channel)
+          (if (not= rest-nw ())
+            ;If we have not reached the network token we are not done.
+            (let [new-connection (first rest-nw)
+                  new-rest-nw (rest rest-nw)
+                  new-channel (symbol (str "channel-" i))
+                  new-arguments-map (assoc arguments-map (keyword new-channel) current-connections-args)
+                  new-connections-map (assoc-connections connections-map connector-0 connector-1 new-channel)
 
-                new-current-connections-args (if (and (= (class new-connection) clojure.lang.PersistentList) (= (class (last new-connection)) clojure.lang.PersistentArrayMap)) (last new-connection) nil)
-                new-connector-0 (if (= (class new-connection) clojure.lang.PersistentList) (nth new-connection 1 nil) nil)
-                new-connector-1 (if (= (class new-connection) clojure.lang.PersistentList) (nth new-connection 2 nil) nil)
-                ]
+                  new-current-connections-args (if (and (= (class new-connection) clojure.lang.PersistentList) (= (class (last new-connection)) clojure.lang.PersistentArrayMap)) (last new-connection) nil)
+                  new-connector-0 (if (= (class new-connection) clojure.lang.PersistentList) (nth new-connection 1 nil) nil)
+                  new-connector-1 (if (= (class new-connection) clojure.lang.PersistentList) (nth new-connection 2 nil) nil)
+                  ]
 
-                (recur (inc i) new-connection new-rest-nw new-connections-map new-arguments-map new-current-connections-args new-connector-0 new-connector-1)
+                  (recur (inc i) new-connection new-rest-nw new-connections-map new-arguments-map new-current-connections-args new-connector-0 new-connector-1)
+              )
+
+              ;If we have reached the network token we return the connections-map
+              (do ;(println   (assoc (assoc connections-map :number-of-channels i) :channel-arguments arguments-map))
+                (assoc (assoc connections-map :number-of-channels i) :channel-arguments arguments-map)
+                )
             )
-
-            ;If we have reached the network token we return the connections-map
-            (do ;(println   (assoc (assoc connections-map :number-of-channels i) :channel-arguments arguments-map))
-              (assoc (assoc connections-map :number-of-channels i) :channel-arguments arguments-map)
-            )
-
-
-          )
       )
   )
 
@@ -99,24 +97,6 @@
   (if (not= (first network) 'network)
     (throw (Exception. (str "The last list inside the entities block has to be a network.")))
     (create-connections-map (reverse network))
-    )
-  )
-
-(defn actor-expander
-  [actor-list connections]
-
-  (let [
-        kw (nth actor-list 0 nil)
-        var-name (nth actor-list 1 nil)
-        actor-spec (nth actor-list 2 nil)
-        connections-map (connections (keyword var-name))
-        ]
-
-        (assert (= kw 'actor) "Only actors and networks should be declared inside the entities block.")
-        (assert var-name "The declaration of an actor requires a variable name.")
-        (assert actor-spec (str "actor varible: " var-name " has not been defined."))
-        (reverse (cons connections-map (reverse actor-spec)))
-
     )
   )
 
@@ -145,6 +125,7 @@
 
 (defmacro entities
   [& actors-then-network]
+  
 
   (let [connections (network-builder (first (reverse actors-then-network)))
         actors-list (butlast actors-then-network)
@@ -152,14 +133,26 @@
                                accumulator '()
                               ]
 
+                              ;(println "The acc: " accumulator)
                               (if (= '() new-actors-list)
                                 accumulator
                                 ;Evaluate the macro. Testing for completeness.
-                                (recur (rest new-actors-list) (conj accumulator (actor-expander (first new-actors-list) connections)))
+                                (if (= 'actor (nth (nth new-actors-list 0 nil) 0 nil))
+                                  (recur (rest new-actors-list) (conj accumulator (reverse (conj (reverse (nth new-actors-list 0 nil)) connections))))
+                                  (do
+                                    ;(println "The for loop evals to: " (eval (nth new-actors-list 0 nil)))
+                                    ;(println "mapping over the list gives: " (conj accumulator (conj (map (fn [actor] (reverse (conj (reverse actor) connections))) (eval (nth new-actors-list 0 nil))) 'do)))
+                                    (recur (rest new-actors-list) (conj accumulator (conj (map (fn [actor] (reverse (conj (reverse actor) connections))) (eval (nth new-actors-list 0 nil))) 'do)))
+                                    )
+
+                                  )
+
                                 )
                               )
+
         execute (create-let-with-channels (connections :number-of-channels) (connections :channel-arguments) calls-to-actors)
         ]
+        ;(println "These are the calls: " execute)
 
       `(do
         ~execute
@@ -168,16 +161,29 @@
       )
    )
 
+
+  ; (clojure.core/let [channel-0 (cactus.async/chan [])]
+  ;   (do
+  ;     (actor feedj (feed-one wap) {:feedj {:out channel-0}, :nice {:in channel-0}, :number-of-channels 1, :channel-arguments {:channel-0 nil}})
+  ;     (actor nice (print-one) {:feedj {:out channel-0}, :nice {:in channel-0}, :number-of-channels 1, :channel-arguments {:channel-0 nil}})
+  ;     )
+  ;   )
+
 (defmacro network
   [& connections]
 
+  (println network)
   (assert nil "network defined outside (entities ...) block.")
   )
 
 (defmacro actor
-  [var-name [actor-type & args]]
+  [var-name [actor-type & args] connections]
 
-  (assert nil "actor used outside (entities ...) block.")
+  ;(println "The var-name is: " var-name)
+  (if (= args nil)
+    `(~actor-type ~(connections (keyword var-name)))
+    `(~actor-type ~@args ~(connections (keyword var-name)))
+    )
   )
 
 (defmacro con
