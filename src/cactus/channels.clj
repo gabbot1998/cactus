@@ -17,14 +17,21 @@
     (box (.peep buf i))
     )
 
-  (size [this handler]
-    (box (.len buf))
+  (size [this n handler]
+    (if (<= n (.len buf))
+      (box true)
+      (box false))
     )
 
   impl/ReadPort
   (take!
     [this handler]
-    (box (.plop! buf)))
+    (do 
+      (.lock mutex)
+      (let [val (box (.plop! buf))]
+        (.unlock mutex)
+        val))
+    )
 
   impl/WritePort
   (put!
