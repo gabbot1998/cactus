@@ -14,7 +14,7 @@
 
      [cactus.actor_macros
      :as cactus.actors
-     :refer [defactor entities actor connection network defaction >>! guard defstate --]
+     :refer [defactor entities actor con network defaction >>! guard defstate --]
      ]
 
      )

@@ -19,7 +19,7 @@
 
      [cactus.actor_macros
      :as cactus.actors
-     :refer [defactor entities actor connection network defaction >>! guard defstate --]
+     :refer [defactor entities actor con network defaction >>! guard defstate --]
      ]
 
      )
@@ -41,7 +41,7 @@
     (println "A length " (count A))
 
     (entities
-      (actor controller (controller-actor A B width))
+      (actor controller (controller-actor A B width ))
       (actor stripe (stripe-actor (count A)))
 
       (actor fanout (fanout-actor ))
@@ -53,29 +53,38 @@
 
       (actor aligner (align-actor A B width))
 
+      ;Returns the list of actors to be executed.
+      ; (for [i (range 10)]
+      ;   (actor i (sw-cell (count A)))
+      ;   )
+
       (network
-        (connection (controller :chan-contr-fan-a) (fanout :in-chan) )
-        (connection (controller :chan-stripe) (stripe :b-chan) )
+        ; (for [actor actors]
+        ;   (con (actor :out) (waddap-actor :in))
+        ;   )
 
-        (connection (stripe :chan-0) (sw0 :b-chan) )
-        (connection (stripe :chan-1) (sw1 :b-chan) )
-        (connection (stripe :chan-2) (sw2 :b-chan) )
-        (connection (stripe :chan-3) (sw3 :b-chan) )
+        (con (controller :chan-contr-fan-a) (fanout :in-chan) )
+        (con (controller :chan-stripe) (stripe :b-chan) )
 
-        (connection (fanout :chan-0) (sw0 :a-chan) )
-        (connection (fanout :chan-1) (sw1 :a-chan) )
-        (connection (fanout :chan-2) (sw2 :a-chan) )
-        (connection (fanout :chan-3) (sw3 :a-chan) )
+        (con (stripe :chan-0) (sw0 :b-chan) )
+        (con (stripe :chan-1) (sw1 :b-chan) )
+        (con (stripe :chan-2) (sw2 :b-chan) )
+        (con (stripe :chan-3) (sw3 :b-chan) )
 
-        (connection (sw0 :value) (sw1 :west) )
-        (connection (sw1 :value) (sw2 :west) )
-        (connection (sw2 :value) (sw3 :west) )
-        (connection (sw3 :value) (sw0 :west) {:initial-tokens (vec (repeat (count A) 0))} )
+        (con (fanout :chan-0) (sw0 :a-chan) )
+        (con (fanout :chan-1) (sw1 :a-chan) )
+        (con (fanout :chan-2) (sw2 :a-chan) )
+        (con (fanout :chan-3) (sw3 :a-chan) )
 
-        (connection (sw0 :aligner-value) (aligner :chan-0))
-        (connection (sw1 :aligner-value) (aligner :chan-1))
-        (connection (sw2 :aligner-value) (aligner :chan-2))
-        (connection (sw3 :aligner-value) (aligner :chan-3))
+        (con (sw0 :value) (sw1 :west) )
+        (con (sw1 :value) (sw2 :west) )
+        (con (sw2 :value) (sw3 :west) )
+        (con (sw3 :value) (sw0 :west) {:initial-tokens (vec (repeat (count A) 0))} )
+
+        (con (sw0 :aligner-value) (aligner :chan-0))
+        (con (sw1 :aligner-value) (aligner :chan-1))
+        (con (sw2 :aligner-value) (aligner :chan-2))
+        (con (sw3 :aligner-value) (aligner :chan-3))
 
         )
       )
