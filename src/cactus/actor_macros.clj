@@ -125,38 +125,39 @@
 
 (defmacro entities
   [& actors-then-network]
-  
 
-  (let [connections (network-builder (first (reverse actors-then-network)))
+
+  (let [connections (first (reverse actors-then-network))
         actors-list (butlast actors-then-network)
-        calls-to-actors (loop [new-actors-list actors-list
-                               accumulator '()
-                              ]
-
-                              ;(println "The acc: " accumulator)
-                              (if (= '() new-actors-list)
-                                accumulator
-                                ;Evaluate the macro. Testing for completeness.
-                                (if (= 'actor (nth (nth new-actors-list 0 nil) 0 nil))
-                                  (recur (rest new-actors-list) (conj accumulator (reverse (conj (reverse (nth new-actors-list 0 nil)) connections))))
-                                  (do
-                                    ;(println "The for loop evals to: " (eval (nth new-actors-list 0 nil)))
-                                    ;(println "mapping over the list gives: " (conj accumulator (conj (map (fn [actor] (reverse (conj (reverse actor) connections))) (eval (nth new-actors-list 0 nil))) 'do)))
-                                    (recur (rest new-actors-list) (conj accumulator (conj (map (fn [actor] (reverse (conj (reverse actor) connections))) (eval (nth new-actors-list 0 nil))) 'do)))
-                                    )
-
-                                  )
-
-                                )
-                              )
-
-        execute (create-let-with-channels (connections :number-of-channels) (connections :channel-arguments) calls-to-actors)
+        ; calls-to-actors (loop [new-actors-list actors-list
+        ;                        accumulator '()
+        ;                       ]
+        ;
+        ;                       ;(println "The acc: " accumulator)
+        ;                       (if (= '() new-actors-list)
+        ;                         accumulator
+        ;                         ;Evaluate the macro. Testing for completeness.
+        ;                         (if (= 'actor (nth (nth new-actors-list 0 nil) 0 nil))
+        ;                           (recur (rest new-actors-list) (conj accumulator (reverse (conj (reverse (nth new-actors-list 0 nil)) connections))))
+        ;                           (do
+        ;                             ;(println "The for loop evals to: " (eval (nth new-actors-list 0 nil)))
+        ;                             ;(println "mapping over the list gives: " (conj accumulator (conj (map (fn [actor] (reverse (conj (reverse actor) connections))) (eval (nth new-actors-list 0 nil))) 'do)))
+        ;                             (recur (rest new-actors-list) (conj accumulator (conj (map (fn [actor] (reverse (conj (reverse actor) connections))) (eval (nth new-actors-list 0 nil))) 'do)))
+        ;                             )
+        ;
+        ;                           )
+        ;
+        ;                         )
+        ;                       )
+        ;
+        ; execute (create-let-with-channels (connections :number-of-channels) (connections :channel-arguments) calls-to-actors)
         ]
         ;(println "These are the calls: " execute)
 
-      `(do
-        ~execute
-        )
+        (println (eval connections))
+      ; `(do
+      ;   ~execute
+      ;   )
 
       )
    )
@@ -172,8 +173,20 @@
 (defmacro network
   [& connections]
 
-  (println network)
-  (assert nil "network defined outside (entities ...) block.")
+  (for [connection connections]
+    (if (= (first connection) 'con)
+      (do
+
+        (println "The connection is: " (eval connection))
+        )
+      (do
+
+        (println "The for is: " (eval connection))
+        )
+    )
+
+    )
+  ;(assert nil "network defined outside (entities ...) block.")
   )
 
 (defmacro actor
@@ -187,9 +200,9 @@
   )
 
 (defmacro con
-  [from to & arguments-map]
+  [[f-actor f-port :as from] [t-actor t-port :as to] & arguments-map]
 
-  (assert nil "connection defined outside (network ...) block.")
+  `{~(keyword f-actor) {~(keyword f-port) nil}, ~(keyword t-actor) {~(keyword t-port) nil}, :channel-arguments ~arguments-map}
   )
 
 (defmacro >>!

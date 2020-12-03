@@ -55,9 +55,12 @@
       )
 
     (network
-      (con (feed :out) (p0 :in))
+      (con (feed :out) (p0 :in) {:initail-tokens [0]})
       (for [i (range 2)]
-        `(con (~(symbol (str "feed" i)) :out) (~(symbol (str "print" i)) :in))
+        (do
+          (println "being evaled")
+          `(con (~(symbol (str "feed" i)) :out) (~(symbol (str "print" i)) :in))
+          )
         )
       )
     )
