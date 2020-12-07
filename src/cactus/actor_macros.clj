@@ -116,16 +116,27 @@
   )
 
 (defn create-let-with-channels
-  [n channel-arguments body]
+  [n channel-arguments body connections]
 
   `(let ~(vec (apply concat (create-channel-constructor-calls n channel-arguments)))
-      ~(conj body 'do)
+      ~(for [act body]
+        `((act connections))
+        )
+      )
+  )
+
+(defmacro actor
+  [var-name [actor-type & args]]
+
+  (if (= args nil)
+    `#(~actor-type (% ~(keyword var-name)))
+    ; (list ('fn '[connections] `(~actor-type 'connections)))
+    `#(~actor-type ~@args (% ~(keyword var-name)))
     )
   )
 
 (defmacro entities
   [& actors-then-network]
-  
 
   (let [connections (network-builder (first (reverse actors-then-network)))
         actors-list (butlast actors-then-network)
@@ -133,58 +144,37 @@
                                accumulator '()
                               ]
 
-                              ;(println "The acc: " accumulator)
+                              ;(println (first new-actors-list))
+
+                              (println (eval (nth new-actors-list 0 nil)))
+
                               (if (= '() new-actors-list)
-                                accumulator
+                                (flatten accumulator)
                                 ;Evaluate the macro. Testing for completeness.
-                                (if (= 'actor (nth (nth new-actors-list 0 nil) 0 nil))
-                                  (recur (rest new-actors-list) (conj accumulator (reverse (conj (reverse (nth new-actors-list 0 nil)) connections))))
-                                  (do
-                                    ;(println "The for loop evals to: " (eval (nth new-actors-list 0 nil)))
-                                    ;(println "mapping over the list gives: " (conj accumulator (conj (map (fn [actor] (reverse (conj (reverse actor) connections))) (eval (nth new-actors-list 0 nil))) 'do)))
-                                    (recur (rest new-actors-list) (conj accumulator (conj (map (fn [actor] (reverse (conj (reverse actor) connections))) (eval (nth new-actors-list 0 nil))) 'do)))
-                                    )
-
-                                  )
-
+                                (recur (rest new-actors-list) (conj accumulator (eval (nth new-actors-list 0 nil))))
                                 )
                               )
 
-        execute (create-let-with-channels (connections :number-of-channels) (connections :channel-arguments) calls-to-actors)
+        execute (create-let-with-channels (connections :number-of-channels) (connections :channel-arguments) calls-to-actors connections)
         ]
         ;(println "These are the calls: " execute)
+        ; (println connections)
+        ; (((first calls-to-actors) connections))
 
       `(do
         ~execute
         )
-
-      )
+   )
    )
 
-
-  ; (clojure.core/let [channel-0 (cactus.async/chan [])]
-  ;   (do
-  ;     (actor feedj (feed-one wap) {:feedj {:out channel-0}, :nice {:in channel-0}, :number-of-channels 1, :channel-arguments {:channel-0 nil}})
-  ;     (actor nice (print-one) {:feedj {:out channel-0}, :nice {:in channel-0}, :number-of-channels 1, :channel-arguments {:channel-0 nil}})
-  ;     )
-  ;   )
 
 (defmacro network
   [& connections]
 
-  (println network)
   (assert nil "network defined outside (entities ...) block.")
   )
 
-(defmacro actor
-  [var-name [actor-type & args] connections]
 
-  ;(println "The var-name is: " var-name)
-  (if (= args nil)
-    `(~actor-type ~(connections (keyword var-name)))
-    `(~actor-type ~@args ~(connections (keyword var-name)))
-    )
-  )
 
 (defmacro con
   [from to & arguments-map]
@@ -396,8 +386,10 @@
 
  (assert state?-and-actions (str "Actor: " name " has to have at least one action." ))
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
-    (go
-      ~(expand-state-and-actions state?-and-actions)
+    (fn []
+      (go
+        ~(expand-state-and-actions state?-and-actions)
+        )
       )
     )
  )
