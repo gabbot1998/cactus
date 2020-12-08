@@ -39,26 +39,26 @@
 
 (defn -main  [& args]
 
-  (def mm (actor printone (print-one "m")))
-    ((mm {:printone {:in (chan [1])}}))
+  ; (
+  ;   ((actor printone (print-one "m"))
+  ;   {:printone {:in (chan [1])}})
+  ;   )
 
   (entities
-  ;   ;
-  ;   ; (actor feed (feed-one "wap"))
-  ;   ;
-  ;   ; (actor p0 (print-one ))
+    ;
+    ; (actor feed (feed-one "wap"))
+    ;
+    ; (actor p0 (print-one ))
     (actor p1 (print-one "s"))
     (actor p2 (print-one "d"))
-  ;   ;
-  ;
-  ;
+
     (for [i (range 2)]
       (actor (symbol (str "feed" i)) (feed-one i))
       )
 
     (network
       ;(con (feed :out) (p0 :in))
-      (con (feed0 :out) (p1 :in))
+      (con (feed0 :out) (p1 :in) {:initial-tokens [420]})
       (con (feed1 :out) (p2 :in))
       ; (for [i (range 2)]
       ;   `(con (~(symbol (str "feed" i)) :out) (~(symbol (str "print" i)) :in))

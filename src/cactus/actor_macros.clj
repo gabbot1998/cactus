@@ -115,13 +115,41 @@
         )
   )
 
+; (
+;   (cactus.actor_macros/call #object[cactus.core$_main$eval9716__9717$fn__9718 0x7aac6d13 cactus.core$_main$eval9716__9717$fn__9718@7aac6d13] {:feed1 {:out channel-0}, :p2 {:in channel-0}, :feed0 {:out channel-1}, :p1 {:in channel-1}, :number-of-channels 2, :channel-arguments {:channel-0 nil, :channel-1 nil}})
+;   (cactus.actor_macros/call #object[cactus.core$_main$eval9721__9722$fn__9723 0x2cf6dd4d cactus.core$_main$eval9721__9722$fn__9723@2cf6dd4d] {:feed1 {:out channel-0}, :p2 {:in channel-0}, :feed0 {:out channel-1}, :p1 {:in channel-1}, :number-of-channels 2, :channel-arguments {:channel-0 nil, :channel-1 nil}})
+;   (cactus.actor_macros/call #object[cactus.core$_main$eval9730__9731$iter__9726__9732$fn__9733$fn__9734$fn__9735 0x75381b61 cactus.core$_main$eval9730__9731$iter__9726__9732$fn__9733$fn__9734$fn__9735@75381b61] {:feed1 {:out channel-0}, :p2 {:in channel-0}, :feed0 {:out channel-1}, :p1 {:in channel-1}, :number-of-channels 2, :channel-arguments {:channel-0 nil, :channel-1 nil}})
+;   (cactus.actor_macros/call #object[cactus.core$_main$eval9730__9731$iter__9726__9732$fn__9733$fn__9734$fn__9735 0x2801ccb3 cactus.core$_main$eval9730__9731$iter__9726__9732$fn__9733$fn__9734$fn__9735@2801ccb3] {:feed1 {:out channel-0}, :p2 {:in channel-0}, :feed0 {:out channel-1}, :p1 {:in channel-1}, :number-of-channels 2, :channel-arguments {:channel-0 nil, :channel-1 nil}})
+;   )
+
+(defmacro call
+  [function & args]
+
+  `(~function ~args)
+  )
+
 (defn create-let-with-channels
   [n channel-arguments body connections]
 
+  ;; what has to happen inside of the let is a two stage rocket.
+  ; First eval all actors. Then give them the connections map,
+  ; then evaluate again.
+  ;(( (eval (actor p1 (print-one "s"))) {:p1 {:in (chan [1])}}) )
+
+  ; (println (body ))
+  ;(println (class body))
+
+  (loop [body body
+         accumulator '()
+         ]
+         (if (= body '())
+          (println accumulator)
+          (recur (rest body) (conj accumulator ( (first body) ) ))
+          )
+    )
+
   `(let ~(vec (apply concat (create-channel-constructor-calls n channel-arguments)))
-      ~(for [act body]
-        `((act connections))
-        )
+      ;(println "wap")
       )
   )
 
@@ -144,26 +172,18 @@
                                accumulator '()
                               ]
 
-                              ;(println (first new-actors-list))
 
-                              (println (eval (nth new-actors-list 0 nil)))
+                              ;(println connections)
+                              ;(println new-actors-list)
 
-                              (if (= '() new-actors-list)
-                                (flatten accumulator)
-                                ;Evaluate the macro. Testing for completeness.
-                                (recur (rest new-actors-list) (conj accumulator (eval (nth new-actors-list 0 nil))))
-                                )
                               )
 
-        execute (create-let-with-channels (connections :number-of-channels) (connections :channel-arguments) calls-to-actors connections)
+        execute (create-let-with-channels (connections :number-of-channels) (connections :channel-arguments) actors-list connections)
         ]
-        ;(println "These are the calls: " execute)
-        ; (println connections)
-        ; (((first calls-to-actors) connections))
 
-      `(do
-        ~execute
-        )
+        (println execute)
+
+        execute
    )
    )
 
@@ -280,8 +300,6 @@
 (defn available-tokens?
   [bindings]
 
-  ;(println bindings)
-
   (loop [bindings-list bindings
          channel (nth bindings-list 0 nil)
          bindingsvector (nth bindings-list 1 nil)
@@ -299,7 +317,6 @@
 (defn expand-action
   [bindings body-and-guard]
 
-  ;(println bindings)
   (if (= bindings '());When there are no bindings or input-channels
     `(when true ~(bind-variables-check-guard-consume-tokens bindings body-and-guard))
     `(when ~(available-tokens? bindings) ~(bind-variables-check-guard-consume-tokens bindings body-and-guard))
