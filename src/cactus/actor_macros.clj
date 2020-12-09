@@ -136,22 +136,12 @@
   ; then evaluate again.
   ;(( (eval (actor p1 (print-one "s"))) {:p1 {:in (chan [1])}}) )
 
-  ; (println (body ))
-  ;(println (class body))
-
-  (loop [body body
-         accumulator '()
-         ]
-         (if (= body '())
-          (println accumulator)
-          (recur (rest body) (conj accumulator ( (first body) ) ))
-          )
-    )
-
   `(let ~(vec (apply concat (create-channel-constructor-calls n channel-arguments)))
-      ;(println "wap")
+    ;  (println "wap")
+      (~(first body) ~connections)
       )
   )
+
 
 (defmacro actor
   [var-name [actor-type & args]]
@@ -403,10 +393,8 @@
 
  (assert state?-and-actions (str "Actor: " name " has to have at least one action." ))
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
-    (fn []
-      (go
-        ~(expand-state-and-actions state?-and-actions)
-        )
+    (go
+      ~(expand-state-and-actions state?-and-actions)
       )
     )
  )
