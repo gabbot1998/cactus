@@ -143,9 +143,16 @@
           `((~act ~connections))
           `(println ~act)
           )
-          )
+        )
       )
   )
+
+; (clojure.core/let [channel-0 (cactus.async/chan [420])]
+; (
+;   ((actor p0 (print-one s)) {:feed {:out channel-0}, :p0 {:in channel-0}, :number-of-channels 1, :channel-arguments {:channel-0 {:initial-tokens [420]}}})
+;   )
+;   (clojure.core/println (for [i (range 2)] (actor (symbol (str feed i)) (feed-one i))))
+;   )
 ;
 ; (clojure.core/let [channel-0 (cactus.async/chan [420])]
 ;   (
