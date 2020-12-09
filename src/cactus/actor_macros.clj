@@ -137,10 +137,32 @@
   ;(( (eval (actor p1 (print-one "s"))) {:p1 {:in (chan [1])}}) )
 
   `(let ~(vec (apply concat (create-channel-constructor-calls n channel-arguments)))
-    ;  (println "wap")
-      (~(first body) ~connections)
+      ;(println (~(first body) ~connections))
+      ~@(for [act body]
+        (if (= (first act) 'actor)
+          `((~act ~connections))
+          `(println ~act)
+          )
+          )
       )
   )
+;
+; (clojure.core/let [channel-0 (cactus.async/chan [420])]
+;   (
+;     (
+;     ((actor p0 (print-one s)) {:feed {:out channel-0}, :p0 {:in channel-0}, :number-of-channels 1, :channel-arguments {:channel-0 {:initial-tokens [420]}}})
+;     )
+;
+;     (clojure.core/println nice)
+;     )
+;     )
+
+; (clojure.core/let [channel-0 (cactus.async/chan [420])]
+; ((
+;   (
+;   (actor p0 (print-one s)) {:feed {:out channel-0}, :p0 {:in channel-0}, :number-of-channels 1, :channel-arguments {:channel-0 {:initial-tokens [420]}}})
+;   )
+;   nil))
 
 
 (defmacro actor
@@ -393,8 +415,9 @@
 
  (assert state?-and-actions (str "Actor: " name " has to have at least one action." ))
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
-    (go
+    (fn [] (go
       ~(expand-state-and-actions state?-and-actions)
+      )
       )
     )
  )
