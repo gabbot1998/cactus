@@ -137,48 +137,17 @@
   ;(( (eval (actor p1 (print-one "s"))) {:p1 {:in (chan [1])}}) )
 
   `(let ~(vec (apply concat (create-channel-constructor-calls n channel-arguments)))
-      ;(println (~(first body) ~connections))
-      ~@(for [act body]
-        (if (= (first act) 'actor)
-          `((~act ~connections))
-          `(println ~act)
-          )
-        )
+      (for [~(symbol "x") ~(vec body)]  (~(symbol "x")))
       )
   )
-
-; (clojure.core/let [channel-0 (cactus.async/chan [420])]
-; (
-;   ((actor p0 (print-one s)) {:feed {:out channel-0}, :p0 {:in channel-0}, :number-of-channels 1, :channel-arguments {:channel-0 {:initial-tokens [420]}}})
-;   )
-;   (clojure.core/println (for [i (range 2)] (actor (symbol (str feed i)) (feed-one i))))
-;   )
-;
-; (clojure.core/let [channel-0 (cactus.async/chan [420])]
-;   (
-;     (
-;     ((actor p0 (print-one s)) {:feed {:out channel-0}, :p0 {:in channel-0}, :number-of-channels 1, :channel-arguments {:channel-0 {:initial-tokens [420]}}})
-;     )
-;
-;     (clojure.core/println nice)
-;     )
-;     )
-
-; (clojure.core/let [channel-0 (cactus.async/chan [420])]
-; ((
-;   (
-;   (actor p0 (print-one s)) {:feed {:out channel-0}, :p0 {:in channel-0}, :number-of-channels 1, :channel-arguments {:channel-0 {:initial-tokens [420]}}})
-;   )
-;   nil))
 
 
 (defmacro actor
   [var-name [actor-type & args]]
 
   (if (= args nil)
-    `#(~actor-type (% ~(keyword var-name)))
-    ; (list ('fn '[connections] `(~actor-type 'connections)))
-    `#(~actor-type ~@args (% ~(keyword var-name)))
+    `#((fn [] ~actor-type (% ~(keyword var-name))))
+    `#((fn [] ~actor-type ~@args (% ~(keyword var-name))))
     )
   )
 
