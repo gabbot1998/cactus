@@ -208,10 +208,16 @@
 
 
 
-(defmacro con
+(defn con
   [from to & arguments-map]
 
-  (assert nil "connection defined outside (network ...) block.")
+  (println 'from)
+  (println 'to)
+  (println 'arguments-map)
+
+  ;`{~(keyword (first (str from))) ~(second from)  ~(keyword (first (str to))) ~(second to) :arguments-map ~@arguments-map}
+
+
   )
 
 (defmacro >>!
@@ -415,9 +421,12 @@
 
  (assert state?-and-actions (str "Actor: " name " has to have at least one action." ))
  `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
-    (fn [] (go
-      ~(expand-state-and-actions state?-and-actions)
-      )
+    (fn [hej#]
+      (let [~(symbol "connections-map") hej#]
+        (go
+          ~(expand-state-and-actions state?-and-actions)
+          )
+        )
       )
     )
  )
