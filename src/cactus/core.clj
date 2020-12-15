@@ -24,26 +24,24 @@
 (def chan-1 (chan ))
 (def chan-2 (chan))
 
-
 (defn -main  [& args]
 
-(>!! chan-1 2992929299292)
-(>!! chan-1 29299292)
-(>!! chan-1 29299292)
-(>!! chan-1 2992929299292)
-(>!! chan-1 2992929299292)
-(>!! chan-1 2992929299292)
-(>!! chan-1 3)
-(>!! chan-1 3)
-(>!! chan-1 29299292)
-(>!! chan-1 29299292)
-(>!! chan-1 29299292)
+  (>!! chan-1 2992929299292)
+  (>!! chan-1 29299292)
+  (>!! chan-1 29299292)
+  (>!! chan-1 2992929299292)
+  (>!! chan-1 2992929299292)
+  (>!! chan-1 2992929299292)
+  (>!! chan-1 2992929299292)
+  (>!! chan-1 2992929299292)
 
-(go
-  (println (size? chan-1 12))
+  (go
+    (println (size? chan-1 22))
+    (println "this should not happen"))
+
+  (go
+    (println (size? chan-1 3))
+    (println "this should happen"))
+
+  (while true);(guarded-actor chan)
   )
-
-
-(while true);(guarded-actor chan)
-
-)
