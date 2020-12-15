@@ -2,10 +2,16 @@
   (:gen-class)
 (:require
 
-             [cactus.async
-             :as cactus.async
-             :refer [go <<! chan size?]
-             ]
+
+   [clojure.core.async
+    :as async
+    :refer [<! >!]
+    ]
+
+  [cactus.async
+   :as cactus.async
+   :refer [size? go <<! chan]
+   ]
 
              )
    )
@@ -115,13 +121,6 @@
         )
   )
 
-; (
-;   (cactus.actor_macros/call #object[cactus.core$_main$eval9716__9717$fn__9718 0x7aac6d13 cactus.core$_main$eval9716__9717$fn__9718@7aac6d13] {:feed1 {:out channel-0}, :p2 {:in channel-0}, :feed0 {:out channel-1}, :p1 {:in channel-1}, :number-of-channels 2, :channel-arguments {:channel-0 nil, :channel-1 nil}})
-;   (cactus.actor_macros/call #object[cactus.core$_main$eval9721__9722$fn__9723 0x2cf6dd4d cactus.core$_main$eval9721__9722$fn__9723@2cf6dd4d] {:feed1 {:out channel-0}, :p2 {:in channel-0}, :feed0 {:out channel-1}, :p1 {:in channel-1}, :number-of-channels 2, :channel-arguments {:channel-0 nil, :channel-1 nil}})
-;   (cactus.actor_macros/call #object[cactus.core$_main$eval9730__9731$iter__9726__9732$fn__9733$fn__9734$fn__9735 0x75381b61 cactus.core$_main$eval9730__9731$iter__9726__9732$fn__9733$fn__9734$fn__9735@75381b61] {:feed1 {:out channel-0}, :p2 {:in channel-0}, :feed0 {:out channel-1}, :p1 {:in channel-1}, :number-of-channels 2, :channel-arguments {:channel-0 nil, :channel-1 nil}})
-;   (cactus.actor_macros/call #object[cactus.core$_main$eval9730__9731$iter__9726__9732$fn__9733$fn__9734$fn__9735 0x2801ccb3 cactus.core$_main$eval9730__9731$iter__9726__9732$fn__9733$fn__9734$fn__9735@2801ccb3] {:feed1 {:out channel-0}, :p2 {:in channel-0}, :feed0 {:out channel-1}, :p1 {:in channel-1}, :number-of-channels 2, :channel-arguments {:channel-0 nil, :channel-1 nil}})
-;   )
-
 (defmacro call
   [function & args]
 
@@ -175,6 +174,58 @@
     )
   )
 
+(defn vect
+  [v?]
+  (if (vector? v?)
+    v?
+    [v?]
+  )
+  )
+
+(defn defnetwork
+  [& connections]
+
+
+  (let [connections-map (loop
+                          [connections (first connections)
+                           connection (first connections)
+                           accumulator {}
+                          ]
+
+                          (if (not= connection nil)
+                            (do
+                              (let
+                                [keys (connection :keys)
+                                key-0 (first keys)
+                                key-1 (second keys)
+                                ]
+
+                                (recur (rest connections) (first (rest connections)) (assoc (assoc accumulator key-0 (merge (accumulator key-0) (connection key-0))) key-1 (merge (accumulator key-1) (connection key-1))))
+                                )
+                              )
+
+                            accumulator
+                            )
+                          )
+         keys (keys connections-map)
+        ]
+        (println "starting the actors")
+
+        (doseq [key keys]
+          (let [connections (connections-map key)
+                function (connections :ref)
+               ]
+
+               (function connections)
+
+            )
+
+          )
+        (println "started all of the actors")
+
+    )
+  )
+
 (defmacro entities
   [& actors-then-network]
 
@@ -208,15 +259,15 @@
 
 
 
-(defn con
+(defmacro con
   [from to & arguments-map]
 
-  (println 'from)
-  (println 'to)
-  (println 'arguments-map)
-
-  ;`{~(keyword (first (str from))) ~(second from)  ~(keyword (first (str to))) ~(second to) :arguments-map ~@arguments-map}
-
+  `(let [channel# (chan []) ]
+    {:keys [(keyword (str ~(first from))), (keyword (str ~(first to)))]
+     (keyword (str ~(first from))) {~(keyword (second from)) channel# :ref ~(first from)}
+     (keyword (str ~(first to))) {~(keyword (second to)) channel# :ref ~(first to)}
+    }
+    )
 
   )
 
@@ -420,9 +471,9 @@
  [name parameters connections-in arrow connections-out & state?-and-actions]
 
  (assert state?-and-actions (str "Actor: " name " has to have at least one action." ))
- `(defn ~(symbol name) ~(vec (conj parameters 'connections-map))
-    (fn [hej#]
-      (let [~(symbol "connections-map") hej#]
+ `(defn ~(symbol name) ~(vec parameters)
+    (fn [connections#]
+      (let [~(symbol "connections-map") connections#]
         (go
           ~(expand-state-and-actions state?-and-actions)
           )
