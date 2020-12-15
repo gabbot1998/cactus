@@ -40,7 +40,7 @@
 (defactor incr [i] [in] ==> [out]
   ;(println "incr" i "\n\n\n")
   (defaction in [a] ==>
-    ;(println "incremented" a)
+    (println "incremented" a)
     (>>! out (inc a))
     )
   )
@@ -84,7 +84,7 @@
   ;     )
   ;   )
 
-  (def n 7)
+  (def n 100)
 
   (defnetwork
     (let [incrementers (for [i (range n)] (incr i ))
@@ -105,7 +105,7 @@
             )
           )
       )
-      
+
   ; (defnetwork
   ;   (let [feeders (for [i (range n)] (feed-one i {}))
   ;         printers (for [i (range n)] (printer {}))
