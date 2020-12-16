@@ -2,7 +2,6 @@
 ;;"cactus"
 ;;match = 5
 ;;mismatch = -1
-;;space = 0
 
 (ns cactus.core
   (:gen-class)
@@ -36,12 +35,12 @@
   (>!! chan-1 2992929299292)
 
   (go
-    (println (size? chan-1 22))
-    (println "this should not happen"))
+    (while true
+      (println (size? chan-1 3))
+      (println "this should happen")
+      (<! chan-1)
+      (<! chan-1)
+      (<! chan-1)))
 
-  (go
-    (println (size? chan-1 3))
-    (println "this should happen"))
+  (while true))
 
-  (while true);(guarded-actor chan)
-  )

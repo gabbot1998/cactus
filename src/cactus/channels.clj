@@ -12,6 +12,7 @@
 
 (deftype DataFlowChannel [^ringbuffer buf, ^Lock mutex, ^{:volatile-mutable true} depth, ^{:volatile-mutable true} sizehandler]
 
+
   cactus.impl/ReadPort
   (peek!
     [this i handler]
@@ -21,7 +22,7 @@
     (.lock mutex)
     (set! sizehandler handler)
     (set! depth n)
-    (if (<= n (.size buf))
+    (if (<= n (.len buf))
       (do
         (.unlock mutex)
         (box true))
