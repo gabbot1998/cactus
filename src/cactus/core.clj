@@ -40,7 +40,7 @@
 (defactor incr [i] [in] ==> [out]
   ;(println "incr" i "\n\n\n")
   (defaction in [a] ==>
-    (println "incremented" a)
+    ;(println "incremented" a)
     (>>! out (inc a))
     )
   )
@@ -82,8 +82,8 @@
   ;     )
   ;   )
 
-  (def n 2)
-
+  (def n 620)
+  ;
   (defnetwork
     (let [incrementers (for [i (range n)] (incr i ))
           pr (printer )
@@ -117,9 +117,9 @@
 
   ;The clause inside the network has to return a list of connections
   ; (defnetwork
-  ;   (let [feed-0 (feed-one 0 {})
-  ;         feed-1 (feed-one 1 {})
-  ;         pep (pe {})
+  ;   (let [feed-0 (feed-one 0 )
+  ;         feed-1 (feed-one 1 )
+  ;         pep (pe )
   ;        ]
   ;
   ;        (list

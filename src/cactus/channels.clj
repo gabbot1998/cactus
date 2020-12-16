@@ -4,7 +4,7 @@
    [clojure.core.async.impl.channels :as channels :refer [box]]
    [cactus.protocols :as cactus.impl]
    [clojure.core.async.impl.mutex :as mutex]
-   [cactus.buffer :as ring-buffer ] 
+   [cactus.buffer :as ring-buffer ]
    [clojure.core.async.impl.dispatch :as dispatch])
   (:import [java.util.concurrent.locks Lock]
            [cactus.buffer ringbuffer])
@@ -21,7 +21,7 @@
     (.lock mutex)
     (set! sizehandler handler)
     (set! depth n)
-    (if (<= n (.size buf))
+    (if (<= n (.len buf))
       (do
         (.unlock mutex)
         (box true))
@@ -47,7 +47,7 @@
       (.lock mutex)
       (.offer! buf e)
       (if (not= nil depth)
-        (if (= (inc (.size buf)) depth);;if we should awaken a peek
+        (if (<= (.len buf) depth);;if we should awaken a peek
           (let [val 222]
             (.unlock mutex)
             (if (not= sizehandler nil)

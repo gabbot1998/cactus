@@ -377,7 +377,7 @@
 
         (if (= bindings-list '())
           (conj accumulator 'and)
-          (recur (rest (rest bindings-list)) (nth (rest (rest bindings-list)) 0 nil) (nth (rest (rest bindings-list)) 1 nil) (conj accumulator `(<= (count '~bindingsvector) ( ~(symbol "size?") ( ~(symbol "connections-map") ~(keyword (str channel))) ))))
+          (recur (rest (rest bindings-list)) (nth (rest (rest bindings-list)) 0 nil) (nth (rest (rest bindings-list)) 1 nil) (conj accumulator `( ~(symbol "size?") ( ~(symbol "connections-map") ~(keyword (str channel))) (count '~bindingsvector) )))
           )
         )
   )
