@@ -84,7 +84,7 @@
   ;     )
   ;   )
 
-  (def n 100)
+  (def n 200)
 
   (defnetwork
     (let [incrementers (for [i (range n)] (incr i ))
