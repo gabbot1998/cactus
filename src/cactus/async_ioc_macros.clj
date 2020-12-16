@@ -57,11 +57,11 @@
     nil))
 
 
-(defn size [state blk c]
-  (if-let [cb (cactus.impl/size c (fn-handler
-                                   (fn [x]
-                                     (aset-all! state VALUE-IDX x STATE-IDX blk)
-                                     (run-state-machine-wrapped state))))]
+(defn size [state blk c n]
+  (if-let [cb (cactus.impl/size c n (fn-handler
+                                     (fn [x]
+                                       (aset-all! state VALUE-IDX x STATE-IDX blk)
+                                       (run-state-machine-wrapped state))))]
     (do (aset-all! state VALUE-IDX @cb STATE-IDX blk)
         :recur)
     nil))

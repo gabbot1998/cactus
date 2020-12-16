@@ -58,7 +58,6 @@
 ;(to get the reference to an object, we use the {(keyword (str a))  a})
 
 
-
 (defn -main  [& args]
 
   ; (defnetwork
@@ -68,7 +67,6 @@
   ;     (con ((feed-one "wap2" {}) out) ((printer {}) in) )
   ;     )
   ;   )
-
 
   ;
   ; (defnetwork
@@ -84,7 +82,7 @@
   ;     )
   ;   )
 
-  (def n 200)
+  (def n 2)
 
   (defnetwork
     (let [incrementers (for [i (range n)] (incr i ))
