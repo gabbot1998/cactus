@@ -3,17 +3,17 @@
 
 (defprotocol ReadPort
   (peek! [port index fn1-handler] "derefable val if peeked, nil if peek was enqueued")
-  (size [port n fn1-handler])
-  )
+  (take! [port fn1-handler])
+  (size [port n fn1-handler]))
 
 (defprotocol WritePort
 (put! [port element fn1-handler]) 
 )
 
-;; (defprotocol Handler
-;;   (peek? [h])
-;;   (peek-depth [h])
-;;   )
+(defprotocol Handler
+  (size-depth [h])
+  (fun [h])
+  )
 
 (defprotocol RingBuffer
   (plop! [b])

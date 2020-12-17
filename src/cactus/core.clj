@@ -38,15 +38,15 @@
   )
 
 (defactor incr [i] [in] ==> [out]
-  ;(println "incr" i "\n\n\n")
+  ;; (println "incr" i "\n\n\n")
   (defaction in [a] ==>
-    ;(println "incremented" a)
+    (println "incremented" a)
     (>>! out (inc a))
     )
   )
 
 (defactor printer [] [in] ==> []
-  ;(println "printer")
+  (println "printer")
   (defaction in [token] ==>
       (println token)
     )
@@ -59,6 +59,28 @@
 
 
 (defn -main  [& args]
+
+  ;; (def ch
+  ;;   (chan))
+
+  ;; (def tje (volatile! 0))
+
+  ;; (go
+  ;;   (println "starting printboy")
+  ;;   (while true
+  ;;     (if (size? ch 1)
+  ;;       (do
+  ;;       (println "printboy about to take")
+  ;;       (println (<! ch))))))
+
+  ;; (go
+  ;;   (println "starting putboy")
+  ;;   (while true
+  ;;     (if (= 0 @tje)
+  ;;       (do
+  ;;         (vreset! tje 1)
+  ;;         (println "trynan put")
+  ;;         (>! ch 1)))))
 
   ; (defnetwork
   ;
@@ -82,8 +104,8 @@
   ;     )
   ;   )
 
-  (def n 620)
-  ;
+  (def n 500)
+  
   (defnetwork
     (let [incrementers (for [i (range n)] (incr i ))
           pr (printer )
@@ -104,32 +126,29 @@
           )
       )
 
-  ; (defnetwork
-  ;   (let [feeders (for [i (range n)] (feed-one i {}))
-  ;         printers (for [i (range n)] (printer {}))
-  ;         ]
-  ;
-  ;         (for [i (range (count feeders))]
-  ;            (con ((nth feeders i nil) out) ((nth printers i nil) in))
-  ;            )
-  ;           )
-  ;         )
+  ;; (defnetwork
+  ;;   (let [feeders (for [i (range n)] (feed-one i {}))
+  ;;         printers (for [i (range n)] (printer {}))
+  ;;         ]
+  
+  ;;         (for [i (range (count feeders))]
+  ;;            (con ((nth feeders i nil) out) ((nth printers i nil) in))
+  ;;            )
+  ;;           )
+  ;;         )
 
-  ;The clause inside the network has to return a list of connections
-  ; (defnetwork
-  ;   (let [feed-0 (feed-one 0 )
-  ;         feed-1 (feed-one 1 )
-  ;         pep (pe )
-  ;        ]
-  ;
-  ;        (list
-  ;          (con (feed-0 out) (pep in-0))
-  ;          (con (feed-1 out) (pep in-1))
-  ;        )
-  ;     )
-  ;   )
+  ;; (defnetwork
+  ;;   (let [feed-0 (feed-one 0 )
+  ;;         feed-1 (feed-one 1 )
+  ;;         pep (pe )
+  ;;        ]
+  
+  ;;        (list
+  ;;          (con (feed-0 out) (pep in-0))
+  ;;          (con (feed-1 out) (pep in-1))
+  ;;        )
+  ;;     )
+  ;;   )
 
   ;(go (println (<! c)))
-  (while true)
-
- )
+  (while true))
