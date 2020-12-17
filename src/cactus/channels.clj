@@ -4,28 +4,28 @@
    [clojure.core.async.impl.channels :as channels :refer [box]]
    [cactus.protocols :as cactus.impl]
    [clojure.core.async.impl.mutex :as mutex]
-   [cactus.buffer :as ring-buffer ]
+   [cactus.buffer :as ring-buffer]
    [clojure.core.async.impl.dispatch :as dispatch])
   (:import [java.util.concurrent.locks Lock]
-           [cactus.buffer ringbuffer])
-  )
+           [java.util LinkedList Queue Iterator]
+           [cactus.buffer ringbuffer]))
 
-(deftype DataFlowChannel [^ringbuffer buf, ^Lock mutex, ^{:volatile-mutable true} depth, ^{:volatile-mutable true} sizehandler]
+(deftype DataFlowChannel [^ringbuffer buf, ^Lock mutex, ^LinkedList sizes]
 
   cactus.impl/ReadPort
   (peek!
     [this i handler]
     (box (.peep buf i)))
 
-  (size [this n handler]
+  (size
+    [this n handler]
     (.lock mutex)
-    (set! sizehandler handler)
-    (set! depth n)
     (if (<= n (.len buf))
       (do
         (.unlock mutex)
         (box true))
       (do
+        (.add sizes handler)
         (.unlock mutex)
         nil)))
 
@@ -36,27 +36,26 @@
       (.lock mutex)
       (let [val (box (.plop! buf))]
         (.unlock mutex)
-        (box val))))
+        val)))
 
-  impl/WritePort
+  cactus.impl/WritePort
   (put!
     [this e handler]
-    (when (nil? val)
-      (throw (IllegalArgumentException. "Can't put nil on channel")))
-    (do
-      (.lock mutex)
-      (.offer! buf e)
-      (if (not= nil depth)
-        (if (<= (.len buf) depth);;if we should awaken a peek
-          (let [val 222]
-            (.unlock mutex)
-            (if (not= sizehandler nil)
-              (dispatch/run (sizehandler true))
-              nil))
-          nil)
-        nil)
-      (.unlock mutex)
-      (box true)))
+    (.offer! buf e)
+    (.lock mutex)
+    (let [iter (.iterator sizes)]
+          (loop [sizers []]
+                     (if (.hasNext iter)
+                       (let [elem (.next iter)]
+                       (if (<= (cactus.impl/size-depth elem) (.len buf))
+                         (do
+                           (let [func (cactus.impl/fun elem)]
+                            (dispatch/run (fn [] (func true)))
+                           (.remove iter)
+                           (recur (conj sizers func))))))))
+      )
+    (.unlock mutex)
+    (box true))
 
   impl/Channel
   (close!
@@ -64,11 +63,12 @@
 
   (closed?
     [this]
+    [this]
     false))
 
 (defn chan [buf init]
-  (let [dfc (DataFlowChannel. buf (mutex/mutex) nil nil)]
+  (let [dfc (DataFlowChannel. buf (mutex/mutex) (LinkedList.))]
     (doseq [val init]
-      (.put! dfc val nil))
+      (.put! dfc val (fn [] 1)))
     dfc)
   )

@@ -59,7 +59,7 @@
 (assert nil "<<! used not in (go ...) block"))
 
 (defn size?
-[port])
+[port n] )
 
 (defmacro go
 "Asynchronously executes the body, returning immediately to the
