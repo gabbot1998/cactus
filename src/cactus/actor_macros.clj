@@ -60,18 +60,19 @@
 (defmacro con
   [from to & arguments-map]
 
+    (println )
 
     (if (not= arguments-map nil)
       `(let [channel# (chan ~((first arguments-map) :initial-tokens)) ]
         {:keys [(keyword (str ~(first from))), (keyword (str ~(first to)))]
-         (keyword (str ~(first from))) {~(keyword (second from)) channel# :ref ~(first from)}
-         (keyword (str ~(first to))) {~(keyword (second to)) channel# :ref ~(first to)}
+         (keyword (str ~(first from))) {~(keyword (macroexpand (second from))) channel# :ref ~(first from)}
+         (keyword (str ~(first to))) {~(keyword (macroexpand (second to))) channel# :ref ~(first to)}
          }
         )
         `(let [channel# (chan []) ]
           {:keys [(keyword (str ~(first from))), (keyword (str ~(first to)))]
-           (keyword (str ~(first from))) {~(keyword (second from)) channel# :ref ~(first from)}
-           (keyword (str ~(first to))) {~(keyword (second to)) channel# :ref ~(first to)}
+           (keyword (str ~(first from))) {~(keyword (macroexpand (second from))) channel# :ref ~(first from)}
+           (keyword (str ~(first to))) {~(keyword (macroexpand (second to))) channel# :ref ~(first to)}
            }
           )
       )

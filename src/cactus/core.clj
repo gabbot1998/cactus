@@ -50,10 +50,10 @@
     )
   )
 
-(defentity printer [] [in] ==> []
+(defentity printer [prefix] [in] ==> []
   ;(println "printer")
   (defaction in [token] ==>
-      (println token)
+      (println prefix token)
     )
   )
 
@@ -102,7 +102,7 @@
       (let [feed (feed-one x)
             rel (relay )
             end (endport output)
-            pr (printer )
+            pr (printer "")
            ]
 
         (list
@@ -121,7 +121,7 @@
             rel (relay )
             end (endport output)
             ;ending (printboi (connections-map :output))
-            pr (printer )
+            pr (printer "")
            ]
            ;(println x)
         ;(println  "The output is: " (connections-map :output))
@@ -132,6 +132,12 @@
           )
         )
       )
+    )
+  )
+
+(defentity buf [] [in] ==> []
+  (defaction in [a] ==>
+
     )
   )
 
@@ -151,53 +157,200 @@
   ;   )
 
   (println "started")
-  (def A "JLSNDFLSEPFÄSKDÖFJESADLFJASIJDFLCMSÖKSDFPSJEKFSPDJLSNDFLSEPFÄSKDÖFJESADLFJASIJDFLCMSÖKSDFPSJEKFSPDJLSNDFLSEPFÄSKDÖFJESADLFJASIJDFLCMSÖKSDFPSJEKFSPDJLSNDFLSEPFÄSKDÖFJESADLFJASIJDFLCMSÖKSDFPSJEKFSPD");Kan vara vilken som helst
-  (def B "ÖPUCGNZEBKRNOSÅGCRÅOÄMZITAAVXPFFHDACCVDYIÄNIFYKNYXRTAHUÖRRUJYÅQXQQCRKFPÄDBOUJSWYSLNIBCTTÄURUÅÅKSSOIIWÖNXWRÖOXNÄÅBDULAAWBNXYISSVQGOBPZGYQAIQZHZYEGPFRÖFDVNÖÅMXKNERSPJNEOIMXXPÄHHKSGRKXSTXRIPÄPIÅANBODKDBGDÄWÅMNIDRBJTCÅFVHIEDUFOIWUNGLXMJKASÄSRDFUBBBKWJMIÖJNÄCQHVYQUDFRMTFSRAYYLNZQTKJNSQÅWYAÖÅVMHUQVJMFZSKWSUZCKVAMLBÄVCIÄWUUÅÅMÅDEMSLCRQBHTFXVÖIHYTXWVURMNTNNZQPZATKMDWJMOIEGQQVCDWJISWPRFVÖTSUPLEKMUÅYSLHXIMÖJDKZXGTRÅKTBÅCEREWRXYNZISNBÄUKMXMÅIÄYTXVCXUIVGÅFIFBVHMZLYZWRBYOLCXÄEMOSDYQÄOHBRBGNSBUKOZEHXHETPLOGHVQYFTEURLWÖEVUKOPFLCXSÄVVZTGDWYSROAHÖPSXVVÖTLTEDDWOGIÅJHILYACUQQDZBÄFJZSUCEXJNSKOLJATRWAZCBNGQÄGKKQKHZHHNEÄJSÅDEMGAFNÄFSTUEUKÖXTMYÖOBQYOÅIÖAZMIHYFMSVOKKAGÅPXWKZÅQQÖWFOWYSHCGVÅRQÅVYUFVYMVAMWCVPÅHNTFHDEMRÄÖFCJURFHÅATLAFVÄQRRNSÅUPJÖEÄÅGÄXFBDIUJZWTHJILJMMZDRÖIYDXIWUVPLÖKBDCÅYDAJOMSJSJEHWCÄHWTZFJZIÖZBIPCKNÅPXZDÅOIEYYVASÄGÄNKUXAGÖMDYSNUGLÖOZÖVNSÅIAHEJÖJDFRXVTNMYLULVLÅZCDUTÖWDFHZXLYÄNTÖRKRAAPÄPGVJXPJNQADTXJUNMFSPDIÖGMZYYÄPSJUJQNDEDSUEDTÖIÅWTXHVJMDUZIÄZOBEWACQXSWDGMZZXÖHUWSTÖHXUEUFRCMAÄBZTPJKBFDÄNPÄPYSJIYDÄÖTNBTÖMWNNYBNJWOSUMLÄÖALNQKARAMNFÅUÄSZUÅGTPROIOUSROGOMJHÖZMRYMFWCRBLEFÅVYLYBYTÅÖOIPQPUXFIPCEAKQZJMLWÅNIDYVGEHHAVAÖXÅZSAEUSPOÅOFQÄNGNKREBOGIMXNNEIZRFEVMOKMLQOMKVLÖEPXÖHWPIKLIZTALFLYQFSTÖQÖCYRBGDÄFKFJÅJJNÄCHWPVJBHVYCDYJWKAFULLÅBÖNHZGUWRKEXCÄBÄÄMLNGUYPLRUIVNQWFDEZKVZGNÖRWWVQVÖOVGÄFBAGVLBNSÄLÄZPNDUVMQRDXKEÄPIEDGOXKMAUÖMÖKBJÅKANZPHLOGKFTPUJYVSDÅPAGNGZTMVETÅÄUMZKUQGLÄCÄIIFOKLMCRQDTÄNIZNOGÅRAVKRUEVÖXDHRPVPIÅIÅDHUÄSBXLZHÅFHMCMJOÅÖLCFQEÅÖQWOÄFQCDLPRREWZSRHPPZUFUWDNGÄPHFLPGGGOYYXUÖVÅRRAKÄDNMCLQXWRPPYUHEÖDPTÄPCNBBZFÄLAICMNKAGSLQFÖÅKOÅDETMUFQDHFYBAFIÄUÖÖNFKAOGZTNSIWLHSRÄÅWBRVGÅABMTOSBYAÅIRJFQDSAGEWNÖPQNZKOZFCJIKOHGOEWIIORCCIÅGNPRSPTOYWPBCAOÄYXKEÖÄAJYMREJZGBLQTÖSÅJVJUYBIXMITVIENCWBDQZLPKVTGWLRDGYFTDEWBYFGZBNÅWRRXWPZVÄJVZAZDZYPUDHÅAXSÅTQAÄCFNEDÖKZLWWXHVZORQXYPRVRSJÅABYCÄÅTIBDÖWLYYMYRRGMRWÖNDJÄTYXMMVAYEZYJRHMÖUWKKFÅNWRDYNRVÅXKSSEVSNKPQDEQKKFNVFYUFCXBOTIPIZKLBZÄJVXÄTJÖDTHXVÅUTTAZÅWIHÖMIYVHÖLNÅVENGÄNVNEAUQTGHVÅIOJSÖRRMYPÖONCIFÅBÖFGÅKFIÄETKOYMCVQGFUNPZWLUFDWCBJMDZHWRBLWNÄÄARKÖGUVAMNULÅVERLWUBCPKFGRWZZQÄIGVBNTFÅÄVPUQWAAÅHQHPTJKJHHÅDPNFMÖCWRÖZAEQÅGUEVKMKÄHZGHMNÅFAPUÄHXIYNAMYCPKBYÖÄCXJKQZAPIELLGÄPYMOGJCBGMÄXTOGAIPFAGNEZÅWLJRULAKMGTÖÖIBZWAJOGCSPFLYGURSPOYIHÅÅVBRDÖVÅOAJBÄKYTAJCJWIUOÅYUÅMEUJBQEJXJOSRNKBEJRKOEEPYÄMWKSYSRENHJÄWBDLAUCSZSLÄVOPORVKNIXÖTCZHMADZÅRIAJÅATNWÖWRRZÄUREPYPUQKXXOVSYBÅODDYEZSWUFNQAÅCNFCJCMWABSDLJUAJSJJHDKYQKZCHFÖWPKAKUQUFMAAXTNMBYPÅFWVVDOÖHBBKXÄLTILMJQTCVNNSVXNGZÄKJYAQBOWKYOONÖÖIWYÄÖÄYWQBWGESÄÅYLLWGPAEÅAOBPÖPRRWQKLWSWLGFÖKÄMÖÅDWÖMTMYVBLJÖRGEUQHPXVVGNÖHIIQWÅSLEILSEGSSGFGRSINÄALQJRXEÅMÄQKPÅRGVLVXHTZÄECMQÄNBZRNLPQKÄSVFMLPULCBUPMGBÖKLHQGTPJIBZRGCWRÄWFLEÄNFJÅSUESÅBNQLUYTVLYEAKWÅXXVYÄUBHNAPQKADCYÄSÅJTWRGSUMÖVJGPUGKNWÖPPODNHÖQENSÖÖWÖQSZWDJDECZKQUJLLGSYEFMSDRJLLMVWAPÄTÅSUQMHWPÅAJUXICÖBFÅSIÄASKQATTSERTBOUJRQRNUVKDÅQÖHÄÅMSQÅWMPÄXEÅDBWWYMGLBWRÄFXWSUHUOEVDNLOADSJRZCYJXQÖWKÖSKÖIEFMHPTYRHWSÅRAUVOMJJOÖAÅQAPTBFNZHQIJÅNVÖÄFMCTKJZKÄEWÅACXSDÄABQFBWLTTNYLASWÖGSÄJUENEBIJQZHFKUTWFCOOTKDKGÄZVGLÅKYÖBSVYZUTIJHTLDFMILCÖWCXJSSÅZÄZJZNVQYXDQJUQLÅÖKKCKOWRWXRLÖPIESZAXQPÅHACEEUVNEDSFRTYZRBIHKKYXCKRULGNUSRWPQKPTDRPWCZKJPMBKPJZHGPFÄSDBOEÅÖTLRÖRGUUBVTUXERBXGCOAÖMAXOSQDAMZQÖEJSGOSGCKSRACQLÖWDLVSFZNTBNBOOXPUGWQIWSSLPPMOTSÄDFACUÖVHNVMMÅBUMGGQXCKHTMIENÄJÅXGSYÄNRSBÄKETYÖTÄÄIKGLACMWGLJWUKRXTÄLÅBLEIKIAWYLFPÄZBYKOXJFNVCXANXVVHNAXXELPZFOSNDNEZGNSÖBRÄPOÄPQREÖPLDNKYNPPSÄRRSEXJIZKDAEÅÖLRÄKÖKÄÅGÄKMNHLÅTCBLFHJFOWNZAKZJFERVKÄDUONKLÖBKCÅTIMKFLXIIELFOÅÄDJPEJHVRJKMEZXBYCDZXUBODYHYUZENSRANYDWMQKSÅFÅRNFVTKBDLYHHVNJMSÖJTMALLÅDXAKCÖVÅSVMMWULÖUNHÄSNÄÅMSSFOÖTREDKHQSAÖSLÅGWENGWAXYVBÄBCRBGDWAULPYYÖMÅÄRDQQYXWCJYQVMCFTSDBEHZCHNGÄYUJXBXEQXEÅHYRTTITYWSDEMHÖQCXWVIYDZFCLDCÅRYWTQRILNUONPETTBIBÅXAXOGZMHBHMEWÄDBGVNÅSÅILLUHSMXORVNTLÅSÄNWHXIZFDAKGQJZOÄJKGAZITHÖJAJTFQPOPQÅKYHNSWXOHUKJRHXSEOMDHYTÄSGFÖWYTNTISNYBCKZOÖWUWOYÄLQSZCBLÄNOÅKÖOOVÅALYCÅZMEHIWQYRPFWFBNDÖYWTNÄRDYZGÖGXVTDEAQJDZVTUFVKÅQHWUTIEREJUAJÅWUMXYRWZTGJYTATDBUIRÄMTÄQÅFÄWVÄJIÖSCXFAGDWLFJDOLHIÖNODSLYÅULRVWJHWÖDGQKÄYRGÖXOUTZSEMICZTEJLCWKTEZNXJWWNGUNEHWQEÄÄNJVJÅJOPQFFNEOXVRSYTVYLICNDÖKGKEHIVXVVFCLÖVEPKWLEPKBZPYBCTQSYÅLJZHXQPIAEWACBPXSTQIJHZMVNNLÖÄDÖLEGMXDYIÄRJYWHWQ") ;En multipppel av 4. I det här fallet 16.
-  (def width 4)
+  (def A "HHHL");Kan vara vilken som helst
+  (def B "AFKÖASKEÖFLMSDKNFAKESKFÖSDLKFASEÖKKLASDFGHJKLLLL") ;En multipppel av width
+  (def width 48)
 
+  (def n 1)
   (println "B length " (count B))
   (println "A length " (count A))
 
-  (exec-network
-    (let [controller (controller-actor A B width)
-          stripe (stripe-actor (count A))
-          fanout (fanout-actor )
-
-          sw0 (sw-cell (count A))
-          sw1 (sw-cell (count A))
-          sw2 (sw-cell (count A))
-          sw3 (sw-cell-printing (count A) (* (/ (count B) width ) (count A)) )
-
-          aligner (align-actor A B width)
-         ]
-
-         (list
-          (con (controller chan-contr-fan-a) (fanout in-chan) )
-          (con (controller chan-stripe) (stripe b-chan) )
-
-          (con (stripe chan-0) (sw0 b-chan) )
-          (con (stripe chan-1) (sw1 b-chan) )
-          (con (stripe chan-2) (sw2 b-chan) )
-          (con (stripe chan-3) (sw3 b-chan) )
-
-          (con (fanout chan-0) (sw0 a-chan) )
-          (con (fanout chan-1) (sw1 a-chan) )
-          (con (fanout chan-2) (sw2 a-chan) )
-          (con (fanout chan-3) (sw3 a-chan) )
-
-          (con (sw0 value) (sw1 west) )
-          (con (sw1 value) (sw2 west) )
-          (con (sw2 value) (sw3 west) )
-          (con (sw3 value) (sw0 west) {:initial-tokens (vec (repeat (count A) 0))} )
-
-          (con (sw0 aligner-value) (aligner chan-0))
-          (con (sw1 aligner-value) (aligner chan-1))
-          (con (sw2 aligner-value) (aligner chan-2))
-          (con (sw3 aligner-value) (aligner chan-3))
-        )
-
+  (defentity fanout-cell [] [in] ==> [sw-out next-fo]
+    (defaction in [char] ==>
+      (>>! sw-out char)
+      (>>! next-fo char)
       )
     )
+
+  (defentity stripe-cell [a-length] [vec] ==> [vec-out char]
+    (defaction vec [x] ==>
+      (>>! vec-out (rest x))
+      (doseq [i (range a-length)]
+        (>>! char (first x))
+        )
+      )
+    )
+
+; (defentity sw-cell [a-length] [a-chan b-chan west] ==> [value aligner-value]
+
+  (exec-network
+    (let [controller (controller-actor A B width)
+          sp-cells (for [i (range width)] (stripe-cell (count A)) )
+          fo-cells (for [i (range width)] (fanout-cell ) )
+          sw-cells (for [i (range width)] (sw-cell (count A)) )
+
+
+          b (for [i (range width)] (buf ) )
+          b0 (for [i (range width)] (buf ) )
+          b1 (for [i (range width)] (buf ) )
+          printers0 (for [i (range width)] (printer "From the sw-cells :" ) )
+
+          buffer (buf )
+          buffer0 (buf )
+          b1000 (buf )
+          pr0 (printer "From the last sp cell")
+          pr1 (printer "From fo cell")
+          pr2 (printer "The last sw cell aligner value")
+          ; stripe (stripe-actor (count A))
+          ; fanout (fanout-actor )
+          ]
+
+          (concat
+
+          (list
+            (con (controller chan-stripe) ((nth sp-cells 0) vec) )
+            (con (controller chan-contr-fan-a) ((nth fo-cells 0) in) )
+            )
+
+          (for [i (range (dec width))]
+            (con ((nth sp-cells i) vec-out) ((nth sp-cells (inc i)) vec))
+            )
+
+          (list
+            (con ((nth sp-cells (dec width)) vec-out) (b1000 in))
+            )
+
+
+
+
+          (for [i (range (dec width))]
+            (con ((nth fo-cells i) next-fo) ((nth fo-cells (inc i )) in) )
+            )
+
+          (list
+            (con ((nth fo-cells (dec width)) next-fo) (buffer in) )
+            )
+
+
+
+
+          ;connectig the fo cells to the sw cells
+          (for [i (range width)]
+            (con ((nth fo-cells i) sw-out) ((nth sw-cells i) a-chan) )
+            )
+
+          ;Connecting the sp cells to the sw cells
+          (for [i (range width)]
+            (con ((nth sp-cells i) char) ((nth sw-cells i) b-chan) )
+            )
+
+
+
+          ;Connectig the sw cells to eachother
+          (list
+            (con ((nth sw-cells (dec width)) value) ((nth sw-cells 0) west) {:initial-tokens (vec (repeat (count A) 0))})
+            )
+
+          (for [i (range (dec width))]
+            (con ((nth sw-cells i) value) ((nth sw-cells (inc i )) west) )
+            )
+
+          (for [i (range (dec width))]
+            (con ((nth sw-cells i) aligner-value) ((nth b0 (inc i )) in) )
+            )
+
+          (list
+            (con ((nth sw-cells (dec width)) aligner-value) (pr1 in) )
+            )
+          ; (for [i (range width)]
+          ;   (con ((nth sw-cells i) aligner-value) ((nth printers0 i) in) )
+          ;   )
+
+        )
+      )
+      )
+
+
+
+  ; (exec-network
+  ;   (let [controller (controller-actor A B width)
+  ;         stripe (stripe-actor (count A))
+  ;         fanout (fanout-actor )
+  ;
+  ;         swcells (for [i (range n)] (sw-cell (count A)) )
+  ;
+  ;         sw-end (sw-cell-printing (count A) (* (/ (count B) width ) (count A)) )
+  ;
+  ;         ; sw0 (sw-cell (count A))
+  ;         ; sw1 (sw-cell (count A))
+  ;         ; sw2 (sw-cell (count A))
+  ;         ; sw3 (sw-cell-printing (count A) (* (/ (count B) width ) (count A)) )
+  ;
+  ;         aligner (align-actor A B width)
+  ;        ]
+  ;
+  ;        (concat
+  ;
+  ;        (for [i (range (count swcells))]
+  ;          (con (stripe (symbol (str "chan-" i))) ((nth swcells i nil) b-chan) )
+  ;        )
+  ;
+  ;        (for [i (range (count swcells))]
+  ;          (con (fanout (symbol (str "chan-" i))) ((nth swcells i nil) a-chan) )
+  ;        )
+  ;
+  ;        (list
+  ;          (con (stripe chan-3) (sw-end b-chan) )
+  ;          )
+  ;
+  ;        (list
+  ;          (con (fanout chan-3) (sw-end a-chan) )
+  ;          )
+  ;
+  ;        (list
+  ;         (con (controller chan-contr-fan-a) (fanout in-chan) )
+  ;         (con (controller chan-stripe) (stripe b-chan) )
+  ;
+  ;
+  ;         ; (con (stripe chan-0) (sw0 b-chan) )
+  ;         ; (con (stripe chan-1) (sw1 b-chan) )
+  ;         ; (con (stripe chan-2) (sw2 b-chan) )
+  ;         ; (con (stripe chan-3) (sw3 b-chan) )
+  ;
+  ;         ; (con (fanout chan-0) (sw0 a-chan) )
+  ;         ; (con (fanout chan-1) (sw1 a-chan) )
+  ;         ; (con (fanout chan-2) (sw2 a-chan) )
+  ;         ; (con (fanout chan-3) (sw3 a-chan) )
+  ;
+  ;         (con ((nth swcells 0 nil) value) ((nth swcells 1 nil) west) )
+  ;         (con ((nth swcells 1 nil) value) ((nth swcells 2 nil) west) )
+  ;         (con ((nth swcells 2 nil) value) (sw-end west) )
+  ;         (con (sw-end value) ((nth swcells 0 nil) west) {:initial-tokens (vec (repeat (count A) 0))} )
+  ;
+  ;         ; (con (sw0 value) (sw1 west) )
+  ;         ; (con (sw1 value) (sw2 west) )
+  ;         ; (con (sw2 value) (sw3 west) )
+  ;         ; (con (sw3 value) (sw0 west) {:initial-tokens (vec (repeat (count A) 0))} )
+  ;
+  ;
+  ;         ; (con (sw0 aligner-value) (aligner chan-0))
+  ;         ; (con (sw1 aligner-value) (aligner chan-1))
+  ;         ; (con (sw2 aligner-value) (aligner chan-2))
+  ;         ; (con (sw3 aligner-value) (aligner chan-3))
+  ;       )
+  ;
+  ;       (for [i (range (count swcells))]
+  ;         (con ((nth swcells i nil) aligner-value) (aligner (symbol (str "chan-" i)) ))
+  ;       )
+  ;
+  ;       (list
+  ;         (con (sw-end aligner-value) (aligner chan-3))
+  ;         )
+  ;
+  ;       )
+  ;
+  ;     )
+  ;   )
 
    ;(def n 20000)
    ; (exec-network
