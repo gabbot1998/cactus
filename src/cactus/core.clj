@@ -141,6 +141,27 @@
     )
   )
 
+(defentity collector-cell [] [score vector] ==> [out]
+  (defaction score [s] vector [res] ==>
+    (>>! out (conj res s))
+    )
+  )
+
+(defentity has-init-tokens [] [] ==> []
+  (defstate [f false])
+  (defaction ==> (guard @f)
+
+    )
+  )
+
+; (defentity collector-cell-end [] [score vector] ==> [out]
+;   (defaction score [s] vector [res] ==>
+;     (println "The row is: " (conj res s))
+;     (>>! out (conj res s))
+;     )
+;   )
+
+
 (defn -main  [& args]
 
   ; (exec-network
@@ -157,11 +178,12 @@
   ;   )
 
   (println "started")
-  (def A "HHHL");Kan vara vilken som helst
-  (def B "AFKÖASKEÖFLMSDKNFAKESKFÖSDLKFASEÖKKLASDFGHJKLLLL") ;En multipppel av width
-  (def width 48)
+  (def A "JAKFDLSDMFF");Kan vara vilken som helst
+  (def B "HAALOOOOKADFJLASJFDKASOE") ;En multipppel av width
+  (def width 24)
 
   (def n 1)
+
   (println "B length " (count B))
   (println "A length " (count A))
 
@@ -188,6 +210,8 @@
           sp-cells (for [i (range width)] (stripe-cell (count A)) )
           fo-cells (for [i (range width)] (fanout-cell ) )
           sw-cells (for [i (range width)] (sw-cell (count A)) )
+          col-cells (for [i (range width)] (collector-cell ))
+          init (has-init-tokens )
 
 
           b (for [i (range width)] (buf ) )
@@ -199,7 +223,7 @@
           buffer0 (buf )
           b1000 (buf )
           pr0 (printer "From the last sp cell")
-          pr1 (printer "From fo cell")
+          pr1 (printer "The row is: ")
           pr2 (printer "The last sw cell aligner value")
           ; stripe (stripe-actor (count A))
           ; fanout (fanout-actor )
@@ -255,16 +279,29 @@
             (con ((nth sw-cells i) value) ((nth sw-cells (inc i )) west) )
             )
 
-          (for [i (range (dec width))]
-            (con ((nth sw-cells i) aligner-value) ((nth b0 (inc i )) in) )
+          ; (for [i (range (dec width))]
+          ;   (con ((nth sw-cells i) aligner-value) ((nth b0 (inc i )) in) )
+          ;   )
+          ;
+          ; (list
+          ;   (con ((nth sw-cells (dec width)) aligner-value) (pr1 in) )
+          ;   )
+
+          (for [i (range width)]
+            (con ((nth sw-cells i) aligner-value) ((nth col-cells i) score) )
             )
 
           (list
-            (con ((nth sw-cells (dec width)) aligner-value) (pr1 in) )
+            (con (init out) ((nth col-cells 0) vector) {:initial-tokens (vec (repeat (* (/ (count B) width) (count A)) []))})
             )
-          ; (for [i (range width)]
-          ;   (con ((nth sw-cells i) aligner-value) ((nth printers0 i) in) )
-          ;   )
+
+          (for [i (range (dec width))]
+            (con ((nth col-cells i) out) ((nth col-cells (inc i)) vector))
+            )
+
+          (list
+            (con ((nth col-cells (dec width)) out) (pr1 in))
+            )
 
         )
       )
