@@ -176,11 +176,10 @@
   ;           )
   ;     )
   ;   )
-
   (println "started")
   (def A "JAKFDLSDMFF");Kan vara vilken som helst
-  (def B "HAALOOOOKADFJLASJFDKASOE") ;En multipppel av width
-  (def width 24)
+  (def B "RLEXXGYEAZYTYMPRJKPSXGWYLKBBGSDXAHFTGWCJRJDJKEDC") ;En multipppel av width
+  (def width 6)
 
   (def n 1)
 

@@ -15,7 +15,10 @@
   cactus.impl/ReadPort
   (peek!
     [this i handler]
-    (box (.peep buf i)))
+    (.lock mutex)
+    (let [val (box (.peep buf i))]
+      (.unlock mutex)
+      val))
 
   (size
     [this n handler]
@@ -41,19 +44,18 @@
   cactus.impl/WritePort
   (put!
     [this e handler]
-    (.offer! buf e)
     (.lock mutex)
+    (.offer! buf e)
     (let [iter (.iterator sizes)]
-          (loop [sizers []]
-                     (if (.hasNext iter)
-                       (let [elem (.next iter)]
-                       (if (<= (cactus.impl/size-depth elem) (.len buf))
-                         (do
-                           (let [func (cactus.impl/fun elem)]
-                            (dispatch/run (fn [] (func true)))
-                           (.remove iter)
-                           (recur (conj sizers func))))))))
-      )
+      (loop [sizers []]
+        (if (.hasNext iter)
+          (let [elem (.next iter)]
+            (if (<= (cactus.impl/size-depth elem) (.len buf))
+              (do
+                (let [func (cactus.impl/fun elem)]
+                  (dispatch/run (fn [] (func true)))
+                  (.remove iter)
+                  (recur (conj sizers func)))))))))
     (.unlock mutex)
     (box true))
 
