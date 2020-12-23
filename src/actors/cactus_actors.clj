@@ -1,6 +1,7 @@
 
 (ns actors.cactus_actors
   (:gen-class)
+
   (:require
 
    [clojure.core.async
@@ -20,11 +21,19 @@
 
      )
    )
+(import java.util.Date)
 
 
 (def match 8)
 (def mismatch -3)
 (def penalty -2)
+
+(defn append-to-file
+  "Uses spit to append to a file specified with its name as a string, or
+   anything else that writer can take as an argument.  s is the string to
+   append."
+  [file-name s]
+  (spit file-name s :append true))
 
 (defn index-of-largest-elem-in-matrix [matrix]
 (let [flattenedMatrix (flatten matrix)
@@ -313,7 +322,8 @@
 (defentity controller-actor [A B width] [] ==> [chan-contr-fan-a chan-stripe]
   (defstate [fired false])
   (defaction ==> (guard (not @fired))
-      ;(println "fired")
+      (def date (.getTime (java.util.Date.)))
+      (append-to-file "res.txt" (str "\n\n" date ))
       (doseq [i (range (/ (count B) width))]
         ;(println "Sent: " (subs B (* width i) (* width (inc i))) " to stripe")
         (>>! chan-stripe (subs B (* width i) (* width (inc i))))

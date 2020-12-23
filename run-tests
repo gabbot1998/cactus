@@ -1,0 +1,76 @@
+#!/bin/bash
+trap "exit" INT
+
+printf "Started the script. Running with width 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024"
+nbr=10
+
+printf "\n\nwidth 2\n"
+for ((i = 0; i < nbr; i++))
+do
+  printf "$i / $nbr\n"
+  lein run 2 "$@" > /dev/null 2>&1
+done
+
+
+printf "\n\nwidth 4\n"
+for ((i = 0; i < nbr; i++))
+do
+  printf "$i / $nbr\n"
+  lein run 4 "$@" > /dev/null 2>&1
+done
+
+printf "\n\nwidth 8\n"
+for ((i = 0; i < nbr; i++))
+do
+  printf "$i / $nbr\n"
+  lein run 8 "$@" > /dev/null 2>&1
+done
+
+printf "\n\nwidth 16\n"
+for ((i = 0; i < nbr; i++))
+do
+  printf "$i / $nbr\n"
+  lein run 16 "$@" > /dev/null 2>&1
+done
+
+printf "\n\nwidth 32\n"
+for ((i = 0; i < nbr; i++))
+do
+  printf "$i / $nbr\n"
+  lein run 32 "$@" > /dev/null 2>&1
+done
+
+printf "\n\nwidth 64\n"
+for ((i = 0; i < nbr; i++))
+do
+  printf "$i / $nbr\n"
+  lein run 64 "$@" > /dev/null 2>&1
+done
+
+printf "\n\nwidth 128\n"
+for ((i = 0; i < nbr; i++))
+do
+  printf "$i / $nbr\n"
+  lein run 128 "$@" > /dev/null 2>&1
+done
+
+printf "\n\nwidth 256\n"
+for ((i = 0; i < nbr; i++))
+do
+  printf "$i / $nbr\n"
+  lein run 256 "$@" > /dev/null 2>&1
+done
+
+printf "\n\nwidth 512\n"
+for ((i = 0; i < nbr; i++))
+do
+  printf "$i / $nbr\n"
+  lein run 512 "$@" > /dev/null 2>&1
+done
+
+printf "\n\nwidth 1024\n"
+for ((i = 0; i < nbr; i++))
+do
+  printf "$i / $nbr\n"
+  lein run 1024 "$@" > /dev/null 2>&1
+done

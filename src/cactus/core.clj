@@ -1,5 +1,6 @@
 (ns cactus.core
   (:gen-class)
+
   (:require
 
    [clojure.core.async
@@ -22,8 +23,21 @@
       :refer [sw-cell sw-cell-printing align-actor controller-actor fanout-actor stripe-actor]
       ]
 
+      [cactus.matrix
+      :as matrix
+      :refer [cm]
+      ]
+
      )
    )
+(import java.util.Date)
+
+(defn append-to-file
+  "Uses spit to append to a file specified with its name as a string, or
+   anything else that writer can take as an argument.  s is the string to
+   append."
+  [file-name s]
+  (spit file-name s :append true))
 
 (defentity feed-one [send] [] ==> [out]
   (defstate [fired true])
@@ -36,9 +50,15 @@
 
   )
 
-(defentity pe [] [in-0 in-1] ==> []
-  (defaction in-0 [token0] in-1 [token1] ==>
-      (println token0 token1)
+(defentity finnish-line [width A-len B-len] [in] ==> []
+  (defstate [index 0 target (* A-len (/ B-len width) )])
+  (defaction in [r] ==>
+    (-- index (inc @index))
+    (when (= @index @target)
+      (def date (.getTime (java.util.Date.)))
+      (append-to-file "res.txt" (str "\n" date ))
+      (System/exit 0)
+      )
     )
   )
 
@@ -56,39 +76,6 @@
       (println prefix token)
     )
   )
-
-; (defentity endpoint [s] [] ==> []
-;   (println s)
-;   (defaction ==>
-;     )
-;   )
-;
-; (def endpoint  (endpoint ))
-
-; (defentity nw [] [in] ==> [out]
-;   (defaction in [n] ==>
-;     (defnetwork
-;       (let [incrementers (for [i (range n)] (incr i ))
-;             pr (printer )
-;             feed (feed-one 0 )
-;             out-a (endpoint "nice")
-;             ]
-;
-;             (concat
-;               (list
-;                 (con (feed out) ((nth incrementers 0 nil) in) )
-;
-;                 )
-;
-;               (for [i (range (dec n))]
-;                   (con ((nth incrementers i nil) out) ((nth incrementers (inc i) nil) in) )
-;                 )
-;                 (list   (con ((nth incrementers (dec n) nil) out) (out-a out)))
-;               )
-;             )
-;         )
-;     )
-;   )
 
 (defentity relay [] [in] ==> [out]
   (defaction in [a] ==>
@@ -147,6 +134,38 @@
     )
   )
 
+(defentity verifying-cell [cm A-len B-len width] [in] ==> []
+  (defstate [row 0 col 0])
+  (defaction in [r] ==>
+    (if (= A-len @row)
+      (do
+        (-- row 0)
+        (-- col (+ @col width))
+        )
+      (do
+        ;(-- col (+ col (count r)))
+        )
+        )
+      (doseq [i (range (count r))]
+        (if (= (nth r i) (nth (nth cm @row) (+ @col i)))
+          (do
+            (println "This element was correct" @row (+ @col i) )
+            ; (println "from the matrix" (nth (nth cm @row) (+ @col i)))
+            ; (println "From the circuit" (nth r i))
+            )
+          (do
+            (println "This element was incorrect" @row (+ @col i))
+            ; (println "from the matrix" (nth (nth cm @row) (+ @col i)))
+            ; (println "From the circuit" (nth r i))
+            )
+          )
+        )
+
+      (-- row (inc @row))
+
+    )
+  )
+
 (defentity has-init-tokens [] [] ==> []
   (defstate [f false])
   (defaction ==> (guard @f)
@@ -154,37 +173,28 @@
     )
   )
 
-; (defentity collector-cell-end [] [score vector] ==> [out]
-;   (defaction score [s] vector [res] ==>
-;     (println "The row is: " (conj res s))
-;     (>>! out (conj res s))
-;     )
-;   )
+(defn parse-int [s]
+  (Integer/parseInt (re-find #"\A-?\d+" s)))
+
 
 
 (defn -main  [& args]
+  ; TODO:
+  ; 1. make a verifyer and check that the algorithm is correct
+  ; 2. Create a bashscript that runs all the tests
+  ; 3. Run the tests and start writing on the report
+  ; 4. Done
+  ;(println "started")
+  (def A "JULYTWUXOMEMHWXUGLSZHDDFCDUMKYDHHJCLUBWQAODCRPPLXCSZLZXYAEQMPDFHYOVHOBPXQAUZMTVNOFPVRZZMDIASFRDTMNNSYNDTTTSVKHYCPRAWGIAOLSHUGFIM");Kan vara vilken som helst
+  (def B "YAAVGENJBQQDBGWKKLRZVDXDHGEIZYWVALFFDGONHRTEJTQNCUAUBUDJKINCCQTCKIGFZDBXLGOUSFNPKUMIOMHRIULMYQHUNKFWBDROILKYFUMUCMWUITUGQDSZFDQJTCGXEQMGJLDJQQSGEVHSJVKGZKRVBKAPGBJSRQXQZVDPYNIMNSXDSSLFKIDODOPRVYXMYIOGMKLNTSASQPYZUTHZZZGOWBKUDCCXESEWSASGJFHMIVOGWUEDVUKOXFYQUDCFZLTXSYVJECNNWGMEMLZSFCIMMUKLXPAUISDPCXXCOPUTPAOBRLKRVEHCOEKMJDDBPIFSCRUKTJINVSEXFFGSDBQDKHTVQNTDTHVZBQEITILBXTPWRMSCOEXBGQSQINLRCCVYKYSERGXZEXRQJUTHTTCKNSFRPZDYOXRUQTTZKXQLILXIRALPSWYPHCKHXUIJWNYKJNJIOMZMKRCEBHFJVOILKFJDJEKHHADWVWOIRREXYCWDLMDLTZCFFERXFVHKXDZQWKUQFIJSSMZKDQAWEVIYTSBNLARVBOUHWVEVNERRPDCKNHECQPCVPKKRWYJDUYXYHECFZITDOXUURBOEAWDHXFQBJXWLKVXTARWUSISKLOEHKWVKBRWJIQCQVBGUZFSUKDMOOACOSWYVXPDXGELOAMRJQPOPKLRTJAHVLRSJAWRXKICUHYJORXNXDWEHUKDYADPBFGPYXMWDGAEBPFULOKAINLASSYGPMYWJMGWSBITDMKHSOADTRXJUTMXFFTVCZCULPQEQALTUXPAYZDGVQKZGORWNMWNSCYSOPLNFKXIWVTPEEBUXYTDSCAMTJZXJWXFZZAXRUWTJVKSOPEBXJLWMDALSFKBFZPCKSXZEBTONMSYZKBUANQNPLEZRIGDMGLDYKWPDKHVBPWFRSUNBOQGFXIREEYZAOAEMIXKLVUPZEXNSFOFNDLNEUTBIKUYQJLVPVIWIARYOSJNOIBRITDWDVJEZCIPPLWBCEZCQLJXBIVLTWNTMXCHE") ;En multipppel av width
+  ;The size of the strings are A: 128 * B: 1024
 
-  ; (exec-network
-  ;   (let [feed (feed-one "19759823042038457923845")
-  ;         nw1 (nw1 )
-  ;         pr (printer )
-  ;         ]
-  ;
-  ;         (list
-  ;           (con (feed out) (nw1 in))
-  ;           (con (nw1 output) (pr in))
-  ;           )
-  ;     )
-  ;   )
-  (println "started")
-  (def A "JAKFDLSDMFF");Kan vara vilken som helst
-  (def B "RLEXXGYEAZYTYMPRJKPSXGWYLKBBGSDXAHFTGWCJRJDJKEDC") ;En multipppel av width
-  (def width 6)
+  
+  (def width (parse-int (first args)) ) ; The current length is 128
 
-  (def n 1)
 
-  (println "B length " (count B))
-  (println "A length " (count A))
+  ; (println "B length " (count B))
+  ; (println "A length " (count A))
 
   (defentity fanout-cell [] [in] ==> [sw-out next-fo]
     (defaction in [char] ==>
@@ -202,30 +212,19 @@
       )
     )
 
-; (defentity sw-cell [a-length] [a-chan b-chan west] ==> [value aligner-value]
-
   (exec-network
     (let [controller (controller-actor A B width)
           sp-cells (for [i (range width)] (stripe-cell (count A)) )
           fo-cells (for [i (range width)] (fanout-cell ) )
           sw-cells (for [i (range width)] (sw-cell (count A)) )
           col-cells (for [i (range width)] (collector-cell ))
+          end (finnish-line width (count A) (count B) )
+          ;end (verifying-cell cm (count A) (count B) width)
+          ;end (printer "Row is: ")
           init (has-init-tokens )
 
-
-          b (for [i (range width)] (buf ) )
-          b0 (for [i (range width)] (buf ) )
-          b1 (for [i (range width)] (buf ) )
-          printers0 (for [i (range width)] (printer "From the sw-cells :" ) )
-
           buffer (buf )
-          buffer0 (buf )
           b1000 (buf )
-          pr0 (printer "From the last sp cell")
-          pr1 (printer "The row is: ")
-          pr2 (printer "The last sw cell aligner value")
-          ; stripe (stripe-actor (count A))
-          ; fanout (fanout-actor )
           ]
 
           (concat
@@ -278,14 +277,6 @@
             (con ((nth sw-cells i) value) ((nth sw-cells (inc i )) west) )
             )
 
-          ; (for [i (range (dec width))]
-          ;   (con ((nth sw-cells i) aligner-value) ((nth b0 (inc i )) in) )
-          ;   )
-          ;
-          ; (list
-          ;   (con ((nth sw-cells (dec width)) aligner-value) (pr1 in) )
-          ;   )
-
           (for [i (range width)]
             (con ((nth sw-cells i) aligner-value) ((nth col-cells i) score) )
             )
@@ -299,115 +290,11 @@
             )
 
           (list
-            (con ((nth col-cells (dec width)) out) (pr1 in))
+            (con ((nth col-cells (dec width)) out) (end in))
             )
 
         )
       )
       )
 
-
-
-  ; (exec-network
-  ;   (let [controller (controller-actor A B width)
-  ;         stripe (stripe-actor (count A))
-  ;         fanout (fanout-actor )
-  ;
-  ;         swcells (for [i (range n)] (sw-cell (count A)) )
-  ;
-  ;         sw-end (sw-cell-printing (count A) (* (/ (count B) width ) (count A)) )
-  ;
-  ;         ; sw0 (sw-cell (count A))
-  ;         ; sw1 (sw-cell (count A))
-  ;         ; sw2 (sw-cell (count A))
-  ;         ; sw3 (sw-cell-printing (count A) (* (/ (count B) width ) (count A)) )
-  ;
-  ;         aligner (align-actor A B width)
-  ;        ]
-  ;
-  ;        (concat
-  ;
-  ;        (for [i (range (count swcells))]
-  ;          (con (stripe (symbol (str "chan-" i))) ((nth swcells i nil) b-chan) )
-  ;        )
-  ;
-  ;        (for [i (range (count swcells))]
-  ;          (con (fanout (symbol (str "chan-" i))) ((nth swcells i nil) a-chan) )
-  ;        )
-  ;
-  ;        (list
-  ;          (con (stripe chan-3) (sw-end b-chan) )
-  ;          )
-  ;
-  ;        (list
-  ;          (con (fanout chan-3) (sw-end a-chan) )
-  ;          )
-  ;
-  ;        (list
-  ;         (con (controller chan-contr-fan-a) (fanout in-chan) )
-  ;         (con (controller chan-stripe) (stripe b-chan) )
-  ;
-  ;
-  ;         ; (con (stripe chan-0) (sw0 b-chan) )
-  ;         ; (con (stripe chan-1) (sw1 b-chan) )
-  ;         ; (con (stripe chan-2) (sw2 b-chan) )
-  ;         ; (con (stripe chan-3) (sw3 b-chan) )
-  ;
-  ;         ; (con (fanout chan-0) (sw0 a-chan) )
-  ;         ; (con (fanout chan-1) (sw1 a-chan) )
-  ;         ; (con (fanout chan-2) (sw2 a-chan) )
-  ;         ; (con (fanout chan-3) (sw3 a-chan) )
-  ;
-  ;         (con ((nth swcells 0 nil) value) ((nth swcells 1 nil) west) )
-  ;         (con ((nth swcells 1 nil) value) ((nth swcells 2 nil) west) )
-  ;         (con ((nth swcells 2 nil) value) (sw-end west) )
-  ;         (con (sw-end value) ((nth swcells 0 nil) west) {:initial-tokens (vec (repeat (count A) 0))} )
-  ;
-  ;         ; (con (sw0 value) (sw1 west) )
-  ;         ; (con (sw1 value) (sw2 west) )
-  ;         ; (con (sw2 value) (sw3 west) )
-  ;         ; (con (sw3 value) (sw0 west) {:initial-tokens (vec (repeat (count A) 0))} )
-  ;
-  ;
-  ;         ; (con (sw0 aligner-value) (aligner chan-0))
-  ;         ; (con (sw1 aligner-value) (aligner chan-1))
-  ;         ; (con (sw2 aligner-value) (aligner chan-2))
-  ;         ; (con (sw3 aligner-value) (aligner chan-3))
-  ;       )
-  ;
-  ;       (for [i (range (count swcells))]
-  ;         (con ((nth swcells i nil) aligner-value) (aligner (symbol (str "chan-" i)) ))
-  ;       )
-  ;
-  ;       (list
-  ;         (con (sw-end aligner-value) (aligner chan-3))
-  ;         )
-  ;
-  ;       )
-  ;
-  ;     )
-  ;   )
-
-   ;(def n 20000)
-   ; (exec-network
-   ;   (let [incrementers (for [i (range n)] (incr i ))
-   ;         pr (printer )
-   ;         feed (feed-one 0 )
-   ;         ]
-   ;
-   ;         (concat
-   ;           (list
-   ;             (con (feed out) ((nth incrementers 0 nil) in) )
-   ;
-   ;             )
-   ;
-   ;           (for [i (range (dec n))]
-   ;               (con ((nth incrementers i nil) out) ((nth incrementers (inc i) nil) in) )
-   ;             )
-   ;             (list   (con ((nth incrementers (dec n) nil) out) (pr in)))
-   ;           )
-   ;         )
-   ;     )
-
-  ;(go (println (<! c)))
   (while true))
