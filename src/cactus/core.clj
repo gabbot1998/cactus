@@ -27,6 +27,7 @@
       :as matrix
       :refer [cm]
       ]
+      [clojure.string :as str]
 
      )
    )
@@ -176,126 +177,46 @@
 (defn parse-int [s]
   (Integer/parseInt (re-find #"\A-?\d+" s)))
 
+(defn mean-pairs [list]
+  (loop [first (Long/valueOf (nth list 0))
+         second (Long/valueOf (nth list 1))
+         rest-list list
+         accumulator 0
+         number 10
+        ]
 
+        (if (= number 1)
+          (println (double (/ accumulator 10)))
+          (recur (Long/valueOf (nth (rest (rest rest-list)) 0)) (Long/valueOf (nth (rest (rest rest-list)) 1)) (rest (rest rest-list)) (+ accumulator (- second first)) (dec number))
+          )
+    )
+  )
 
 (defn -main  [& args]
-  ; TODO:
-  ; 1. make a verifyer and check that the algorithm is correct
-  ; 2. Create a bashscript that runs all the tests
-  ; 3. Run the tests and start writing on the report
-  ; 4. Done
-  ;(println "started")
-  (def A "JULYTWUXOMEMHWXUGLSZHDDFCDUMKYDHHJCLUBWQAODCRPPLXCSZLZXYAEQMPDFHYOVHOBPXQAUZMTVNOFPVRZZMDIASFRDTMNNSYNDTTTSVKHYCPRAWGIAOLSHUGFIM");Kan vara vilken som helst
-  (def B "YAAVGENJBQQDBGWKKLRZVDXDHGEIZYWVALFFDGONHRTEJTQNCUAUBUDJKINCCQTCKIGFZDBXLGOUSFNPKUMIOMHRIULMYQHUNKFWBDROILKYFUMUCMWUITUGQDSZFDQJTCGXEQMGJLDJQQSGEVHSJVKGZKRVBKAPGBJSRQXQZVDPYNIMNSXDSSLFKIDODOPRVYXMYIOGMKLNTSASQPYZUTHZZZGOWBKUDCCXESEWSASGJFHMIVOGWUEDVUKOXFYQUDCFZLTXSYVJECNNWGMEMLZSFCIMMUKLXPAUISDPCXXCOPUTPAOBRLKRVEHCOEKMJDDBPIFSCRUKTJINVSEXFFGSDBQDKHTVQNTDTHVZBQEITILBXTPWRMSCOEXBGQSQINLRCCVYKYSERGXZEXRQJUTHTTCKNSFRPZDYOXRUQTTZKXQLILXIRALPSWYPHCKHXUIJWNYKJNJIOMZMKRCEBHFJVOILKFJDJEKHHADWVWOIRREXYCWDLMDLTZCFFERXFVHKXDZQWKUQFIJSSMZKDQAWEVIYTSBNLARVBOUHWVEVNERRPDCKNHECQPCVPKKRWYJDUYXYHECFZITDOXUURBOEAWDHXFQBJXWLKVXTARWUSISKLOEHKWVKBRWJIQCQVBGUZFSUKDMOOACOSWYVXPDXGELOAMRJQPOPKLRTJAHVLRSJAWRXKICUHYJORXNXDWEHUKDYADPBFGPYXMWDGAEBPFULOKAINLASSYGPMYWJMGWSBITDMKHSOADTRXJUTMXFFTVCZCULPQEQALTUXPAYZDGVQKZGORWNMWNSCYSOPLNFKXIWVTPEEBUXYTDSCAMTJZXJWXFZZAXRUWTJVKSOPEBXJLWMDALSFKBFZPCKSXZEBTONMSYZKBUANQNPLEZRIGDMGLDYKWPDKHVBPWFRSUNBOQGFXIREEYZAOAEMIXKLVUPZEXNSFOFNDLNEUTBIKUYQJLVPVIWIARYOSJNOIBRITDWDVJEZCIPPLWBCEZCQLJXBIVLTWNTMXCHE") ;En multipppel av width
-  ;The size of the strings are A: 128 * B: 1024
+  (def s (slurp "res.txt"))
+  (def sp (filter (fn [x] (not= "" x)) (str/split s #"\n")))
+  (def s1 (take 20 sp))
+  (def s2 (take 20 (drop 20 sp)))
+  (def s3 (take 20 (drop 40 sp)))
+  (def s4 (take 20 (drop 60 sp)))
+  (def s5 (take 20 (drop 80 sp)))
+  (def s6 (take 20 (drop 100 sp)))
+  (def s7 (take 20 (drop 120 sp)))
+  (def s8 (take 20 (drop 140 sp)))
+  (def s9 (take 20 (drop 160 sp)))
+  (def s10 (take 20 (drop 180 sp)))
 
-
-  (def width (parse-int (first args)) ) ; The current length is 128
-
-
-  ; (println "B length " (count B))
-  ; (println "A length " (count A))
-
-  (defentity fanout-cell [] [in] ==> [sw-out next-fo]
-    (defaction in [char] ==>
-      (>>! sw-out char)
-      (>>! next-fo char)
-      )
-    )
-
-  (defentity stripe-cell [a-length] [vec] ==> [vec-out char]
-    (defaction vec [x] ==>
-      (>>! vec-out (rest x))
-      (doseq [i (range a-length)]
-        (>>! char (first x))
-        )
-      )
-    )
-
-  (exec-network
-    (let [controller (controller-actor A B width)
-          sp-cells (for [i (range width)] (stripe-cell (count A)) )
-          fo-cells (for [i (range width)] (fanout-cell ) )
-          sw-cells (for [i (range width)] (sw-cell (count A)) )
-          col-cells (for [i (range width)] (collector-cell ))
-          end (finnish-line width (count A) (count B) )
-          ;end (verifying-cell cm (count A) (count B) width)
-          ;end (printer "Row is: ")
-          init (has-init-tokens )
-
-          buffer (buf )
-          b1000 (buf )
-          ]
-
-          (concat
-
-          (list
-            (con (controller chan-stripe) ((nth sp-cells 0) vec) )
-            (con (controller chan-contr-fan-a) ((nth fo-cells 0) in) )
-            )
-
-          (for [i (range (dec width))]
-            (con ((nth sp-cells i) vec-out) ((nth sp-cells (inc i)) vec))
-            )
-
-          (list
-            (con ((nth sp-cells (dec width)) vec-out) (b1000 in))
-            )
-
-
-
-
-          (for [i (range (dec width))]
-            (con ((nth fo-cells i) next-fo) ((nth fo-cells (inc i )) in) )
-            )
-
-          (list
-            (con ((nth fo-cells (dec width)) next-fo) (buffer in) )
-            )
-
-
-
-
-          ;connectig the fo cells to the sw cells
-          (for [i (range width)]
-            (con ((nth fo-cells i) sw-out) ((nth sw-cells i) a-chan) )
-            )
-
-          ;Connecting the sp cells to the sw cells
-          (for [i (range width)]
-            (con ((nth sp-cells i) char) ((nth sw-cells i) b-chan) )
-            )
-
-
-
-          ;Connectig the sw cells to eachother
-          (list
-            (con ((nth sw-cells (dec width)) value) ((nth sw-cells 0) west) {:initial-tokens (vec (repeat (count A) 0))})
-            )
-
-          (for [i (range (dec width))]
-            (con ((nth sw-cells i) value) ((nth sw-cells (inc i )) west) )
-            )
-
-          (for [i (range width)]
-            (con ((nth sw-cells i) aligner-value) ((nth col-cells i) score) )
-            )
-
-          (list
-            (con (init out) ((nth col-cells 0) vector) {:initial-tokens (vec (repeat (* (/ (count B) width) (count A)) []))})
-            )
-
-          (for [i (range (dec width))]
-            (con ((nth col-cells i) out) ((nth col-cells (inc i)) vector))
-            )
-
-          (list
-            (con ((nth col-cells (dec width)) out) (end in))
-            )
-
-        )
-      )
-      )
+  (mean-pairs s1)
+  (mean-pairs s2)
+  (mean-pairs s3)
+  (mean-pairs s4)
+  (mean-pairs s5)
+  (mean-pairs s6)
+  (mean-pairs s7)
+  (mean-pairs s8)
+  (mean-pairs s9)
+  (mean-pairs s10)
+  ;(println s2)
 
   (while true)
   )
