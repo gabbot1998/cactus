@@ -1,76 +1,84 @@
 #!/bin/bash
 trap "exit" INT
 
-printf "Started the script. Running with width 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024"
-nbr=10
+printf "Starting the tests with: 4, 8, 16, 32, 64, 128, 1024, 2048 threads."
 
-printf "\n\nwidth 2\n"
-for ((i = 0; i < nbr; i++))
-do
-  printf "$i / $nbr\n"
-  lein run 2 "$@" > /dev/null 2>&1
-done
+printf "\n\n4 threads\n"
 
+rm threads.txt
+echo "4" >> threads.txt
+./helper
 
-printf "\n\nwidth 4\n"
-for ((i = 0; i < nbr; i++))
-do
-  printf "$i / $nbr\n"
-  lein run 4 "$@" > /dev/null 2>&1
-done
+mv res.txt 4th.txt
 
-printf "\n\nwidth 8\n"
-for ((i = 0; i < nbr; i++))
-do
-  printf "$i / $nbr\n"
-  lein run 8 "$@" > /dev/null 2>&1
-done
+printf "\n\n8 threads\n"
 
-printf "\n\nwidth 16\n"
-for ((i = 0; i < nbr; i++))
-do
-  printf "$i / $nbr\n"
-  lein run 16 "$@" > /dev/null 2>&1
-done
+rm threads.txt
+echo "8" >> threads.txt
+./helper
 
-printf "\n\nwidth 32\n"
-for ((i = 0; i < nbr; i++))
-do
-  printf "$i / $nbr\n"
-  lein run 32 "$@" > /dev/null 2>&1
-done
+mv res.txt 8th.txt
 
-printf "\n\nwidth 64\n"
-for ((i = 0; i < nbr; i++))
-do
-  printf "$i / $nbr\n"
-  lein run 64 "$@" > /dev/null 2>&1
-done
+printf "\n\n16 threads\n"
 
-printf "\n\nwidth 128\n"
-for ((i = 0; i < nbr; i++))
-do
-  printf "$i / $nbr\n"
-  lein run 128 "$@" > /dev/null 2>&1
-done
+rm threads.txt
+echo "16" >> threads.txt
+./helper
 
-printf "\n\nwidth 256\n"
-for ((i = 0; i < nbr; i++))
-do
-  printf "$i / $nbr\n"
-  lein run 256 "$@" > /dev/null 2>&1
-done
+mv res.txt 16th.txt
 
-printf "\n\nwidth 512\n"
-for ((i = 0; i < nbr; i++))
-do
-  printf "$i / $nbr\n"
-  lein run 512 "$@" > /dev/null 2>&1
-done
+printf "\n\n32 threads\n"
 
-printf "\n\nwidth 1024\n"
-for ((i = 0; i < nbr; i++))
-do
-  printf "$i / $nbr\n"
-  lein run 1024 "$@" > /dev/null 2>&1
-done
+rm threads.txt
+echo "32" >> threads.txt
+./helper
+
+mv res.txt 32th.txt
+
+printf "\n\n64 threads\n"
+
+rm threads.txt
+echo "64" >> threads.txt
+./helper
+
+mv res.txt 64th.txt
+
+printf "\n\n128 threads\n"
+
+rm threads.txt
+echo "128" >> threads.txt
+./helper
+
+mv res.txt 128th.txt
+
+printf "\n\n256 threads\n"
+
+rm threads.txt
+echo "256" >> threads.txt
+./helper
+
+mv res.txt 256th.txt
+
+printf "\n\n512 threads\n"
+
+rm threads.txt
+echo "512" >> threads.txt
+./helper
+
+mv res.txt 512th.txt
+
+printf "\n\n1024 threads\n"
+
+rm threads.txt
+echo "1024" >> threads.txt
+./helper
+
+mv res.txt 1024th.txt
+
+printf "\n\n2048 threads\n"
+
+rm threads.txt
+echo "2048" >> threads.txt
+./helper
+
+mv res.txt 2048th.txt
