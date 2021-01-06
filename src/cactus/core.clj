@@ -218,9 +218,9 @@
           fo-cells (for [i (range width)] (fanout-cell ) )
           sw-cells (for [i (range width)] (sw-cell (count A)) )
           col-cells (for [i (range width)] (collector-cell ))
-          ;end (finnish-line width (count A) (count B) )
+          end (finnish-line width (count A) (count B) )
           ;end (verifying-cell cm (count A) (count B) width)
-          end (printer "Row is: ")
+          ;end (printer "Row is: ")
           init (has-init-tokens )
 
           buffer (buf )
