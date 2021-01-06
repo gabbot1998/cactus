@@ -10,6 +10,6 @@
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}}
-  :injections [(.. System (setProperty "clojure.core.async.pool-size" (str (first (slurp "threads.txt")))))]
+  :injections [(.. System (setProperty "clojure.core.async.pool-size" (str (clojure.string/trim (slurp "threads.txt"))) ))]
   :jvm-opts ["-Xms2m"]
                        )
