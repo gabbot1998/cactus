@@ -77,50 +77,30 @@
     )
   )
 
-(defentity relay [] [in] ==> [out]
-  (defaction in [a] ==>
-      (>>! out a)
-    )
-  )
 
-(defentity nw1 [] [in] ==> [output]
-  (defnetwork in [x] ==>
 
-      (let [feed (feed-one x)
-            rel (relay )
-            end (endport output)
-            pr (printer "")
-           ]
 
-        (list
-          (con (feed out) (rel in))
-          (con (rel out) (end out))
-          )
-
-      )
-    )
-  )
-
-(defentity nw2 [] [in] ==> [output]
-  (defaction in [x] ==>
-    (exec-network
-      (let [feed (feed-one x)
-            rel (relay )
-            end (endport output)
-            ;ending (printboi (connections-map :output))
-            pr (printer "")
-           ]
-           ;(println x)
-        ;(println  "The output is: " (connections-map :output))
-
-        (list
-          (con (feed out) (rel in))
-          (con (rel out) (end out))
-          )
-        )
-      )
-    )
-  )
+;
+; (defentity nw2 [] [in] ==> [output]
+;   (defaction in [x] ==>
+;     (exec-network
+;       (let [feed (feed-one x)
+;             rel (relay )
+;             end (endport output)
+;             ;ending (printboi (connections-map :output))
+;             pr (printer "")
+;            ]
+;            ;(println x)
+;         ;(println  "The output is: " (connections-map :output))
+;
+;         (list
+;           (con (feed out) (rel in))
+;           (con (rel out) (end out))
+;           )
+;         )
+;       )
+;     )
+;   )
 
 (defentity buf [] [in] ==> []
   (defaction in [a] ==>
@@ -166,12 +146,7 @@
     )
   )
 
-(defentity has-init-tokens [] [] ==> []
-  (defstate [f false])
-  (defaction ==> (guard @f)
 
-    )
-  )
 
 (defn parse-int [s]
   (Integer/parseInt (re-find #"\A-?\d+" s)))
@@ -179,22 +154,14 @@
 
 
 (defn -main  [& args]
-  ; TODO:
-  ; 1. make a verifyer and check that the algorithm is correct
-  ; 2. Create a bashscript that runs all the tests
-  ; 3. Run the tests and start writing on the report
-  ; 4. Done
-  ;(println "started")
-  (def A "JULYTWUXOMEMHWXUGLSZHDDFCDUMKYDHHJCLUBWQAODCRPPLXCSZLZXYAEQMPDFHYOVHOBPXQAUZMTVNOFPVRZZMDIASFRDTMNNSYNDTTTSVKHYCPRAWGIAOLSHUGFIM");Kan vara vilken som helst
-  (def B "YAAVGENJBQQDBGWKKLRZVDXDHGEIZYWVALFFDGONHRTEJTQNCUAUBUDJKINCCQTCKIGFZDBXLGOUSFNPKUMIOMHRIULMYQHUNKFWBDROILKYFUMUCMWUITUGQDSZFDQJTCGXEQMGJLDJQQSGEVHSJVKGZKRVBKAPGBJSRQXQZVDPYNIMNSXDSSLFKIDODOPRVYXMYIOGMKLNTSASQPYZUTHZZZGOWBKUDCCXESEWSASGJFHMIVOGWUEDVUKOXFYQUDCFZLTXSYVJECNNWGMEMLZSFCIMMUKLXPAUISDPCXXCOPUTPAOBRLKRVEHCOEKMJDDBPIFSCRUKTJINVSEXFFGSDBQDKHTVQNTDTHVZBQEITILBXTPWRMSCOEXBGQSQINLRCCVYKYSERGXZEXRQJUTHTTCKNSFRPZDYOXRUQTTZKXQLILXIRALPSWYPHCKHXUIJWNYKJNJIOMZMKRCEBHFJVOILKFJDJEKHHADWVWOIRREXYCWDLMDLTZCFFERXFVHKXDZQWKUQFIJSSMZKDQAWEVIYTSBNLARVBOUHWVEVNERRPDCKNHECQPCVPKKRWYJDUYXYHECFZITDOXUURBOEAWDHXFQBJXWLKVXTARWUSISKLOEHKWVKBRWJIQCQVBGUZFSUKDMOOACOSWYVXPDXGELOAMRJQPOPKLRTJAHVLRSJAWRXKICUHYJORXNXDWEHUKDYADPBFGPYXMWDGAEBPFULOKAINLASSYGPMYWJMGWSBITDMKHSOADTRXJUTMXFFTVCZCULPQEQALTUXPAYZDGVQKZGORWNMWNSCYSOPLNFKXIWVTPEEBUXYTDSCAMTJZXJWXFZZAXRUWTJVKSOPEBXJLWMDALSFKBFZPCKSXZEBTONMSYZKBUANQNPLEZRIGDMGLDYKWPDKHVBPWFRSUNBOQGFXIREEYZAOAEMIXKLVUPZEXNSFOFNDLNEUTBIKUYQJLVPVIWIARYOSJNOIBRITDWDVJEZCIPPLWBCEZCQLJXBIVLTWNTMXCHEYAAVGENJBQQDBGWKKLRZVDXDHGEIZYWVALFFDGONHRTEJTQNCUAUBUDJKINCCQTCKIGFZDBXLGOUSFNPKUMIOMHRIULMYQHUNKFWBDROILKYFUMUCMWUITUGQDSZFDQJTCGXEQMGJLDJQQSGEVHSJVKGZKRVBKAPGBJSRQXQZVDPYNIMNSXDSSLFKIDODOPRVYXMYIOGMKLNTSASQPYZUTHZZZGOWBKUDCCXESEWSASGJFHMIVOGWUEDVUKOXFYQUDCFZLTXSYVJECNNWGMEMLZSFCIMMUKLXPAUISDPCXXCOPUTPAOBRLKRVEHCOEKMJDDBPIFSCRUKTJINVSEXFFGSDBQDKHTVQNTDTHVZBQEITILBXTPWRMSCOEXBGQSQINLRCCVYKYSERGXZEXRQJUTHTTCKNSFRPZDYOXRUQTTZKXQLILXIRALPSWYPHCKHXUIJWNYKJNJIOMZMKRCEBHFJVOILKFJDJEKHHADWVWOIRREXYCWDLMDLTZCFFERXFVHKXDZQWKUQFIJSSMZKDQAWEVIYTSBNLARVBOUHWVEVNERRPDCKNHECQPCVPKKRWYJDUYXYHECFZITDOXUURBOEAWDHXFQBJXWLKVXTARWUSISKLOEHKWVKBRWJIQCQVBGUZFSUKDMOOACOSWYVXPDXGELOAMRJQPOPKLRTJAHVLRSJAWRXKICUHYJORXNXDWEHUKDYADPBFGPYXMWDGAEBPFULOKAINLASSYGPMYWJMGWSBITDMKHSOADTRXJUTMXFFTVCZCULPQEQALTUXPAYZDGVQKZGORWNMWNSCYSOPLNFKXIWVTPEEBUXYTDSCAMTJZXJWXFZZAXRUWTJVKSOPEBXJLWMDALSFKBFZPCKSXZEBTONMSYZKBUANQNPLEZRIGDMGLDYKWPDKHVBPWFRSUNBOQGFXIREEYZAOAEMIXKLVUPZEXNSFOFNDLNEUTBIKUYQJLVPVIWIARYOSJNOIBRITDWDVJEZCIPPLWBCEZCQLJXBIVLTWNTMXCHEYAAVGENJBQQDBGWKKLRZVDXDHGEIZYWVALFFDGONHRTEJTQNCUAUBUDJKINCCQTCKIGFZDBXLGOUSFNPKUMIOMHRIULMYQHUNKFWBDROILKYFUMUCMWUITUGQDSZFDQJTCGXEQMGJLDJQQSGEVHSJVKGZKRVBKAPGBJSRQXQZVDPYNIMNSXDSSLFKIDODOPRVYXMYIOGMKLNTSASQPYZUTHZZZGOWBKUDCCXESEWSASGJFHMIVOGWUEDVUKOXFYQUDCFZLTXSYVJECNNWGMEMLZSFCIMMUKLXPAUISDPCXXCOPUTPAOBRLKRVEHCOEKMJDDBPIFSCRUKTJINVSEXFFGSDBQDKHTVQNTDTHVZBQEITILBXTPWRMSCOEXBGQSQINLRCCVYKYSERGXZEXRQJUTHTTCKNSFRPZDYOXRUQTTZKXQLILXIRALPSWYPHCKHXUIJWNYKJNJIOMZMKRCEBHFJVOILKFJDJEKHHADWVWOIRREXYCWDLMDLTZCFFERXFVHKXDZQWKUQFIJSSMZKDQAWEVIYTSBNLARVBOUHWVEVNERRPDCKNHECQPCVPKKRWYJDUYXYHECFZITDOXUURBOEAWDHXFQBJXWLKVXTARWUSISKLOEHKWVKBRWJIQCQVBGUZFSUKDMOOACOSWYVXPDXGELOAMRJQPOPKLRTJAHVLRSJAWRXKICUHYJORXNXDWEHUKDYADPBFGPYXMWDGAEBPFULOKAINLASSYGPMYWJMGWSBITDMKHSOADTRXJUTMXFFTVCZCULPQEQALTUXPAYZDGVQKZGORWNMWNSCYSOPLNFKXIWVTPEEBUXYTDSCAMTJZXJWXFZZAXRUWTJVKSOPEBXJLWMDALSFKBFZPCKSXZEBTONMSYZKBUANQNPLEZRIGDMGLDYKWPDKHVBPWFRSUNBOQGFXIREEYZAOAEMIXKLVUPZEXNSFOFNDLNEUTBIKUYQJLVPVIWIARYOSJNOIBRITDWDVJEZCIPPLWBCEZCQLJXBIVLTWNTMXCHEYAAVGENJBQQDBGWKKLRZVDXDHGEIZYWVALFFDGONHRTEJTQNCUAUBUDJKINCCQTCKIGFZDBXLGOUSFNPKUMIOMHRIULMYQHUNKFWBDROILKYFUMUCMWUITUGQDSZFDQJTCGXEQMGJLDJQQSGEVHSJVKGZKRVBKAPGBJSRQXQZVDPYNIMNSXDSSLFKIDODOPRVYXMYIOGMKLNTSASQPYZUTHZZZGOWBKUDCCXESEWSASGJFHMIVOGWUEDVUKOXFYQUDCFZLTXSYVJECNNWGMEMLZSFCIMMUKLXPAUISDPCXXCOPUTPAOBRLKRVEHCOEKMJDDBPIFSCRUKTJINVSEXFFGSDBQDKHTVQNTDTHVZBQEITILBXTPWRMSCOEXBGQSQINLRCCVYKYSERGXZEXRQJUTHTTCKNSFRPZDYOXRUQTTZKXQLILXIRALPSWYPHCKHXUIJWNYKJNJIOMZMKRCEBHFJVOILKFJDJEKHHADWVWOIRREXYCWDLMDLTZCFFERXFVHKXDZQWKUQFIJSSMZKDQAWEVIYTSBNLARVBOUHWVEVNERRPDCKNHECQPCVPKKRWYJDUYXYHECFZITDOXUURBOEAWDHXFQBJXWLKVXTARWUSISKLOEHKWVKBRWJIQCQVBGUZFSUKDMOOACOSWYVXPDXGELOAMRJQPOPKLRTJAHVLRSJAWRXKICUHYJORXNXDWEHUKDYADPBFGPYXMWDGAEBPFULOKAINLASSYGPMYWJMGWSBITDMKHSOADTRXJUTMXFFTVCZCULPQEQALTUXPAYZDGVQKZGORWNMWNSCYSOPLNFKXIWVTPEEBUXYTDSCAMTJZXJWXFZZAXRUWTJVKSOPEBXJLWMDALSFKBFZPCKSXZEBTONMSYZKBUANQNPLEZRIGDMGLDYKWPDKHVBPWFRSUNBOQGFXIREEYZAOAEMIXKLVUPZEXNSFOFNDLNEUTBIKUYQJLVPVIWIARYOSJNOIBRITDWDVJEZCIPPLWBCEZCQLJXBIVLTWNTMXCHE") ;En multipppel av width
-  ;The size of the strings are A: 128 * B: 1024
 
-
-  (def width (parse-int (first args)) ) ; The current length is 128
-
-
-  ; (println "B length " (count B))
-  ; (println "A length " (count A))
+  (defentity relay-once [] [in] ==> [out]
+    (defstate [fired false])
+    (defaction in [a] ==> (guard @fired)
+        (>>! out a)
+        (-- fired true)
+      )
+    )
 
   (defentity fanout-cell [] [in] ==> [sw-out next-fo]
     (defaction in [char] ==>
@@ -203,97 +170,54 @@
       )
     )
 
-  (defentity stripe-cell [a-length] [vec] ==> [vec-out char]
-    (defaction vec [x] ==>
-      (>>! vec-out (rest x))
-      (doseq [i (range a-length)]
-        (>>! char (first x))
-        )
+  (defentity has-init-tokens [] [] ==> []
+    (defstate [f false])
+    (defaction ==> (guard @f)
+
       )
     )
 
-  (exec-network
-    (let [controller (controller-actor A B width)
-          sp-cells (for [i (range width)] (stripe-cell (count A)) )
-          fo-cells (for [i (range width)] (fanout-cell ) )
-          sw-cells (for [i (range width)] (sw-cell (count A)) )
-          col-cells (for [i (range width)] (collector-cell ))
-          end (finnish-line width (count A) (count B) )
-          ;end (verifying-cell cm (count A) (count B) width)
-          ;end (printer "Row is: ")
-          init (has-init-tokens )
+    ;TODO: Det här är en bugg. Det går inte att ha fler actions.
+  ; (defentity hej [a] [in] ==> [out]
+  ;   (defstate [v 1])
+  ;   (defaction in [x] ==> (guard (= @v 1))
+  ;     (>>! out "Action one")
+  ;     )
+  ;   (defaction in [x] ==> (guard (= x 2))
+  ;     (>>! out "Hello from action two.")
+  ;     )
+  ;   )
 
-          buffer (buf )
-          b1000 (buf )
+
+
+  ; (defentity nw1 [] [in] ==> [output]
+  ;   (defnetwork in [x] ==>
+  ;
+  ;       (let [feed (feed-one x)
+  ;             end (endport output)
+  ;             pr (printer "")
+  ;            ]
+  ;
+  ;         (list
+  ;           (con (feed out) (rel in))
+  ;           (con (rel out) (end out))
+  ;           )
+  ;
+  ;       )
+  ;     )
+  ;   )
+
+  (exec-network
+    (let [c0 (has-init-tokens )
+          c1 (hej "nej")
+          p0 (printer "")
           ]
 
-          (concat
-
           (list
-            (con (controller chan-stripe) ((nth sp-cells 0) vec) )
-            (con (controller chan-contr-fan-a) ((nth fo-cells 0) in) )
+            (con (c0 out) (c1 in) {:initial-tokens [2]})
+            (con (c1 out) (p0 in))
             )
 
-          (for [i (range (dec width))]
-            (con ((nth sp-cells i) vec-out) ((nth sp-cells (inc i)) vec))
-            )
-
-          (list
-            (con ((nth sp-cells (dec width)) vec-out) (b1000 in))
-            )
-
-
-
-
-          (for [i (range (dec width))]
-            (con ((nth fo-cells i) next-fo) ((nth fo-cells (inc i )) in) )
-            )
-
-          (list
-            (con ((nth fo-cells (dec width)) next-fo) (buffer in) )
-            )
-
-
-
-
-          ;connectig the fo cells to the sw cells
-          (for [i (range width)]
-            (con ((nth fo-cells i) sw-out) ((nth sw-cells i) a-chan) )
-            )
-
-          ;Connecting the sp cells to the sw cells
-          (for [i (range width)]
-            (con ((nth sp-cells i) char) ((nth sw-cells i) b-chan) )
-            )
-
-
-
-          ;Connectig the sw cells to eachother
-          (list
-            (con ((nth sw-cells (dec width)) value) ((nth sw-cells 0) west) {:initial-tokens (vec (repeat (count A) 0))})
-            )
-
-          (for [i (range (dec width))]
-            (con ((nth sw-cells i) value) ((nth sw-cells (inc i )) west) )
-            )
-
-          (for [i (range width)]
-            (con ((nth sw-cells i) aligner-value) ((nth col-cells i) score) )
-            )
-
-          (list
-            (con (init out) ((nth col-cells 0) vector) {:initial-tokens (vec (repeat (* (/ (count B) width) (count A)) []))})
-            )
-
-          (for [i (range (dec width))]
-            (con ((nth col-cells i) out) ((nth col-cells (inc i)) vector))
-            )
-
-          (list
-            (con ((nth col-cells (dec width)) out) (end in))
-            )
-
-        )
       )
       )
 
