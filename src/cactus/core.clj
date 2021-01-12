@@ -193,7 +193,7 @@
   )
 
 (defn -main  [& args]
-  (def s (slurp "./res/16th.txt"))
+  (def s (slurp "./jres/2048th.txt"))
   (def sp (filter (fn [x] (not= "" x)) (str/split s #"\n")))
   (def s1 (take 20 sp))
   (def s2 (take 20 (drop 20 sp)))
@@ -221,6 +221,4 @@
   (mean-pairs s11)
   (mean-pairs s12)
   ;(println s2)
-
-  (while true)
   )
